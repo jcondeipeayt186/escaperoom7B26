@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escape Room: Hackear el misterio de la red</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #071426;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        main {
+            max-width: 700px;
+            margin: 30px auto;
+            background: #10243a;
+            padding: 30px;
+            border: 2px solid #50ffad;
+            border-radius: 18px;
+            box-shadow: 0 0 20px #50ffad33;
+        }
+
+        h1 {
+            color: #50ffad;
+            font-size: 30px;
+        }
+
+        h2 {
+            color: #50ffad;
+        }
+
+        .subtitulo {
+            color: #b8cce0;
+        }
+
+        input[type="text"] {
+            width: 90%;
+            padding: 13px;
+            border-radius: 8px;
+            border: 1px solid #50ffad;
+            background: #071426;
+            color: white;
+            font-size: 16px;
+            margin: 15px 0;
+        }
+
+        button {
+            background: #50ffad;
+            color: #071426;
+            padding: 13px 22px;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #a0ffd2;
+            transform: scale(1.03);
+        }
+
+        .opcion {
+            display: block;
+            background: #193653;
+            border: 1px solid #315777;
+            border-radius: 10px;
+            padding: 13px;
+            margin: 10px 0;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .opcion:hover {
+            background: #254b68;
+        }
+
+        .opcion input {
+            margin-right: 10px;
+            accent-color: #50ffad;
+        }
+
+        .pregunta {
+            text-align: left;
+            background: #0b1c30;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .pregunta p {
+            font-weight: bold;
+            line-height: 1.5;
+        }
+
+        #mensaje {
+            min-height: 25px;
+            color: #ffcc70;
+            font-weight: bold;
+        }
+
+        .pantalla {
+            display: none;
+        }
+
+        .pantalla.activa {
+            display: block;
+            animation: aparecer 0.5s ease;
+        }
+
+        .cartel {
+            padding: 30px 15px;
+            border: 3px solid #50ffad;
+            border-radius: 15px;
+            background: #071426;
+            margin: 25px 0;
+            box-shadow: 0 0 25px #50ffad55;
+        }
+
+        .cartel h2 {
+            font-size: clamp(27px, 6vw, 43px);
+            line-height: 1.3;
+            text-shadow: 0 0 12px #50ffad77;
+        }
+
+        .cartel p {
+            font-size: 19px;
+            line-height: 1.6;
+        }
+
+        .progreso {
+            color: #50ffad;
+            font-weight: bold;
+            margin: 15px;
+        }
+
+        .final {
+            border-color: #ffd966;
+            box-shadow: 0 0 30px #ffd96655;
+        }
+
+        .final h2 {
+            color: #ffd966;
+            text-shadow: 0 0 15px #ffd96677;
+        }
+
+        .final button {
+            background: #ffd966;
+        }
+
+        @keyframes aparecer {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 500px) {
+            main {
+                padding: 18px;
+                margin: 10px auto;
+            }
+
+            h1 {
+                font-size: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<main>
+
+    <!-- PANTALLA DE INICIO -->
+    <section id="inicio" class="pantalla activa">
+        <h1>🔐 ESCAPE ROOM</h1>
+        <h2>Hackear el misterio de la red</h2>
+
+        <p class="subtitulo">
+            Superá las 5 estaciones, respondé las preguntas
+            y desbloqueá el sistema.
+        </p>
+
+        <p>Agente, ingresá tu nombre para comenzar la misión.</p>
+
+        <input
+            type="text"
+            id="nombre"
+            placeholder="Ingresá tu nombre"
+            maxlength="40"
+        >
+
+        <br>
+
+        <button onclick="iniciar()">INICIAR MISIÓN</button>
+    </section>
+
+
+    <!-- PANTALLA DE PREGUNTAS -->
+    <section id="juego" class="pantalla">
+        <h1 id="tituloEstacion"></h1>
+
+        <p id="saludo"></p>
+
+        <p class="progreso" id="progreso"></p>
+
+        <form id="formulario">
+            <div id="contenedorPreguntas"></div>
+
+            <p id="mensaje" aria-live="polite"></p>
+
+            <button type="submit">COMPROBAR RESPUESTAS</button>
+        </form>
+    </section>
+
+
+    <!-- PANTALLA DE TRANSICIÓN -->
+    <section id="transicion" class="pantalla">
+        <div class="cartel">
+            <h2>✓ ¡ESTACIÓN SUPERADA!</h2>
+
+            <p id="mensajeTransicion"></p>
+
+            <h2 id="anuncioSiguiente">
+                ¡AVANZASTE A LA SIGUIENTE ESTACIÓN!
+            </h2>
+
+            <p>El sistema te permite continuar, agente.</p>
+        </div>
+
+        <button onclick="continuar()">CONTINUAR ➜</button>
+    </section>
+
+
+    <!-- PANTALLA FINAL -->
+    <section id="final" class="pantalla">
+        <div class="cartel final">
+            <h2>🏆 ¡MISIÓN COMPLETADA!</h2>
+
+            <h1 style="color: #ffd966;">
+                ¡FELICITACIONES!
+            </h1>
+
+            <p id="mensajeFinal"></p>
+
+            <p>
+                🔓 SISTEMA DESBLOQUEADO
+                <br>
+                Todas las estaciones fueron superadas.
+            </p>
+        </div>
+
+        <button onclick="location.reload()">
+            VOLVER A JUGAR
+        </button>
+    </section>
+
+</main>
+
+
+<script>
+    const estaciones = [
+        {
+            titulo: "ESTACIÓN 1: REDES",
+            preguntas: [
+                {
+                    texto: "¿Qué significa IP?",
+                    opciones: [
+                        "Internet Personal",
+                        "Internet Protocol",
+                        "Información Privada"
+                    ],
+                    correcta: 1
+                },
+                {
+                    texto: "¿Qué dispositivo conecta diferentes redes?",
+                    opciones: [
+                        "Teclado",
+                        "Router",
+                        "Monitor"
+                    ],
+                    correcta: 1
+                },
+                {
+                    texto: "¿Qué es una red informática?",
+                    opciones: [
+                        "Un conjunto de dispositivos conectados",
+                        "Un programa para dibujar",
+                        "Una pieza de la computadora"
+                    ],
+                    correcta: 0
+                },
+                {
+                    texto: "¿Qué se necesita para conectarse a una red Wi-Fi?",
+                    opciones: [
+                        "Una contraseña, si está protegida",
+                        "Un cable HDMI obligatoriamente",
+                        "Una impresora"
+                    ],
+                    correcta: 0
+                }
+            ]
+        },
+
+        {
+            titulo: "ESTACIÓN 2: HARDWARE",
+            preguntas: [
+                {
+                    texto: "¿Qué componente es considerado el cerebro de la computadora?",
+                    opciones: [
+                        "Motherboard",
+                        "El procesador",
+                        "Memoria RAM"
+                    ],
+                    correcta: 1
+                },
+                {
+                    texto: "¿Cuál es un dispositivo de entrada?",
+                    opciones: [
+                        "Monitor",
+                        "Parlante",
+                        "Teclado"
+                    ],
+                    correcta: 2
+                },
+                {
+                    texto: "¿Para qué sirve la memoria RAM?",
+                    opciones: [
+                        "Guardar datos temporalmente mientras se trabaja",
+                        "Imprimir documentos",
+                        "Proteger físicamente la pantalla"
+                    ],
+                    correcta: 0
+                },
+                {
+                    texto: "¿Cuál es un dispositivo de salida?",
+                    opciones: [
+                        "Ratón",
+                        "Micrófono",
+                        "Monitor"
+                    ],
+                    correcta: 2
+                }
+            ]
+        },
+
+        {
+            titulo: "ESTACIÓN 3: INTERNET",
+            preguntas: [
+                {
+                    texto: "¿Qué es un navegador web?",
+                    opciones: [
+                        "Un programa para visitar páginas web",
+                        "Una parte del procesador",
+                        "Un cable de red"
+                    ],
+                    correcta: 0
+                },
+                {
+                    texto: "¿Cuál de estos es un navegador web?",
+                    opciones: [
+                        "Google Chrome",
+                        "Windows",
+                        "Office"
+                    ],
+                    correcta: 0
+                },
+                {
+                    texto: "¿Qué significa URL?",
+                    opciones: [
+                        "Una dirección de un recurso en Internet",
+                        "Una memoria de computadora",
+                        "Un tipo de teclado"
+                    ],
+                    correcta: 0
+                },
+                {
+                    texto: "¿Qué necesitás para acceder a un sitio web público en Internet?",
+                    opciones: [
+                        "Una conexión a Internet",
+                        "Un escáner obligatoriamente",
+                        "Un pendrive siempre"
+                    ],
+                    correcta: 0
+                }
+            ]
+        },
+
+        {
+            titulo: "ESTACIÓN 4: CIBERSEGURIDAD",
+            preguntas: [
+                {
+                    texto: "¿Cómo debe ser una contraseña segura?",
+                    opciones: [
+                        "123456",
+                        "Tu nombre solamente",
+                        "Larga y difícil de adivinar"
+                    ],
+                    correcta: 2
+                },
+                {
+                    texto: "¿Qué deberías hacer con un enlace sospechoso?",
+                    opciones: [
+                        "Abrirlo inmediatamente",
+                        "Evitar abrirlo y verificar su origen",
+                        "Compartirlo con todos"
+                    ],
+                    correcta: 1
+                },
+                {
+                    texto: "¿Qué es el phishing?",
+                    opciones: [
+                        "Un intento de engaño para robar información",
+                        "Un programa para editar fotos",
+                        "Una clase de monitor"
+                    ],
+                    correcta: 0
+                },
+                {
+                    texto: "¿Qué conviene hacer con tus contraseñas?",
+                    opciones: [
+                        "Compartirlas con desconocidos",
+                        "Usar la misma en todos lados",
+                        "Mantenerlas privadas"
+                    ],
+                    correcta: 2
+                }
+            ]
+        },
+
+        {
+            titulo: "ESTACIÓN 5: SISTEMAS OPERATIVOS",
+            preguntas: [
+                {
+                    texto: "¿Qué es un sistema operativo?",
+                    opciones: [
+                        "El software que administra la computadora",
+                        "Un cable de alimentación",
+                        "Una aplicación para dibujar solamente"
+                    ],
+                    correcta: 0
+                },
+                {
+                    texto: "¿Cuál de estos es un sistema operativo?",
+                    opciones: [
+                        "Microsoft Word",
+                        "Windows",
+                        "Google Chrome"
+                    ],
+                    correcta: 1
+                },
+                {
+                    texto: "¿Para qué sirve un sistema operativo?",
+                    opciones: [
+                        "Administrar recursos y permitir ejecutar programas",
+                        "Solo para cambiar el color del monitor",
+                        "Solo para escribir documentos"
+                    ],
+                    correcta: 0
+                },
+                {
+                    texto: "¿Cuál de estos es un sistema operativo para celulares?",
+                    opciones: [
+                        "Android",
+                        "PowerPoint",
+                        "Excel"
+                    ],
+                    correcta: 0
+                }
+            ]
+        }
+    ];
+
+    let estacionActual = 0;
+    let nombreAgente = "";
+    let puntajeTotal = 0;
+    let puntajeEstacion = 0;
+
+    function mostrarPantalla(id) {
+        document.querySelectorAll(".pantalla").forEach(function(pantalla) {
+            pantalla.classList.remove("activa");
+        });
+
+        document.getElementById(id).classList.add("activa");
+    }
+
+    function iniciar() {
+        const campoNombre = document.getElementById("nombre");
+        nombreAgente = campoNombre.value.trim();
+
+        if (nombreAgente === "") {
+            campoNombre.focus();
+            alert("Ingresá tu nombre para comenzar la misión.");
+            return;
+        }
+
+        estacionActual = 0;
+        puntajeTotal = 0;
+
+        cargarEstacion();
+        mostrarPantalla("juego");
+    }
+
+    function cargarEstacion() {
+        const estacion = estaciones[estacionActual];
+
+        document.getElementById("tituloEstacion").textContent =
+            estacion.titulo;
+
+        document.getElementById("saludo").textContent =
+            "Agente " + nombreAgente + ", completá el desafío.";
+
+        document.getElementById("progreso").textContent =
+            "ESTACIÓN " + (estacionActual + 1) +
+            " DE " + estaciones.length;
+
+        document.getElementById("mensaje").textContent = "";
+
+        const contenedor =
+            document.getElementById("contenedorPreguntas");
+
+        contenedor.replaceChildren();
+
+        estacion.preguntas.forEach(function(pregunta, indice) {
+            const bloque = document.createElement("div");
+            bloque.className = "pregunta";
+
+            const titulo = document.createElement("p");
+            titulo.textContent =
+                (indice + 1) + ". " + pregunta.texto;
+
+            bloque.appendChild(titulo);
+
+            pregunta.opciones.forEach(function(opcion, numero) {
+                const etiqueta = document.createElement("label");
+                etiqueta.className = "opcion";
+
+                const radio = document.createElement("input");
+                radio.type = "radio";
+                radio.name = "pregunta" + indice;
+                radio.value = numero;
+                radio.required = numero === 0;
+
+                etiqueta.appendChild(radio);
+                etiqueta.appendChild(
+                    document.createTextNode(opcion)
+                );
+
+                bloque.appendChild(etiqueta);
+            });
+
+            contenedor.appendChild(bloque);
+        });
+    }
+
+    document.getElementById("formulario").addEventListener(
+        "submit",
+        function(event) {
+            event.preventDefault();
+
+            const estacion = estaciones[estacionActual];
+            let aciertos = 0;
+
+            for (let i = 0; i < estacion.preguntas.length; i++) {
+                const seleccionada = document.querySelector(
+                    'input[name="pregunta' + i + '"]:checked'
+                );
+
+                if (!seleccionada) {
+                    document.getElementById("mensaje").textContent =
+                        "Respondé todas las preguntas antes de continuar.";
+                    return;
+                }
+
+                if (
+                    Number(seleccionada.value) ===
+                    estacion.preguntas[i].correcta
+                ) {
+                    aciertos++;
+                }
+            }
+
+            if (aciertos !== estacion.preguntas.length) {
+                document.getElementById("mensaje").textContent =
+                    "Obtuviste " + aciertos + " de " +
+                    estacion.preguntas.length +
+                    ". Revisá tus respuestas e intentá de nuevo.";
+                return;
+            }
+
+            puntajeEstacion = aciertos;
+            puntajeTotal += aciertos;
+
+            document.getElementById("mensajeTransicion").textContent =
+                "¡Excelente, " + nombreAgente +
+                "! Respondiste correctamente todas las preguntas.";
+
+            if (estacionActual < estaciones.length - 1) {
+                document.getElementById("anuncioSiguiente").textContent =
+                    "¡AVANZASTE A LA SIGUIENTE ESTACIÓN!";
+
+                mostrarPantalla("transicion");
+            } else {
+                document.getElementById("mensajeFinal").textContent =
+                    "¡Lo lograste, " + nombreAgente +
+                    "! Completaste las 5 estaciones y respondiste " +
+                    puntajeTotal + " preguntas correctamente.";
+                
+                mostrarPantalla("final");
+            }
+        }
+    );
+
+    function continuar() {
+        estacionActual++;
+        cargarEstacion();
+        mostrarPantalla("juego");
+    }
+</script>
+
+</body>
+</html>
+s

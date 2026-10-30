@@ -1,0 +1,530 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escape Room</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    background: #0d1117;
+    color: #c9d1d9;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 30px 15px;
+}
+
+h1 {
+    color: #58a6ff;
+    text-align: center;
+    font-size: 2.5rem;
+}
+
+.panel {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 20px;
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    color: white;
+    border-radius: 6px;
+}
+
+button {
+    border: none;
+    border-radius: 6px;
+    padding: 12px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-agregar, .btn-iniciar { background: #238636; }
+.btn-refrescar { background: #8957e5; margin-bottom: 25px; }
+.btn-detener, .btn-finalizar { background: #da3633; }
+.btn-sumar { background: #1f6feb; }
+
+.lista-grupos {
+    width: 100%;
+    max-width: 900px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+.card-grupo {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.nombre {
+    color: #f0f6fc;
+    font-size: 1.4rem;
+    font-weight: bold;
+    overflow-wrap: anywhere;
+}
+
+.puntos {
+    color: #3fb950;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.reloj {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    color: #58a6ff;
+    font-size: 2rem;
+    text-align: center;
+    padding: 12px;
+    font-family: monospace;
+}
+
+.estado-reloj {
+    text-align: center;
+    color: #8b949e;
+}
+
+.botones-grupo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.botones-grupo button {
+    flex: 1;
+}
+
+.vacio {
+    grid-column: 1 / -1;
+    text-align: center;
+    margin: 30px;
+    color: #8b949e;
+}
+
+.btn-finalizar {
+    margin-top: 30px;
+    padding: 14px 25px;
+    font-size: 1.1rem;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    z-index: 100;
+}
+
+.modal-content {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 25px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.modal-content h2 {
+    text-align: center;
+    color: #58a6ff;
+    margin-top: 0;
+}
+
+.resultado-item {
+    border-bottom: 1px solid #30363d;
+    padding: 14px 5px;
+}
+
+.resultado-nombre {
+    color: #f0f6fc;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    overflow-wrap: anywhere;
+}
+
+.resultado-detalle {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.resultado-puntos {
+    color: #3fb950;
+    font-weight: bold;
+}
+
+.resultado-tiempo {
+    color: #58a6ff;
+}
+
+.total-general {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    color: #3fb950;
+    font-weight: bold;
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 15px;
+    margin-top: 20px;
+}
+
+.btn-cerrar {
+    display: block;
+    background: #238636;
+    margin: 20px auto 0;
+}
+
+@media (max-width: 500px) {
+    h1 { font-size: 1.8rem; }
+    .panel { flex-direction: column; }
+}
+</style>
+</head>
+
+<body>
+
+<h1>ESCAPE ROOM</h1>
+
+<div class="panel">
+    <input id="nombreGrupo" type="text" placeholder="Nombre del grupo...">
+    <button class="btn-agregar" onclick="agregarGrupo()">Agregar grupo</button>
+</div>
+
+<button class="btn-refrescar" onclick="refrescarTodo()">REFRESCAR TODO</button>
+
+<div class="lista-grupos" id="contenedorGrupos">
+    <div class="vacio">No hay grupos cargados todavía.</div>
+</div>
+
+<button class="btn-finalizar" onclick="finalizarJuego()">
+    Finalizar y ver resultados
+</button>
+
+<div class="modal" id="modalResultados">
+    <div class="modal-content">
+        <h2>🏆 RANKING FINAL 🏆</h2>
+        <div id="listaResultados"></div>
+        <div class="total-general" id="totalGeneral"></div>
+        <button class="btn-cerrar" onclick="cerrarModal()">Cerrar</button>
+    </div>
+</div>
+
+<script>
+let grupos = {};
+let juegoFinalizado = false;
+
+function agregarGrupo() {
+    if (juegoFinalizado) {
+        alert("El juego terminó. Presiona REFRESCAR TODO para comenzar de nuevo.");
+        return;
+    }
+
+    const input = document.getElementById("nombreGrupo");
+    const nombre = input.value.trim();
+
+    if (!nombre) {
+        alert("Ingresa el nombre del grupo.");
+        return;
+    }
+
+    const existe = Object.keys(grupos).some(
+        n => n.toLowerCase() === nombre.toLowerCase()
+    );
+
+    if (existe) {
+        alert("Ese grupo ya existe.");
+        return;
+    }
+
+    grupos[nombre] = {
+        puntos: 0,
+        tiempoAcumulado: 0,
+        inicio: null,
+        terminado: false
+    };
+
+    input.value = "";
+    actualizarPantalla();
+    input.focus();
+}
+
+function formatearTiempo(ms) {
+    const totalSegundos = Math.floor(ms / 1000);
+    const minutos = Math.floor(totalSegundos / 60);
+    const segundos = totalSegundos % 60;
+    const centesimas = Math.floor((ms % 1000) / 10);
+
+    return String(minutos).padStart(2, "0") + ":" +
+           String(segundos).padStart(2, "0") + "." +
+           String(centesimas).padStart(2, "0");
+}
+
+function obtenerTiempo(nombre) {
+    const g = grupos[nombre];
+
+    if (g.inicio !== null) {
+        return g.tiempoAcumulado + (Date.now() - g.inicio);
+    }
+
+    return g.tiempoAcumulado;
+}
+
+function iniciarReloj(nombre) {
+    const g = grupos[nombre];
+
+    if (juegoFinalizado || g.terminado || g.inicio !== null) return;
+
+    g.inicio = Date.now();
+    actualizarPantalla();
+}
+
+function detenerReloj(nombre) {
+    const g = grupos[nombre];
+
+    if (g.inicio === null || g.terminado) return;
+
+    g.tiempoAcumulado += Date.now() - g.inicio;
+    g.inicio = null;
+    g.terminado = true;
+
+    actualizarPantalla();
+}
+
+function sumarPuntos(nombre) {
+    if (juegoFinalizado) return;
+
+    const respuesta = prompt("¿Cuántos puntos sumó " + nombre + "?", "0");
+
+    if (respuesta === null || respuesta.trim() === "") return;
+
+    const cantidad = Number(respuesta);
+
+    if (!Number.isInteger(cantidad) || cantidad < 0) {
+        alert("Ingresa un número entero válido, igual o mayor a cero.");
+        return;
+    }
+
+    grupos[nombre].puntos += cantidad;
+    actualizarPantalla();
+}
+
+function actualizarPantalla() {
+    const contenedor = document.getElementById("contenedorGrupos");
+    contenedor.innerHTML = "";
+
+    const nombres = Object.keys(grupos);
+
+    if (nombres.length === 0) {
+        contenedor.innerHTML = '<div class="vacio">No hay grupos cargados todavía.</div>';
+        return;
+    }
+
+    nombres.forEach(nombre => {
+        const g = grupos[nombre];
+        const tarjeta = document.createElement("div");
+        tarjeta.className = "card-grupo";
+
+        const titulo = document.createElement("div");
+        titulo.className = "nombre";
+        titulo.textContent = nombre;
+
+        const puntos = document.createElement("div");
+        puntos.className = "puntos";
+        puntos.textContent = g.puntos + " puntos";
+
+        const reloj = document.createElement("div");
+        reloj.className = "reloj";
+        reloj.id = "reloj-" + nombre;
+        reloj.textContent = formatearTiempo(obtenerTiempo(nombre));
+
+        const estado = document.createElement("div");
+        estado.className = "estado-reloj";
+        estado.textContent = g.terminado
+            ? "Tiempo finalizado"
+            : g.inicio !== null
+                ? "Cronómetro en marcha"
+                : "Cronómetro detenido";
+
+        const botones = document.createElement("div");
+        botones.className = "botones-grupo";
+
+        const iniciar = document.createElement("button");
+        iniciar.className = "btn-iniciar";
+        iniciar.textContent = "Iniciar";
+        iniciar.disabled = juegoFinalizado || g.terminado || g.inicio !== null;
+        iniciar.onclick = () => iniciarReloj(nombre);
+
+        const detener = document.createElement("button");
+        detener.className = "btn-detener";
+        detener.textContent = "Finalizar tiempo";
+        detener.disabled = juegoFinalizado || g.terminado || g.inicio === null;
+        detener.onclick = () => detenerReloj(nombre);
+
+        const asignar = document.createElement("button");
+        asignar.className = "btn-sumar";
+        asignar.textContent = "Asignar puntos";
+        asignar.disabled = juegoFinalizado;
+        asignar.onclick = () => sumarPuntos(nombre);
+
+        botones.append(iniciar, detener, asignar);
+        tarjeta.append(titulo, puntos, reloj, estado, botones);
+        contenedor.appendChild(tarjeta);
+    });
+}
+
+function actualizarRelojes() {
+    Object.keys(grupos).forEach(nombre => {
+        const reloj = document.getElementById("reloj-" + nombre);
+
+        if (reloj && grupos[nombre].inicio !== null) {
+            reloj.textContent = formatearTiempo(obtenerTiempo(nombre));
+        }
+    });
+}
+
+function finalizarJuego() {
+    const nombres = Object.keys(grupos);
+
+    if (nombres.length === 0) {
+        alert("No hay grupos registrados.");
+        return;
+    }
+
+    // Detener todos los relojes antes de crear el ranking.
+    nombres.forEach(nombre => {
+        const g = grupos[nombre];
+
+        if (g.inicio !== null) {
+            g.tiempoAcumulado += Date.now() - g.inicio;
+            g.inicio = null;
+        }
+
+        g.terminado = true;
+    });
+
+    juegoFinalizado = true;
+
+    // Ordenar a TODOS los grupos: más puntos primero.
+    // En caso de empate, menor tiempo primero.
+    nombres.sort((a, b) =>
+        grupos[b].puntos - grupos[a].puntos ||
+        grupos[a].tiempoAcumulado - grupos[b].tiempoAcumulado
+    );
+
+    const lista = document.getElementById("listaResultados");
+    lista.replaceChildren();
+
+    let total = 0;
+
+    nombres.forEach((nombre, indice) => {
+        const g = grupos[nombre];
+        total += g.puntos;
+
+        const fila = document.createElement("div");
+        fila.className = "resultado-item";
+
+        const titulo = document.createElement("div");
+        titulo.className = "resultado-nombre";
+
+        let puesto = (indice + 1) + "° lugar";
+
+        if (indice === 0) puesto = "🥇 1° lugar";
+        else if (indice === 1) puesto = "🥈 2° lugar";
+        else if (indice === 2) puesto = "🥉 3° lugar";
+
+        titulo.textContent = puesto + " — " + nombre;
+
+        const detalle = document.createElement("div");
+        detalle.className = "resultado-detalle";
+
+        const puntos = document.createElement("span");
+        puntos.className = "resultado-puntos";
+        puntos.textContent = g.puntos + " puntos";
+
+        const tiempo = document.createElement("span");
+        tiempo.className = "resultado-tiempo";
+        tiempo.textContent = "⏱ " + formatearTiempo(g.tiempoAcumulado);
+
+        detalle.append(puntos, tiempo);
+        fila.append(titulo, detalle);
+        lista.appendChild(fila);
+    });
+
+    document.getElementById("totalGeneral").textContent =
+        "TOTAL GENERAL: " + total + " PUNTOS";
+
+    actualizarPantalla();
+
+    // Abrir el ranking DESPUÉS de cargar todos los resultados.
+    document.getElementById("modalResultados").style.display = "flex";
+}
+
+function cerrarModal() {
+    document.getElementById("modalResultados").style.display = "none";
+}
+
+function refrescarTodo() {
+    if (!confirm("¿Seguro que quieres borrar todos los grupos, puntos y tiempos?")) {
+        return;
+    }
+
+    grupos = {};
+    juegoFinalizado = false;
+
+    document.getElementById("nombreGrupo").value = "";
+    document.getElementById("listaResultados").replaceChildren();
+    document.getElementById("totalGeneral").textContent = "";
+    cerrarModal();
+
+    actualizarPantalla();
+}
+
+document.getElementById("nombreGrupo").addEventListener("keydown", function(event) {
+    if (event.key === "Enter") agregarGrupo();
+});
+
+setInterval(actualizarRelojes, 50);
+actualizarPantalla();
+</script>
+
+</body>
+</html>
+
