@@ -4,9 +4,12 @@ Aplicación web para la Feria de Producciones del IPEATyM 186 Castagnari (13/11/
 
 ## Documentación
 
+- `docs/proyectoEscapeRoom-7B.md` — título y reseña breve del proyecto.
 - `docs/escape-room.md` — requisitos funcionales y contenido inicial.
 - `docs/primeros-pasos.md` — hoja de ruta y guion de pedidos, paso a paso.
 - `docs/navegacion-por-app.md` — pantallas, rutas, elementos y objetivos.
+- `docs/tecnologias.md` — stack explicado: frontend, backend, base de datos y herramientas.
+- `docs/instalacion-y-puesta-en-funcionamiento.md` — instalación en Ubuntu y uso desde las notebooks.
 - `sql/descripcion-de-la-base-de-datos.md` — modelo de datos, tablas y consultas.
 - `AGENTS.md` — decisiones registradas, modelo de datos y convenciones.
 

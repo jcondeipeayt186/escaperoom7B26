@@ -1,3 +1,4 @@
+
 # AGENTS.md
 
 Guía para agentes de IA que trabajen en el proyecto **Escape Room 7°B 2026** del IPEATyM 186 Castagnari.
@@ -14,14 +15,9 @@ Si este archivo contradice a `docs/escape-room.md`, ver el apartado de este arch
 
 > Nota: `AGENTS.md` mencionaba antes un archivo `docs/REGLAS ESCAPE ROOM.pdf` que **no existe** en el repositorio. Si aparece más adelante, incorporarlo como fuente complementaria, nunca por encima de `docs/escape-room.md`.
 
-## Estado actual del repositorio
+## Memoria
 
-- Todavía **no existe la aplicación Flask**: no hay código de app, `requirements.txt` ni tests. Ya existen el esquema (`bd/schema.sql`) y el seed de contenido inicial (`bd/seeds/001_contenido_inicial.sql`).
-- Documentos de apoyo: `sql/descripcion-de-la-base-de-datos.md` (modelo y tablas), `docs/navegacion-por-app.md` (pantallas y rutas) y `docs/primeros-pasos.md` (hoja de ruta y guion de pedidos). Si contradicen a `docs/escape-room.md`, manda `docs/escape-room.md`.
-- `docs/src/` contiene **prototipos de referencia**, no código de producción. No copiarlos tal cual.
-- `docs/src/index.html` es una maqueta de una sola página: no cumple el requisito de una página por estación, no tiene temporizadores, audio, dificultad, administración ni persistencia.
-- `docs/src/ranking-puntajes/` mezcla un prototipo HTML con restos de SQLite (`basededatos.py`, `.db`) y PHP (`contador.php`). **No forman parte del stack** y no deben reutilizarse. El HTML sirve solo como referencia visual.
-- No modificar los archivos de `docs/` salvo que el pedido sea explícitamente sobre la documentación.
+Recuerda actualizar siempre el archivo MEMORY.md con el estado actual del proyecto.
 
 ## Objetivo del producto
 
@@ -280,6 +276,8 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 - No agregar autenticación de participantes ni registro público. El único login es el de administración.
 - La regla de **máximo 3 equipos simultáneos** y el ingreso de un nuevo equipo cuando otro llega a la estación 3 es operativa. No imponerla en el software sin confirmación.
 - La página de estadísticas pública es de solo lectura; no expone respuestas correctas ni datos personales.
+- Código simple, nombres descriptivos y comentarios solo donde aporten.
+- Diseño limpio y responsive; cualquier pantalla nueva debe verse bien en el móvil.
 
 ## Comandos previstos
 
@@ -344,10 +342,6 @@ Verificación manual antes de entregar:
 - Panel `/admin` con login, CRUD, filtros, orden y gráficos.
 - Funcionamiento sin conexión a Internet.
 
-## Ambigüedades pendientes
-
-No quedan ambigüedades funcionales abiertas al 2026-10-30. Las decisiones nuevas (regla de contenido, ayudas e identidad de equipo) quedaron en "Decisiones registradas". Si surge una nueva, preguntar antes de resolverla y registrarla en esa sección.
-
 ## Qué no hacer
 
 - No modificar ni eliminar `docs/`, sus PDF ni los prototipos.
@@ -366,3 +360,16 @@ No quedan ambigüedades funcionales abiertas al 2026-10-30. Las decisiones nueva
 - No commitear `.env`, volcados de base de datos ni archivos generados.
 - No mostrar ni cargar pistas en la aplicación: solo se registran las ayudas.
 - No permitir dos equipos con el mismo nombre ni crear un equipo nuevo cuando la bienvenida pide el ID.
+
+
+## Forma de trabajar
+
+- Haz solo lo que se pide: no añadas funcionalidades por tu cuenta.
+- Cambios pequeños y enfocados; no reescribas lo que ya funciona.
+- Al terminar, resume qué has cambiado y cualquier decisión que deba revisar.
+
+## Límites
+
+- Siempre: respetar las reglas y mantener los textos en español.
+- Pregunta antes: crear archivos nuevos, cambiar el formato de los datos guardados.
+- Nunca: añadir dependencias, frameworks  o un paso de build que no haya establecido.

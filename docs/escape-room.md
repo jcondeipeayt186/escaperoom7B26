@@ -14,7 +14,7 @@ Una vez completan las 5 estaciones el sistema les otorgará un puntaje al equipo
 
 ### El Sistema de puntaje de Escape Room
 
-El puntaje de los equipos que han logrado llegar al final estará dado por el tiempo que les resulto llegar a completar las 5 estaciones. Asi mismo, si han tenido ayudas, se registrarán, y entre equipos que hayan demorado lo mismo, tiene mejor ranking el que menos ayudas haya tenido.
+El puntaje de los equipos que han logrado llegar al final estará dado por el tiempo que les resulto llegar a completar las 5 estaciones. Asi mismo, si han tenido ayudas, se registrarán, asi como las resuestas incorrectas y entre equipos que hayan demorado lo mismo, tiene mejor ranking el que menos respuestas incorrectas y ayudas haya tenido.
 
 Reglas operativas:
 
@@ -24,7 +24,7 @@ Reglas operativas:
 4. Lean atentamente: analicen las preguntas y las pistas antes de elegir una respuesta .
 5. Pidan pistas con cuidado: cada equipo podrá solicitar hasta 2 pistas por estación durante el juego.
 6. Colaboren y respeten: todos los integrantes deben participar y respetar las opiniones de sus compañeros.
-7. ¡Completen la misión!: gana el equipo que resuelva correctamente los desafíos en el menor tiempo establecido, ante empates, ganan quienes tengan menos ayudas.
+7. ¡Completen la misión!: gana el equipo que resuelva correctamente los desafíos en el menor tiempo establecido, ante empates, ganan quienes tengan menos ayudas y menos respuestas incorrecta.
 
 ## Escape Room en la Feria: Presentación y Metodologia de juego
 
@@ -33,7 +33,6 @@ Escape Room contara con una presentación en un stand, el mismo contara con una 
 Cada equipo participa utilizando una notebook que le daran los estudiantes de 7B.
 
 Habra una notebook conectada al televisor del aula donde mostrará en todo momento la aplicación web de escape room, por lo general mostrando el ranking de los equipos.
-
 
 ## La aplicación de Escape Room
 
@@ -52,7 +51,7 @@ La aplicación debe ser considerando las siguientes pautas:
 
 Mostrar siempre el tiempo general que va incrementando, y el tiempo del escenario que inicia en 4 minutos y va decrementando. Faltando 30 segundos para llegar a 0 el contador del escenario debe emitir un audio de aviso y dejar titilando un texto debajo del contador. En cada página de estación debe mostrarse cantidad de ayudas, cantidad de respuestas incorrectas, cantidad de intentos de envio del formulario (si llega a 2 solo se deja el boton de finalizar juego por respuestas incorrectas).
 
-Debe haber una página por cada escenario, una página inicial de bienvenida a escape room donde se le pida en un formulario pequeño, el nombre del equipo y el nivel de dificultad utilizado (inicial, intermedio, avanzado). Además debe haber una página de finalización del juego que debe ser basada en la de ranking-puntajes/ranking-puntajes.html donde se muestre por orden los equipos desde el que mas puntos tiene (menor tiempo para completar los escenarios, y a igualdad de tiempo, el de menos ayuda). Y una página estadisticas del juego donde pueda mostrar algunos datos y/o graficos estadisticos como cantidad de participantes, cantidad de intentos, tiempo promedio por intento, cantidad de respuestas realizadas / cantidad de respuestas correctas.
+Debe haber una página por cada escenario, una página inicial de bienvenida a escape room donde se le pida en un formulario pequeño, el nombre del equipo y el nivel de dificultad utilizado (inicial, intermedio, avanzado). Además debe haber una página de finalización del juego que debe ser basada en la de ranking-puntajes/ranking-puntajes.html donde se muestre por orden los equipos desde el que mas puntos tiene (menor tiempo para completar los escenarios, y a igualdad de tiempo, el de menos ayuda e incorrectas). Y una página estadisticas del juego donde pueda mostrar algunos datos y/o graficos estadisticos como cantidad de participantes, cantidad de intentos, tiempo promedio por intento, cantidad de respuestas realizadas / cantidad de respuestas correctas.
 
 La base de datos de la aplicación debe ser en mysql. Debe poder representar:
 Equipos (id, nombre, cantidadPersonas), Intento (id, equipo, fechaInicio, FechaFin, seCompletoOK[boolean] , cantidadAyudas, puntajeObtenido, finalizado [completo, abandono, porRespuestasIncorrectas, porTiempo], ultimaEstacionVisitada), Estacion (id, nombre, descripcion), Temas dentro de una estación (id, nombre, estacion), preguntas vinculadas a cada tema (id, titulo, descripcion, tema, dificultad [inicial, intermedio, avanzado]), respuestas a cada pregunta (id, contenido, correcta[boolean], pregunta), y RespuestaElegida(id, fechaRespondida, intento, respuesta). Agregar una tabla para las respuestas incorrectas en una tabla incorrectas(id, pregunta, respuestaElegida, fecha, intento) que se registrara cuando se envie un formulario y la respuesta no sea correcta.
@@ -86,78 +85,85 @@ Notas:
 
 Temas (4): IP, Router, Redes de computadoras, WiFi.
 
-| # | Tema | Pregunta | Opciones | Correcta |
-| --- | --- | --- | --- | --- |
-| 1 | IP | ¿Qué significa IP? | Internet personal / Internet Protocol / Información privada | Internet Protocol |
-| 2 | Router | ¿Qué dispositivo conecta diferentes redes? | Teclado / Router / Monitor | Router |
-| 3 | Redes de computadoras | ¿Qué es una red informática? | Un conjunto de dispositivos conectados / Un programa para dibujar / Una pieza de la computadora | Un conjunto de dispositivos conectados |
-| 4 | WiFi | ¿Qué se necesita para conectarse a una red WiFi? | Una contraseña, si está protegida / Un cable HDMI obligatoriamente / Una impresora | Una contraseña, si está protegida |
+
+| # | Tema                  | Pregunta                                           | Opciones                                                                                        | Correcta                               |
+| --- | ----------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| 1 | IP                    | ¿Qué significa IP?                               | Internet personal / Internet Protocol / Información privada                                    | Internet Protocol                      |
+| 2 | Router                | ¿Qué dispositivo conecta diferentes redes?       | Teclado / Router / Monitor                                                                      | Router                                 |
+| 3 | Redes de computadoras | ¿Qué es una red informática?                    | Un conjunto de dispositivos conectados / Un programa para dibujar / Una pieza de la computadora | Un conjunto de dispositivos conectados |
+| 4 | WiFi                  | ¿Qué se necesita para conectarse a una red WiFi? | Una contraseña, si está protegida / Un cable HDMI obligatoriamente / Una impresora            | Una contraseña, si está protegida    |
 
 ### Estación 2: Hardware
 
 Temas (3): Procesador, Dispositivos de entrada/salida, Memoria RAM.
 
-| # | Tema | Pregunta | Opciones | Correcta |
-| --- | --- | --- | --- | --- |
-| 5 | Procesador | ¿Qué componente es considerado el cerebro de la computadora? | Teclado / Procesador / Monitor | Procesador |
-| 6 | Dispositivos de entrada/salida | ¿Cuál es un dispositivo de entrada? | Monitor / Parlante / Teclado | Teclado |
-| 7 | Memoria RAM | ¿Para qué sirve la memoria RAM? | Guardar datos temporalmente mientras se trabaja / Imprimir documentos / Proteger físicamente la pantalla | Guardar datos temporalmente mientras se trabaja |
-| 8 | Dispositivos de entrada/salida | ¿Cuál es un dispositivo de salida? | Ratón / Micrófono / Monitor | Monitor |
+
+| # | Tema                           | Pregunta                                                       | Opciones                                                                                                  | Correcta                                        |
+| --- | -------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| 5 | Procesador                     | ¿Qué componente es considerado el cerebro de la computadora? | Teclado / Procesador / Monitor                                                                            | Procesador                                      |
+| 6 | Dispositivos de entrada/salida | ¿Cuál es un dispositivo de entrada?                          | Monitor / Parlante / Teclado                                                                              | Teclado                                         |
+| 7 | Memoria RAM                    | ¿Para qué sirve la memoria RAM?                              | Guardar datos temporalmente mientras se trabaja / Imprimir documentos / Proteger físicamente la pantalla | Guardar datos temporalmente mientras se trabaja |
+| 8 | Dispositivos de entrada/salida | ¿Cuál es un dispositivo de salida?                           | Ratón / Micrófono / Monitor                                                                             | Monitor                                         |
 
 ### Estación 3: Internet
 
 Temas (3): Navegadores Web, URL, Conectividad.
 
-| # | Tema | Pregunta | Opciones | Correcta |
-| --- | --- | --- | --- | --- |
-| 9 | Navegadores Web | ¿Qué es un navegador web? | Un programa para visitar páginas web / Una parte del procesador / Un cable de red | Un programa para visitar páginas web |
-| 10 | Navegadores Web | ¿Cuál de estos es un navegador web? | Google Chrome / Windows / Calculadora | Google Chrome |
-| 11 | URL | ¿Qué significa URL? | Una dirección de un recurso en internet / Una memoria de computadora / Un tipo de teclado | Una dirección de un recurso en internet |
-| 12 | Conectividad | ¿Qué se necesita para acceder a un sitio web público en internet? | Una conexión a internet / Un escáner obligatoriamente / Un pendrive siempre | Una conexión a internet |
+
+| #  | Tema            | Pregunta                                                             | Opciones                                                                                   | Correcta                                 |
+| ---- | ----------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| 9  | Navegadores Web | ¿Qué es un navegador web?                                          | Un programa para visitar páginas web / Una parte del procesador / Un cable de red         | Un programa para visitar páginas web    |
+| 10 | Navegadores Web | ¿Cuál de estos es un navegador web?                                | Google Chrome / Windows / Calculadora                                                      | Google Chrome                            |
+| 11 | URL             | ¿Qué significa URL?                                                | Una dirección de un recurso en internet / Una memoria de computadora / Un tipo de teclado | Una dirección de un recurso en internet |
+| 12 | Conectividad    | ¿Qué se necesita para acceder a un sitio web público en internet? | Una conexión a internet / Un escáner obligatoriamente / Un pendrive siempre              | Una conexión a internet                 |
 
 ### Estación 4: Ciberseguridad
 
 Temas (2): Contraseña, Phishing.
 
-| # | Tema | Pregunta | Opciones | Correcta |
-| --- | --- | --- | --- | --- |
-| 13 | Contraseña | ¿Cómo debe ser una contraseña segura? | 123456 / Tu nombre solamente / Larga y difícil de adivinar | Larga y difícil de adivinar |
-| 14 | Phishing | ¿Qué deberías hacer con un enlace sospechoso? | Abrirlo inmediatamente / Evitar abrirlo y verificar su origen / Compartirlo con todos | Evitar abrirlo y verificar su origen |
-| 15 | Phishing | ¿Qué es el phishing? | Un intento de engaño para robar información / Un programa para editar fotos / Una clase de monitor | Un intento de engaño para robar información |
-| 16 | Contraseña | ¿Qué conviene hacer con tus contraseñas? | Compartirlas con desconocidos / Usar la misma en todos lados / Mantenerlas privadas | Mantenerlas privadas |
+
+| #  | Tema        | Pregunta                                         | Opciones                                                                                             | Correcta                                      |
+| ---- | ------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------- |
+| 13 | Contraseña | ¿Cómo debe ser una contraseña segura?         | 123456 / Tu nombre solamente / Larga y difícil de adivinar                                          | Larga y difícil de adivinar                  |
+| 14 | Phishing    | ¿Qué deberías hacer con un enlace sospechoso? | Abrirlo inmediatamente / Evitar abrirlo y verificar su origen / Compartirlo con todos                | Evitar abrirlo y verificar su origen          |
+| 15 | Phishing    | ¿Qué es el phishing?                           | Un intento de engaño para robar información / Un programa para editar fotos / Una clase de monitor | Un intento de engaño para robar información |
+| 16 | Contraseña | ¿Qué conviene hacer con tus contraseñas?      | Compartirlas con desconocidos / Usar la misma en todos lados / Mantenerlas privadas                  | Mantenerlas privadas                          |
 
 ### Estación 5: Sistemas Operativos
 
 Temas (2): Sistema Operativo, Dispositivos Móviles.
 
-| # | Tema | Pregunta | Opciones | Correcta |
-| --- | --- | --- | --- | --- |
-| 17 | Sistema Operativo | ¿Qué es un sistema operativo? | El software que administra la computadora / Un cable de alimentación / Una aplicación para dibujar | El software que administra la computadora |
-| 18 | Sistema Operativo | ¿Cuál de estos es un sistema operativo? | Microsoft Word / Windows / Google Chrome | Windows |
-| 19 | Sistema Operativo | ¿Para qué sirve un sistema operativo? | Administrar recursos y permitir ejecutar programas / Solo para cambiar el color del monitor / Solo para escribir documentos | Administrar recursos y permitir ejecutar programas |
-| 20 | Dispositivos Móviles | ¿Cuál de estos es un sistema operativo para celulares? | Android / PowerPoint / Excel | Android |
+
+| #  | Tema                  | Pregunta                                                 | Opciones                                                                                                                    | Correcta                                           |
+| ---- | ----------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| 17 | Sistema Operativo     | ¿Qué es un sistema operativo?                          | El software que administra la computadora / Un cable de alimentación / Una aplicación para dibujar                        | El software que administra la computadora          |
+| 18 | Sistema Operativo     | ¿Cuál de estos es un sistema operativo?                | Microsoft Word / Windows / Google Chrome                                                                                    | Windows                                            |
+| 19 | Sistema Operativo     | ¿Para qué sirve un sistema operativo?                  | Administrar recursos y permitir ejecutar programas / Solo para cambiar el color del monitor / Solo para escribir documentos | Administrar recursos y permitir ejecutar programas |
+| 20 | Dispositivos Móviles | ¿Cuál de estos es un sistema operativo para celulares? | Android / PowerPoint / Excel                                                                                                | Android                                            |
 
 ### Resumen de cobertura
 
-| Estación | Temas | Preguntas iniciales |
-| --- | --- | --- |
-| Redes | 4 | 4 |
-| Hardware | 3 | 4 |
-| Internet | 3 | 4 |
-| Ciberseguridad | 2 | 4 |
-| Sistemas Operativos | 2 | 4 |
-| **Total** | **14** | **20** |
+
+| Estación           | Temas  | Preguntas iniciales |
+| --------------------- | -------- | --------------------- |
+| Redes               | 4      | 4                   |
+| Hardware            | 3      | 4                   |
+| Internet            | 3      | 4                   |
+| Ciberseguridad      | 2      | 4                   |
+| Sistemas Operativos | 2      | 4                   |
+| **Total**           | **14** | **20**              |
 
 Configuración inicial cargada por el seed:
 
-| Clave | Valor |
-| --- | --- |
-| `dificultad_intermedia_habilitada` | `0` |
-| `dificultad_avanzada_habilitada` | `0` |
-| `duracion_estacion_segundos` | `240` |
-| `max_ayudas_estacion` | `2` |
-| `max_envios_estacion` | `2` |
-| `max_respuestas_incorrectas` | `2` |
-| `max_integrantes_equipo` | `4` |
-| `max_temas_por_estacion` | `4` |
-| `preguntas_por_estacion` | `4` |
+
+| Clave                              | Valor |
+| ------------------------------------ | ------- |
+| `dificultad_intermedia_habilitada` | `0`   |
+| `dificultad_avanzada_habilitada`   | `0`   |
+| `duracion_estacion_segundos`       | `240` |
+| `max_ayudas_estacion`              | `2`   |
+| `max_envios_estacion`              | `2`   |
+| `max_respuestas_incorrectas`       | `2`   |
+| `max_integrantes_equipo`           | `4`   |
+| `max_temas_por_estacion`           | `4`   |
+| `preguntas_por_estacion`           | `4`   |
