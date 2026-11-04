@@ -1,3 +1,28 @@
-skills-lock.json
 # Dependency directories
 node_modules/
+skills-lock.json
+
+# Entorno virtual de Python
+.venv/
+
+# Variables de entorno y credenciales (nunca versionar)
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Flask / instancia local
+instance/
+*.log
+
+# Volcados y respaldos de la base
+*.sql.gz
+*.dump
+respaldo_*.sql

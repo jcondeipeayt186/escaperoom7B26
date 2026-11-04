@@ -23,4 +23,54 @@ mysql -u <usuario> -p < bd/schema.sql
 mysql -u <usuario> -p < bd/seeds/001_contenido_inicial.sql
 ```
 
-La aplicación Flask todavía no está implementada. Los comandos de arranque se agregarán cuando exista el scaffold.
+El seed es idempotente: se puede volver a ejecutar sin duplicar filas.
+
+## Puesta en marcha (desarrollo)
+
+Requiere Python 3 y MySQL 8.
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+cp .env.example .env
+chmod 600 .env
+```
+
+Completar en `.env` las variables de MySQL (`MYSQL_USER` y `MYSQL_PASSWORD`)
+y generar los valores reales de `FLASK_SECRET_KEY` y `ADMIN_PASSWORD_HASH`:
+
+```bash
+python -c "import secrets; print(secrets.token_hex(32))"
+python -c "from werkzeug.security import generate_password_hash; print(generate_password_hash('CAMBIA-ESTA-CLAVE'))"
+```
+
+El archivo `.env` no se versiona.
+
+Levantar el servidor de desarrollo:
+
+```bash
+source .venv/bin/activate
+flask --app app run --debug
+```
+
+La aplicación queda en <http://127.0.0.1:5000>. Para comprobar que responde
+y que MySQL está accesible:
+
+```bash
+curl -i http://127.0.0.1:5000/salud
+```
+
+Respuesta esperada: `200` con `{"estado": "ok", "base": "ok"}`. Si la base no
+responde, devuelve `503` sin exponer credenciales.
+
+Pruebas automatizadas (todavía no hay tests; `pytest` termina con código 5):
+
+```bash
+pytest
+```
+
+> Para la feria se usa waitress, no el servidor de desarrollo. El
+> procedimiento de producción está en
+> `docs/instalacion-y-puesta-en-funcionamiento.md` y se cierra en el paso 12.
