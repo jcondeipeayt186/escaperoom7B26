@@ -94,6 +94,7 @@ app/
     estaciones.py      # orden del recorrido y consultas de estaciones
     seleccion.py       # selección y congelamiento de preguntas por intento
     envios.py          # envíos, ayudas, abandono y cierre de estación
+    ranking.py         # ranking completo, posición y número de intento
     tiempos.py         # contadores calculados desde fechas de MySQL
   routes/
     juego.py           # bienvenida, estaciones, transición, final, abandono
@@ -193,8 +194,8 @@ configuracion(clave, valor)                                          # dificulta
 
 1. **Bienvenida:** formulario con nombre de equipo, cantidad de integrantes (1–4) y dificultad. Validar nombre no vacío y cantidad entre 1 y 4. Solo se ofrecen las dificultades habilitadas en `configuracion`. Si el nombre ya existe, pedir el **ID del equipo** (el que se muestra siempre en el HUD) y continuar con ese equipo; si no existe, crear `equipo` e `intento`. Al reingresar con un equipo que tiene un intento activo (`fecha_fin IS NULL`), reanudar ese intento; si no, crear uno nuevo. Mostrar el ID del equipo en todas las pantallas del intento.
 2. **Estación 1 a 5:** una página/ruta por estación, con sus 4 preguntas, el temporizador y el HUD (ayudas, incorrectas, envíos). No permitir saltar estaciones por URL.
-3. **Transición:** confirmar estación superada y permitir continuar.
-4. **Final:** mostrar resultado del intento y el ranking según las reglas de abajo.
+3. **Transición:** confirmar estación superada y permitir continuar. La estación siguiente se prepara y su cronómetro arranca recién al presionar **Continuar**. Desde la transición de las estaciones 1 a 4 también se puede abandonar con confirmación.
+4. **Final:** mostrar el resultado del intento, la posición, el top 10 y el ranking completo filtrable por equipo, número de intento y fecha de fin. Incluye la fecha y hora de fin de cada intento.
 5. **Ranking público:** vista de solo lectura, pensada para el televisor. Debe actualizarse sola (por ejemplo, con polling) y ser legible a distancia.
 6. **Eliminación:** pantalla clara cuando el equipo queda fuera por tiempo, respuestas incorrectas o abandono.
 7. **Estadísticas públicas:** solo agregados (participantes, integrantes, intentos, tiempo promedio y respuestas realizadas / correctas). Sin nombres de equipos, sin detalle por pregunta y sin respuestas correctas. Accesible sin login.
@@ -227,21 +228,34 @@ La administración es un **requisito**, no un extra opcional.
 Según `docs/escape-room.md`, el ranking se ordena por:
 
 1. **Menor tiempo total** para completar las 5 estaciones.
-2. A igual tiempo, **menor cantidad de ayudas**.
-3. Desempate final estable por `id`.
+2. A igual tiempo, **menor cantidad de respuestas incorrectas**.
+3. A igual tiempo e incorrectas, **menor cantidad de ayudas**.
+4. A igualdad de todo lo anterior, el intento que **comenzó antes** (`fecha_inicio`).
+5. Desempate final estable por `id` ascendente.
 
 Query de referencia (solo intentos completados):
 
 ```sql
-WHERE finalizado = 'completo'
-ORDER BY TIMESTAMPDIFF(SECOND, fecha_inicio, fecha_fin) ASC,
-         cantidad_ayudas ASC,
-         id ASC
+SELECT i.id, e.nombre,
+       TIMESTAMPDIFF(SECOND, i.fecha_inicio, i.fecha_fin) AS segundos,
+       (SELECT COUNT(*) FROM incorrecta inc WHERE inc.intento_id = i.id)
+         AS incorrectas,
+       i.cantidad_ayudas,
+       i.fecha_inicio
+FROM intento i
+JOIN equipo e ON e.id = i.equipo_id
+WHERE i.finalizado = 'completo'
+ORDER BY segundos ASC,
+         incorrectas ASC,
+         i.cantidad_ayudas ASC,
+         i.fecha_inicio ASC,
+         i.id ASC
 ```
 
 - `puntaje_obtenido` guarda los **segundos totales** del intento completado (`TIMESTAMPDIFF(SECOND, fecha_inicio, fecha_fin)`). Para intentos no completados queda `NULL`.
-- El ranking se ordena por tiempo y ayudas, **no** por `puntaje_obtenido`.
-- Al mostrar un equipo que repitió intentos, indicar al lado el número de intento.
+- El ranking se ordena por tiempo, incorrectas y ayudas, **no** por `puntaje_obtenido`.
+- Al mostrar un equipo que repitió intentos, indicar al lado el número de intento. Se cuenta sobre todos los intentos del equipo, incluidos los no completados.
+- Los filtros del ranking completo se resuelven en el servidor con parámetros GET; no cambian la posición general de cada fila.
 - No usar el orden del prototipo `ranking-puntajes.html` (puntos descendente y luego tiempo). Ese prototipo era una demostración con carga manual de puntos.
 
 ## Temporizadores
@@ -255,7 +269,7 @@ ORDER BY TIMESTAMPDIFF(SECOND, fecha_inicio, fecha_fin) ASC,
 - Al llegar a 0: el intento pasa a `finalizado = 'por_tiempo'`, `fecha_fin` se escribe con la hora del servidor, `puntaje_obtenido` queda `NULL` y no puede continuar.
 - El tiempo debe sobrevivir a recargas de página. Persistir `intento_estacion.fecha_inicio` y recalcular desde el servidor.
 - Al reanudar, retomar desde `intento.ultima_estacion_visitada`.
-- La transición muestra los contadores con el tiempo de estación congelado al completarla; el contador general sigue subiendo.
+- La transición muestra los contadores con el tiempo de estación congelado al completarla; el contador general sigue subiendo hasta completar la quinta. Al completar la quinta estación, el tiempo total queda congelado en `intento.fecha_fin` y la transición y la pantalla final no suman tiempo.
 - El audio puede estar bloqueado por el navegador hasta que haya una interacción del usuario. Se desbloquea con la primera interacción dentro de la estación y se mantiene siempre la advertencia visual.
 - Usar archivos locales de Bootstrap y audio: la feria puede no tener Internet confiable.
 
@@ -297,6 +311,12 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 32. **Contadores en la transición:** se muestran también en `GET /juego/transicion/<orden>`. El contador general sigue subiendo; el de la estación queda congelado en `intento_estacion.fecha_fin` para que se vea el tiempo que tardó la estación completada.
 33. **Desbloqueo del audio:** se intenta con la primera interacción dentro de la estación (`pointerdown` o `keydown`). Si el navegador lo bloquea, el texto titilante de los 30 segundos se muestra igual.
 34. **Precisión de segundos:** los contadores usan segundos enteros con `TIMESTAMPDIFF(SECOND, ...)`. El cierre por tiempo puede ocurrir hasta un segundo después del límite teórico. La duración es global y no debe modificarse mientras haya intentos activos.
+35. **Actualización de `ultima_estacion_visitada`:** se actualiza al entrar a la estación siguiente después de presionar **Continuar**, no al completar la estación anterior. Completar una estación deja el valor en esa estación para que la transición siga siendo accesible.
+36. **Continuar idempotente:** `POST /juego/transicion/<orden>/continuar` valida que la estación esté completada y prepara la siguiente en una transacción. La creación de `intento_estacion`, la selección de preguntas y la actualización de `ultima_estacion_visitada` no se duplican si se repite el POST.
+37. **Abandono desde la transición:** las estaciones 1 a 4 ofrecen **Abandonar** con confirmación. La quinta ya finalizó el intento como `completo`, así que solo muestra **Ver resultado**.
+38. **Final y eliminación:** `/juego/final` solo acepta intentos con `finalizado = 'completo'`; con un intento activo redirige a la estación actual y con uno no completado redirige a `/juego/eliminado`. `/juego/eliminado` redirige al final si el intento está completo.
+39. **Pantalla final:** muestra el resultado del intento, el top 10 y, en una card aparte, el ranking completo con filtros por nombre de equipo, número de intento y fecha de fin. La fecha se muestra como `dd/mm/aaaa HH:MM`. Los filtros se aplican solo al ranking completo y no alteran la posición general.
+40. **Cierre de la quinta estación:** al registrar las 4 respuestas correctas de la última estación activa, el intento pasa a `finalizado = 'completo'`, `fecha_fin` es la misma que la de `intento_estacion` y `puntaje_obtenido` se calcula con esa fecha. Así el puntaje no incluye la transición ni la pantalla final.
 
 ## Convenciones de código
 
@@ -341,8 +361,10 @@ Priorizar pruebas automatizadas para:
 - Eliminación por 2 respuestas incorrectas.
 - Eliminación por tiempo agotado.
 - Eliminación por abandono.
-- Orden del ranking: tiempo ascendente y, en empate, menos ayudas.
+- Orden del ranking: tiempo ascendente; en empate, menos incorrectas; luego menos ayudas; luego el intento que empezó antes; luego `id`.
 - Exclusión de intentos no completados (`abandono`, `por_respuestas_incorrectas`, `por_tiempo`).
+- Cierre de la quinta estación con `finalizado = 'completo'`, `puntaje_obtenido` igual a los segundos totales y tiempo congelado.
+- Filtros del ranking completo por equipo, número de intento y fecha de fin sin alterar la posición general.
 - Filtrado de preguntas por dificultad y por tema.
 - Bienvenida con cantidad de integrantes entre 1 y 4.
 - Reingreso con un nombre de equipo existente: pide el ID y no duplica el equipo.
@@ -373,6 +395,7 @@ Verificación manual antes de entregar:
 - Contador general sube y contador de estación baja.
 - Aviso visual y sonoro a los 30 segundos.
 - Pantalla de eliminación y pantalla final.
+- Final con top 10, posición, tiempo total y ranking completo filtrable por equipo, número de intento y fecha de fin.
 - Ranking visible y actualizado en la vista de TV.
 - Página pública de estadísticas.
 - Panel `/admin` con login, CRUD, filtros, orden y gráficos.

@@ -26,8 +26,10 @@ def calcular_tiempos(intento_id, estacion_id, duracion_segundos):
             "           DATE_ADD(ie.fecha_inicio, INTERVAL %s SECOND)"
             "         )"
             "       ) * 1000) AS estacion_fin_ms, "
-            "       TIMESTAMPDIFF(SECOND, i.fecha_inicio, NOW(3)) "
-            "         AS general_segundos, "
+            "       TIMESTAMPDIFF("
+            "         SECOND, i.fecha_inicio, COALESCE(i.fecha_fin, NOW(3))"
+            "       ) AS general_segundos, "
+            "       i.fecha_fin IS NOT NULL AS intento_finalizado, "
             "       TIMESTAMPDIFF("
             "         SECOND, ie.fecha_inicio, COALESCE(ie.fecha_fin, NOW(3))"
             "       ) AS estacion_transcurridos, "
@@ -43,6 +45,7 @@ def calcular_tiempos(intento_id, estacion_id, duracion_segundos):
     if fila is None:
         return {
             "general_segundos": 0,
+            "general_congelado": False,
             "estacion_segundos": max(duracion_segundos, 0),
             "duracion_estacion_segundos": duracion_segundos,
             "aviso_segundos": AVISO_SEGUNDOS,
@@ -60,6 +63,7 @@ def calcular_tiempos(intento_id, estacion_id, duracion_segundos):
 
     return {
         "general_segundos": general,
+        "general_congelado": bool(fila["intento_finalizado"]),
         "estacion_segundos": restantes,
         "duracion_estacion_segundos": duracion_segundos,
         "aviso_segundos": AVISO_SEGUNDOS,

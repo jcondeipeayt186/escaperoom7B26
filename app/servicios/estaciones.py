@@ -37,6 +37,31 @@ def obtener_estacion(estacion_id):
         return cursor.fetchone()
 
 
+def obtener_estacion_por_orden(orden):
+    """Estación activa que ocupa un orden del recorrido."""
+
+    with get_db().cursor() as cursor:
+        cursor.execute(
+            "SELECT id, nombre, descripcion, orden, activo "
+            "FROM estacion WHERE activo = 1 AND orden = %s LIMIT 1",
+            (orden,),
+        )
+        return cursor.fetchone()
+
+
+def siguiente_estacion(orden):
+    """Primera estación activa con un orden mayor, o ``None``."""
+
+    with get_db().cursor() as cursor:
+        cursor.execute(
+            "SELECT id, nombre, descripcion, orden, activo "
+            "FROM estacion WHERE activo = 1 AND orden > %s "
+            "ORDER BY orden LIMIT 1",
+            (orden,),
+        )
+        return cursor.fetchone()
+
+
 def contar_estaciones_activas():
     """Cantidad de estaciones que forman el recorrido."""
 

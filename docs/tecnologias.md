@@ -665,12 +665,17 @@ python -c "from werkzeug.security import generate_password_hash; print(generate_
 **Para qué se usa acá:** es la fuente de verdad del juego. Guarda equipos, intentos, estaciones, temas, preguntas, respuestas, envíos, ayudas y el ranking.
 
 ```sql
-SELECT e.nombre, i.fecha_inicio, i.fecha_fin, i.cantidad_ayudas
+SELECT e.nombre, i.fecha_inicio, i.fecha_fin, i.cantidad_ayudas,
+       TIMESTAMPDIFF(SECOND, i.fecha_inicio, i.fecha_fin) AS segundos,
+       (SELECT COUNT(*) FROM incorrecta inc WHERE inc.intento_id = i.id)
+         AS incorrectas
 FROM intento i
 JOIN equipo e ON e.id = i.equipo_id
 WHERE i.finalizado = 'completo'
-ORDER BY TIMESTAMPDIFF(SECOND, i.fecha_inicio, i.fecha_fin) ASC,
+ORDER BY segundos ASC,
+         incorrectas ASC,
          i.cantidad_ayudas ASC,
+         i.fecha_inicio ASC,
          i.id ASC;
 ```
 

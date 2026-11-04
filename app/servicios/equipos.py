@@ -170,6 +170,13 @@ def contexto_finalizado_de_sesion():
             "SELECT i.id AS intento_id, i.equipo_id, i.dificultad, i.fecha_inicio, "
             "       i.fecha_fin, i.finalizado, i.cantidad_ayudas, "
             "       i.puntaje_obtenido, i.ultima_estacion_visitada, "
+            "       TIMESTAMPDIFF(SECOND, i.fecha_inicio, i.fecha_fin) "
+            "         AS segundos_totales, "
+            "       (SELECT COUNT(*) FROM incorrecta inc "
+            "        WHERE inc.intento_id = i.id) AS incorrectas, "
+            "       (SELECT COUNT(*) FROM intento_estacion ie "
+            "        WHERE ie.intento_id = i.id AND ie.completada = 1) "
+            "         AS estaciones_completadas, "
             "       e.nombre AS equipo_nombre, e.cantidad_personas "
             "FROM intento i "
             "JOIN equipo e ON e.id = i.equipo_id "
@@ -197,6 +204,9 @@ def contexto_finalizado_de_sesion():
             "cantidad_ayudas": int(fila["cantidad_ayudas"]),
             "puntaje_obtenido": fila["puntaje_obtenido"],
             "ultima_estacion_visitada": fila["ultima_estacion_visitada"],
+            "segundos_totales": int(fila["segundos_totales"] or 0),
+            "incorrectas": int(fila["incorrectas"]),
+            "estaciones_completadas": int(fila["estaciones_completadas"]),
         },
     }
 

@@ -12,6 +12,7 @@
         class="row g-2 text-center mb-3"
         data-tiempos
         data-general-segundos="{{ tiempos.general_segundos }}"
+        data-general-congelado="{{ 'si' if tiempos.general_congelado else 'no' }}"
         data-estacion-segundos="{{ tiempos.estacion_segundos }}"
         data-servidor-ms="{{ tiempos.servidor_ms }}"
         data-intento-inicio-ms="{{ tiempos.intento_inicio_ms }}"

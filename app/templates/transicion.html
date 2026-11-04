@@ -20,19 +20,27 @@
         </p>
 
         <div class="row g-2 text-start mb-4">
-          <div class="col-6 col-md-4">
+          <div class="col-6 col-md-3">
+            <div class="border rounded p-2 h-100">
+              <div class="small text-body-secondary">Tiempo usado</div>
+              <div class="fw-semibold">
+                {{ (tiempos.duracion_estacion_segundos - tiempos.estacion_segundos)|mmss }}
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
             <div class="border rounded p-2 h-100">
               <div class="small text-body-secondary">Ayudas</div>
               <div class="fw-semibold">{{ resumen.ayudas }} de {{ maximos.ayudas }}</div>
             </div>
           </div>
-          <div class="col-6 col-md-4">
+          <div class="col-6 col-md-3">
             <div class="border rounded p-2 h-100">
               <div class="small text-body-secondary">Incorrectas</div>
               <div class="fw-semibold">{{ resumen.incorrectas }}</div>
             </div>
           </div>
-          <div class="col-6 col-md-4">
+          <div class="col-6 col-md-3">
             <div class="border rounded p-2 h-100">
               <div class="small text-body-secondary">Envíos</div>
               <div class="fw-semibold">{{ resumen.envios }} de {{ maximos.envios }}</div>
@@ -40,12 +48,39 @@
           </div>
         </div>
 
-        <p class="text-body-secondary mb-4">
-          La próxima estación se habilita en el siguiente paso del recorrido.
-        </p>
-        <a class="btn btn-outline-primary" href="{{ url_for('juego.bienvenida') }}">
-          Volver al inicio
-        </a>
+        {% if es_ultima %}
+          <p class="lead mb-4">
+            ¡Completaron las {{ total_estaciones }} estaciones!
+          </p>
+          <a class="btn btn-primary btn-lg" href="{{ url_for('juego.final') }}">
+            Ver resultado
+          </a>
+        {% else %}
+          <p class="mb-1">
+            La próxima estación es
+            <strong>{{ siguiente_estacion.nombre }}</strong>.
+          </p>
+          <p class="text-body-secondary mb-4">
+            Su tiempo empieza a correr cuando presionen <strong>Continuar</strong>.
+          </p>
+
+          <div class="d-grid gap-2">
+            <form method="post" action="{{ url_for('juego.continuar_transicion', orden=estacion.orden) }}">
+              <button class="btn btn-primary btn-lg w-100" type="submit">
+                Continuar
+              </button>
+            </form>
+            <form
+              method="post"
+              action="{{ url_for('juego.abandonar_transicion', orden=estacion.orden) }}"
+              data-confirmar="¿Abandonar el juego? El intento quedará cerrado."
+            >
+              <button class="btn btn-outline-danger w-100" type="submit">
+                Abandonar
+              </button>
+            </form>
+          </div>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -53,5 +88,6 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="{{ url_for('static', filename='js/juego.js') }}"></script>
 <script src="{{ url_for('static', filename='js/temporizadores.js') }}"></script>
 {% endblock %}

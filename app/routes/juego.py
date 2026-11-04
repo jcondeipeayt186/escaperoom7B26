@@ -1,4 +1,6 @@
-"""Rutas del juego: bienvenida, identidad y estaciones."""
+"""Rutas del juego: bienvenida, identidad, estaciones, final y eliminación."""
+
+from datetime import date
 
 from flask import (
     Blueprint,
@@ -12,12 +14,13 @@ from flask import (
 )
 
 from ..servicios import configuracion as config
-from ..servicios import envios, equipos
+from ..servicios import envios, equipos, ranking
 from ..servicios.estaciones import (
     contar_estaciones_activas,
     obtener_estacion,
     obtener_preguntas_seleccionadas,
     obtener_resumen_estacion,
+    siguiente_estacion,
 )
 from ..servicios.seleccion import ErrorSeleccion, preparar_estacion
 from ..servicios.tiempos import calcular_tiempos
@@ -201,11 +204,7 @@ def juego():
 
     contexto = equipos.contexto_de_sesion()
     if contexto is None:
-        if equipos.contexto_finalizado_de_sesion() is not None:
-            return redirect(url_for("juego.eliminado"))
-        equipos.limpiar_sesion_juego()
-        flash("Ingresá el nombre de tu equipo para comenzar.", "info")
-        return redirect(url_for("juego.bienvenida"))
+        return _redirigir_sin_intento()
 
     estacion = obtener_estacion(contexto["intento"]["ultima_estacion_visitada"])
     if estacion is None or not estacion["activo"]:
@@ -228,12 +227,7 @@ def estado():
 
     contexto = equipos.contexto_de_sesion()
     if contexto is None:
-        if equipos.contexto_finalizado_de_sesion() is not None:
-            destino = url_for("juego.eliminado")
-        else:
-            equipos.limpiar_sesion_juego()
-            destino = url_for("juego.bienvenida")
-        return jsonify({"redirigir": destino})
+        return jsonify({"redirigir": _destino_sin_intento()})
 
     actual = obtener_estacion(contexto["intento"]["ultima_estacion_visitada"])
     if actual is None or not actual["activo"]:
@@ -446,24 +440,176 @@ def finalizar(orden):
 
 @bp.get("/juego/transicion/<int:orden>")
 def transicion(orden):
-    """Muestra la confirmación mínima de una estación superada."""
+    """Confirma una estación superada y prepara el avance."""
 
-    datos, respuesta = _resolver_estacion(orden)
-    if respuesta is not None:
-        return respuesta
+    contexto = equipos.contexto_de_sesion()
+    if contexto is not None:
+        actual, respuesta = _estacion_actual(contexto, orden)
+        if respuesta is not None:
+            return respuesta
 
-    if not datos["resumen"]["completada"]:
-        return redirect(url_for("juego.estacion", orden=orden))
+        total_estaciones = contar_estaciones_activas()
+        resumen = obtener_resumen_estacion(
+            contexto["intento"]["id"], actual["id"]
+        )
+        if not resumen["completada"]:
+            return redirect(url_for("juego.estacion", orden=actual["orden"]))
+
+        parametros = config.leer_configuracion()
+        siguiente = siguiente_estacion(actual["orden"])
+        tiempos = calcular_tiempos(
+            contexto["intento"]["id"],
+            actual["id"],
+            config.duracion_estacion(parametros),
+        )
+
+        return render_template(
+            "transicion.html",
+            equipo=contexto["equipo"],
+            intento=contexto["intento"],
+            estacion=actual,
+            total_estaciones=total_estaciones,
+            resumen=resumen,
+            maximos=config.maximos_estacion(parametros),
+            tiempos=tiempos,
+            siguiente_estacion=siguiente,
+            es_ultima=siguiente is None,
+        )
+
+    finalizado = equipos.contexto_finalizado_de_sesion()
+    if finalizado is None:
+        flash("Ingresá el nombre de tu equipo para comenzar.", "info")
+        return redirect(url_for("juego.bienvenida"))
+
+    if finalizado["intento"]["finalizado"] != "completo":
+        return redirect(url_for("juego.eliminado"))
+
+    total_estaciones = contar_estaciones_activas()
+    if not 1 <= orden <= total_estaciones:
+        abort(404)
+
+    actual = obtener_estacion(finalizado["intento"]["ultima_estacion_visitada"])
+    if actual is None:
+        return redirect(url_for("juego.final"))
+
+    if orden != actual["orden"]:
+        return redirect(url_for("juego.transicion", orden=actual["orden"]))
+
+    parametros = config.leer_configuracion()
+    resumen = obtener_resumen_estacion(finalizado["intento"]["id"], actual["id"])
+    tiempos = calcular_tiempos(
+        finalizado["intento"]["id"],
+        actual["id"],
+        config.duracion_estacion(parametros),
+    )
 
     return render_template(
         "transicion.html",
-        equipo=datos["contexto"]["equipo"],
-        intento=datos["contexto"]["intento"],
-        estacion=datos["estacion"],
-        total_estaciones=datos["total_estaciones"],
-        resumen=datos["resumen"],
-        maximos=datos["maximos"],
-        tiempos=datos["tiempos"],
+        equipo=finalizado["equipo"],
+        intento=finalizado["intento"],
+        estacion=actual,
+        total_estaciones=total_estaciones,
+        resumen=resumen,
+        maximos=config.maximos_estacion(parametros),
+        tiempos=tiempos,
+        siguiente_estacion=None,
+        es_ultima=True,
+    )
+
+
+@bp.post("/juego/transicion/<int:orden>/continuar")
+def continuar_transicion(orden):
+    """Avanza a la estación siguiente y arranca su cronómetro."""
+
+    contexto = equipos.contexto_de_sesion()
+    if contexto is None:
+        return _redirigir_sin_intento()
+
+    actual, respuesta = _estacion_actual(contexto, orden)
+    if respuesta is not None:
+        return respuesta
+
+    resumen = obtener_resumen_estacion(contexto["intento"]["id"], actual["id"])
+    if not resumen["completada"]:
+        return redirect(url_for("juego.estacion", orden=actual["orden"]))
+
+    siguiente = siguiente_estacion(actual["orden"])
+    if siguiente is None:
+        return redirect(url_for("juego.final"))
+
+    try:
+        preparar_estacion(
+            contexto["intento"]["id"],
+            siguiente["id"],
+            contexto["intento"]["dificultad"],
+        )
+    except ErrorSeleccion as error:
+        return _estacion_no_disponible(str(error), siguiente)
+
+    return redirect(url_for("juego.estacion", orden=siguiente["orden"]))
+
+
+@bp.post("/juego/transicion/<int:orden>/abandonar")
+def abandonar_transicion(orden):
+    """Cierra el intento como abandono desde la transición."""
+
+    contexto = equipos.contexto_de_sesion()
+    if contexto is None:
+        return _redirigir_sin_intento()
+
+    actual, respuesta = _estacion_actual(contexto, orden)
+    if respuesta is not None:
+        return respuesta
+
+    resumen = obtener_resumen_estacion(contexto["intento"]["id"], actual["id"])
+    if not resumen["completada"]:
+        return redirect(url_for("juego.estacion", orden=actual["orden"]))
+
+    if siguiente_estacion(actual["orden"]) is None:
+        return redirect(url_for("juego.final"))
+
+    try:
+        envios.abandonar(contexto["intento"]["id"], actual["id"])
+    except envios.ErrorPartida as error:
+        flash(str(error), "warning")
+        return redirect(url_for("juego.transicion", orden=actual["orden"]))
+
+    flash("El equipo abandonó el juego.", "info")
+    return redirect(url_for("juego.eliminado"))
+
+
+@bp.get("/juego/final")
+def final():
+    """Muestra el resultado del intento completado y el ranking."""
+
+    if equipos.contexto_de_sesion() is not None:
+        return redirect(url_for("juego.juego"))
+
+    finalizado = equipos.contexto_finalizado_de_sesion()
+    if finalizado is None:
+        flash("Ingresá el nombre de tu equipo para comenzar.", "info")
+        return redirect(url_for("juego.bienvenida"))
+
+    if finalizado["intento"]["finalizado"] != "completo":
+        return redirect(url_for("juego.eliminado"))
+
+    intento_id = finalizado["intento"]["id"]
+    filtros, error_filtro = _leer_filtros_ranking(request.args)
+
+    return render_template(
+        "final.html",
+        equipo=finalizado["equipo"],
+        intento=finalizado["intento"],
+        total_estaciones=contar_estaciones_activas(),
+        fila=ranking.obtener_fila_ranking(intento_id),
+        top=ranking.obtener_ranking(limite=10),
+        completo=ranking.obtener_ranking(
+            equipo=filtros["equipo"] or None,
+            numero_intento=filtros["numero_intento"],
+            fecha=filtros["fecha"],
+        ),
+        filtros=filtros,
+        error_filtro=error_filtro,
     )
 
 
@@ -480,7 +626,7 @@ def eliminado():
         return redirect(url_for("juego.bienvenida"))
 
     if finalizado["intento"]["finalizado"] == "completo":
-        return redirect(url_for("juego.bienvenida"))
+        return redirect(url_for("juego.final"))
 
     estacion = obtener_estacion(
         finalizado["intento"]["ultima_estacion_visitada"]
@@ -500,16 +646,87 @@ def eliminado():
     )
 
 
+def _estacion_actual(contexto, orden):
+    """Valida el orden pedido contra la estación actual del intento."""
+
+    actual = obtener_estacion(contexto["intento"]["ultima_estacion_visitada"])
+    if actual is None or not actual["activo"]:
+        return None, _estacion_no_disponible(
+            "No pudimos encontrar la estación actual del intento. "
+            "Avisá a la organización.",
+            actual,
+        )
+
+    total_estaciones = contar_estaciones_activas()
+    if not 1 <= orden <= total_estaciones:
+        abort(404)
+
+    if orden != actual["orden"]:
+        return None, redirect(url_for("juego.estacion", orden=actual["orden"]))
+
+    return actual, None
+
+
+def _leer_filtros_ranking(args):
+    """Lee los filtros del ranking completo y valida sus valores."""
+
+    filtros = {
+        "equipo": equipos.normalizar_nombre(args.get("equipo", ""))[
+            : equipos.LARGO_MAXIMO_NOMBRE
+        ],
+        "numero_intento": None,
+        "numero_intento_texto": args.get("numero_intento", "").strip(),
+        "fecha": None,
+        "fecha_texto": args.get("fecha", "").strip(),
+    }
+    error = None
+
+    numero_texto = filtros["numero_intento_texto"]
+    if numero_texto:
+        if numero_texto.isdigit() and int(numero_texto) > 0:
+            filtros["numero_intento"] = int(numero_texto)
+        else:
+            error = "El número de intento debe ser un entero mayor que cero."
+
+    fecha_texto = filtros["fecha_texto"]
+    if fecha_texto:
+        try:
+            filtros["fecha"] = date.fromisoformat(fecha_texto)
+        except ValueError:
+            error = "La fecha de fin no es válida. Usá el formato aaaa-mm-dd."
+
+    return filtros, error
+
+
+def _destino_sin_intento():
+    """URL a la que corresponde ir cuando la sesión no tiene intento activo."""
+
+    finalizado = equipos.contexto_finalizado_de_sesion()
+    if finalizado is None:
+        equipos.limpiar_sesion_juego()
+        return url_for("juego.bienvenida")
+
+    if finalizado["intento"]["finalizado"] == "completo":
+        return url_for("juego.final")
+
+    return url_for("juego.eliminado")
+
+
+def _redirigir_sin_intento():
+    """Redirige según el estado del intento y avisa si no hay sesión."""
+
+    destino = _destino_sin_intento()
+    if destino == url_for("juego.bienvenida"):
+        flash("Ingresá el nombre de tu equipo para comenzar.", "info")
+    return redirect(destino)
+
+
 def _resolver_estacion(orden, cerrar_por_tiempo=True):
     """Valida sesión, orden y estado; devuelve datos o una respuesta."""
 
     contexto = equipos.contexto_de_sesion()
     if contexto is None:
-        if equipos.contexto_finalizado_de_sesion() is not None:
-            return None, redirect(url_for("juego.eliminado"))
-        equipos.limpiar_sesion_juego()
-        flash("Ingresá el nombre de tu equipo para comenzar.", "info")
-        return None, redirect(url_for("juego.bienvenida"))
+        return None, _redirigir_sin_intento()
 
     actual = obtener_estacion(contexto["intento"]["ultima_estacion_visitada"])
     if actual is None or not actual["activo"]:

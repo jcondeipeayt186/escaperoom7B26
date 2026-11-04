@@ -57,7 +57,7 @@ Reglas del juego:
 - Selección estable después de recargar.
 - Recarga sin reiniciar tiempos.
 - Reanudación desde `ultima_estacion_visitada`.
-- Ranking: tiempo ascendente, luego ayudas, luego `id`.
+- Ranking: tiempo ascendente, luego incorrectas, luego ayudas, luego el intento que comenzó antes, luego `id`.
 - Exclusión de `abandono`, `por_respuestas_incorrectas` y `por_tiempo`.
 - `puntaje_obtenido` solo en completos.
 

@@ -15,6 +15,8 @@
   let intentoInicioMs = Number(hud.dataset.intentoInicioMs) || servidorMs;
   let estacionFinMs = Number(hud.dataset.estacionFinMs) || servidorMs;
   let estacionFija = Number(hud.dataset.estacionSegundos) || 0;
+  let generalFijo = Number(hud.dataset.generalSegundos) || 0;
+  let generalCongelado = hud.dataset.generalCongelado === "si";
   let completada = hud.dataset.completada === "si";
   let baseRendimiento = performance.now();
 
@@ -28,6 +30,7 @@
   }
 
   function generalSegundos() {
+    if (generalCongelado) return generalFijo;
     return Math.max(0, Math.floor((ahoraServidorMs() - intentoInicioMs) / 1000));
   }
 
@@ -147,6 +150,8 @@
       intentoInicioMs = Number(datos.intento_inicio_ms) || intentoInicioMs;
       estacionFinMs = Number(datos.estacion_fin_ms) || estacionFinMs;
       estacionFija = Number(datos.estacion_segundos) || 0;
+      generalFijo = Number(datos.general_segundos) || 0;
+      generalCongelado = Boolean(datos.general_congelado);
       completada = Boolean(datos.completada);
       baseRendimiento = performance.now();
 

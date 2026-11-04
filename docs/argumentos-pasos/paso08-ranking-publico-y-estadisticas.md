@@ -22,7 +22,7 @@ estadísticas sin datos sensibles.
 ## Alcance
 
 - `GET /ranking`: solo lectura, tipografía grande, tabla con posición, equipo,
-  intento, tiempo total y ayudas.
+  número de intento, tiempo total, incorrectas, ayudas y fecha de fin.
 - `GET /ranking/datos`: JSON para el polling.
 - Polling cada 5–10 segundos con `fetch`.
 - Indicador de última actualización.
@@ -36,7 +36,8 @@ estadísticas sin datos sensibles.
 ## Reglas del ranking
 
 - Solo `finalizado = 'completo'`.
-- Orden: segundos ascendentes, luego `cantidad_ayudas` ascendente, luego
+- Orden: segundos ascendentes; luego respuestas incorrectas ascendentes;
+  luego `cantidad_ayudas` ascendente; luego `fecha_inicio` ascendente; luego
   `id` ascendente.
 - Mostrar el número de intento cuando un equipo repitió:
   `ROW_NUMBER() OVER (PARTITION BY equipo_id ORDER BY id)` o una subconsulta

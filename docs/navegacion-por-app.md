@@ -180,18 +180,21 @@ Comportamiento:
 
 Elementos:
 
-- HUD.
+- Encabezado oscuro con el equipo, la cantidad de estaciones completadas, el tiempo total, la posición, las ayudas y las incorrectas.
 - Mensaje **"¡Misión completada!"**.
-- Tiempo total, ayudas usadas y posición en el ranking.
-- Tabla del ranking (misma información que `/ranking`, recortada a las primeras posiciones).
-- Botón **Volver al inicio** para un nuevo intento.
+- Tiempo total, posición en el ranking y botón **Volver al inicio** para un nuevo intento.
+- Card **Top 10** con posición, equipo, número de intento, tiempo, incorrectas, ayudas y fecha de fin.
+- Card **Ranking completo** con filtros por nombre de equipo, número de intento y fecha de fin.
+- La fecha de fin se muestra como `dd/mm/aaaa HH:MM`.
 - Enlace a `/estadisticas`.
 
 Comportamiento:
 
 - Solo se llega si `finalizado = 'completo'`.
 - `puntaje_obtenido` se calcula en el servidor como segundos totales.
+- Si el intento está activo, redirige a la estación actual.
 - Si el intento no está completo, redirige a `/juego/eliminado`.
+- El top 10 no se filtra. Los filtros se aplican solo al ranking completo y no cambian la posición general de cada fila.
 
 ### 3.6 Eliminación (`/juego/eliminado`)
 
@@ -226,7 +229,7 @@ Comportamiento:
 Elementos:
 
 - Título **"Ranking Escape Room 7.º B"**.
-- Tabla grande con: posición, equipo, intento, tiempo total y ayudas.
+- Tabla grande con: posición, equipo, número de intento, tiempo total, incorrectas, ayudas y fecha de fin.
 - Indicador de última actualización.
 - Aviso si todavía no hay intentos completados.
 - Sin botones de administración ni datos sensibles.
@@ -234,7 +237,7 @@ Elementos:
 Comportamiento:
 
 - Solo muestra `finalizado = 'completo'`.
-- Orden: tiempo ascendente, luego menos ayudas, luego `id`.
+- Orden: tiempo ascendente; en empate, menos incorrectas; luego menos ayudas; luego el intento que comenzó antes; luego `id` ascendente.
 - Se actualiza sola cada 5–10 segundos consultando `/ranking/datos`.
 - Si el polling falla, mantiene la última tabla y muestra "sin conexión" sin borrar datos.
 - Tipografía y contraste pensados para leerse a varios metros.

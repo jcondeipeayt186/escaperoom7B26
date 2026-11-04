@@ -30,6 +30,7 @@ def preparar_estacion(intento_id, estacion_id, dificultad):
             raise ErrorSeleccion("El intento ya no está activo.")
 
         _asegurar_intento_estacion(cursor, intento_id, estacion_id)
+        _actualizar_ultima_estacion(cursor, intento_id, estacion_id)
 
         seleccion = _leer_seleccion(cursor, intento_id, estacion_id)
         if seleccion:
@@ -68,6 +69,20 @@ def _asegurar_intento_estacion(cursor, intento_id, estacion_id):
         "INSERT INTO intento_estacion (intento_id, estacion_id, fecha_inicio) "
         "VALUES (%s, %s, NOW(3))",
         (intento_id, estacion_id),
+    )
+
+
+def _actualizar_ultima_estacion(cursor, intento_id, estacion_id):
+    """Marca la estación que el intento está jugando ahora.
+
+    Se actualiza al entrar a la estación (después de **Continuar**), no al
+    completar la anterior. Si la estación ya estaba preparada, el valor no
+    cambia.
+    """
+
+    cursor.execute(
+        "UPDATE intento SET ultima_estacion_visitada = %s WHERE id = %s",
+        (estacion_id, intento_id),
     )
 
 

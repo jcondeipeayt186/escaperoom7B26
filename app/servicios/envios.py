@@ -78,12 +78,16 @@ def registrar_envio(
         }
 
         if correctas == len(preguntas):
+            cursor.execute("SELECT NOW(3) AS ahora")
+            ahora = cursor.fetchone()["ahora"]
             cursor.execute(
                 "UPDATE intento_estacion "
-                "SET completada = 1, fecha_fin = NOW(3) "
+                "SET completada = 1, fecha_fin = %s "
                 "WHERE intento_id = %s AND estacion_id = %s",
-                (intento_id, estacion_id),
+                (ahora, intento_id, estacion_id),
             )
+            if not _hay_estacion_posterior(cursor, estacion_id):
+                _cerrar_intento_completo(cursor, intento_id, ahora)
             resultado["estado"] = "completada"
             return resultado
 
@@ -298,6 +302,34 @@ def _cerrar_intento(cursor, intento_id, finalizado):
         "WHERE id = %s AND fecha_fin IS NULL",
         (finalizado, intento_id),
     )
+
+
+def _cerrar_intento_completo(cursor, intento_id, fecha_fin):
+    """Cierra el intento al completar la última estación.
+
+    ``fecha_fin`` es la misma que se guardó en ``intento_estacion`` para que
+    el puntaje no incluya el tiempo de la transición ni de la pantalla final.
+    """
+
+    cursor.execute(
+        "UPDATE intento "
+        "SET finalizado = 'completo', fecha_fin = %s, "
+        "    puntaje_obtenido = TIMESTAMPDIFF(SECOND, fecha_inicio, %s) "
+        "WHERE id = %s AND fecha_fin IS NULL",
+        (fecha_fin, fecha_fin, intento_id),
+    )
+
+
+def _hay_estacion_posterior(cursor, estacion_id):
+    """Indica si después de esta estación sigue el recorrido activo."""
+
+    cursor.execute(
+        "SELECT 1 FROM estacion e "
+        "JOIN estacion actual ON actual.id = %s "
+        "WHERE e.activo = 1 AND e.orden > actual.orden LIMIT 1",
+        (estacion_id,),
+    )
+    return cursor.fetchone() is not None
 
 
 def _cerrar_estacion(cursor, intento_id, estacion_id):

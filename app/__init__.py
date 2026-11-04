@@ -83,6 +83,14 @@ def create_app(config_override=None):
         total = max(int(segundos or 0), 0)
         return f"{total // 60:02d}:{total % 60:02d}"
 
+    @app.template_filter("fecha_hora")
+    def formato_fecha_hora(valor):
+        """Formatea una fecha de MySQL como ``dd/mm/aaaa HH:MM``."""
+
+        if valor is None:
+            return "—"
+        return valor.strftime("%d/%m/%Y %H:%M")
+
     return app
 
 

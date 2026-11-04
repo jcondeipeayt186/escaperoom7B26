@@ -15,11 +15,40 @@
           <strong>Equipo N.º {{ equipo.id }} · {{ equipo.nombre }}</strong>
         </p>
         {% if estacion %}
-          <p class="text-body-secondary">
+          <p class="text-body-secondary mb-4">
             Estación {{ estacion.orden }} de {{ total_estaciones }} ·
             {{ estacion.nombre }}
           </p>
         {% endif %}
+
+        <div class="row g-2 text-start mb-4">
+          <div class="col-6 col-md-3">
+            <div class="border rounded p-2 h-100">
+              <div class="small text-body-secondary">Tiempo total</div>
+              <div class="fw-semibold">{{ intento.segundos_totales|hhmmss }}</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="border rounded p-2 h-100">
+              <div class="small text-body-secondary">Ayudas</div>
+              <div class="fw-semibold">{{ intento.cantidad_ayudas }}</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="border rounded p-2 h-100">
+              <div class="small text-body-secondary">Incorrectas</div>
+              <div class="fw-semibold">{{ intento.incorrectas }}</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="border rounded p-2 h-100">
+              <div class="small text-body-secondary">Estaciones</div>
+              <div class="fw-semibold">
+                {{ intento.estaciones_completadas }} de {{ total_estaciones }}
+              </div>
+            </div>
+          </div>
+        </div>
 
         <p class="text-body-secondary small mb-4">
           Este intento no se puede reanudar. Si quieren volver a jugar,

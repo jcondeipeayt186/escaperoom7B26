@@ -65,7 +65,7 @@ curl -i http://127.0.0.1:5000/salud
 Respuesta esperada: `200` con `{"estado": "ok", "base": "ok"}`. Si la base no
 responde, devuelve `503` sin exponer credenciales.
 
-## Flujo implementado hasta el paso 05
+## Flujo implementado hasta el paso 06
 
 - `GET /` muestra la bienvenida con nombre, cantidad de integrantes (1–4) y
   solo las dificultades habilitadas en `configuracion`.
@@ -101,9 +101,21 @@ responde, devuelve `503` sin exponer credenciales.
 - `POST /juego/estacion/<orden>/ayuda` suma una ayuda sin mostrar la pista.
 - `POST /juego/estacion/<orden>/abandonar` y `/finalizar` cierran el intento
   y la estación.
-- `GET /juego/transicion/<orden>` y `GET /juego/eliminado` existen en versión
-  mínima. La transición muestra los contadores y todavía no tiene botón
-  **Continuar**.
+- `GET /juego/transicion/<orden>` muestra el resumen de la estación y, en las
+  estaciones 1 a 4, los botones **Continuar** y **Abandonar**. **Continuar**
+  prepara la estación siguiente y actualiza `ultima_estacion_visitada`; su
+  cronómetro arranca recién ahí. La quinta muestra **Ver resultado**.
+- Al completar la quinta estación, el intento queda `finalizado = 'completo'`
+  con la misma `fecha_fin` de la estación y `puntaje_obtenido` igual a los
+  segundos totales. El contador general queda congelado.
+- `GET /juego/final` muestra el resultado, la posición, el top 10 y el
+  ranking completo con filtros por nombre de equipo, número de intento y
+  fecha de fin. Las filas incluyen la fecha y hora de fin (`dd/mm/aaaa HH:MM`).
+- `GET /juego/eliminado` explica el motivo (`por_tiempo`,
+  `por_respuestas_incorrectas` o `abandono`) y muestra un resumen del intento.
+- El ranking usa solo intentos completos y ordena por tiempo, luego
+  incorrectas, luego ayudas, luego el intento que comenzó antes y, por
+  último, `id`.
 - El HUD muestra equipo, estación, los dos contadores, ayudas, respuestas
   incorrectas y envíos.
 

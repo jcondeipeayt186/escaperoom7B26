@@ -101,7 +101,7 @@ Regla de sincronización:
 | `paso03-seleccion-de-preguntas.md` | código | Pedido 3 | paso02 | `feat: selección persistida de preguntas` | hecho |
 | `paso04-envio-y-reglas-de-estacion.md` | código | Pedido 4 | paso03 | `feat: envío de respuestas y reglas de la estación` | hecho |
 | `paso05-temporizadores-y-reanudacion.md` | código | Pedido 5 | paso04 | `feat: temporizadores y reanudación` | hecho |
-| `paso06-recorrido-completo-y-finales.md` | código | Pedido 6 | paso05 | `feat: recorrido completo y pantallas de finalización` | pendiente |
+| `paso06-recorrido-completo-y-finales.md` | código | Pedido 6 | paso05 | `feat: recorrido completo y pantallas de finalización` | hecho |
 | `paso07-prueba-manual-del-mvp.md` | manual | Pedido 7 | paso06 | `fix: correcciones del MVP` | pendiente |
 | `paso08-ranking-publico-y-estadisticas.md` | código | Pedido 8 | paso07 | `feat: ranking público y estadísticas` | pendiente |
 | `paso09-admin-login-y-crud.md` | código | Pedido 9 | paso08 | `feat: panel de administración y CRUD` | pendiente |

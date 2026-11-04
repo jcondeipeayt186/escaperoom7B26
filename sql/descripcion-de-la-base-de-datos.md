@@ -317,11 +317,17 @@ Ranking competitivo:
 ```sql
 SELECT i.id, e.nombre, i.fecha_inicio, i.fecha_fin,
        TIMESTAMPDIFF(SECOND, i.fecha_inicio, i.fecha_fin) AS segundos,
+       (SELECT COUNT(*) FROM incorrecta inc WHERE inc.intento_id = i.id)
+         AS incorrectas,
        i.cantidad_ayudas
 FROM intento i
 JOIN equipo e ON e.id = i.equipo_id
 WHERE i.finalizado = 'completo'
-ORDER BY segundos ASC, i.cantidad_ayudas ASC, i.id ASC;
+ORDER BY segundos ASC,
+         incorrectas ASC,
+         i.cantidad_ayudas ASC,
+         i.fecha_inicio ASC,
+         i.id ASC;
 ```
 
 Intentos activos (para bloquear el cambio de dificultad):

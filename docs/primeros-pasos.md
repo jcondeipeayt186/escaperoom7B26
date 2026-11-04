@@ -48,7 +48,7 @@ No hace falta volver a discutirlas; están en `AGENTS.md` → "Decisiones regist
 | Ayudas | La app no muestra pistas; registra hasta 2 ayudas por estación e intento. |
 | Identidad | `equipo.nombre` es único; si el nombre existe, la bienvenida pide el ID del equipo. |
 | Intentos | Un equipo puede tener varios; si hay uno activo, se reanuda. |
-| Ranking | Solo `finalizado = 'completo'`; orden por tiempo y luego por menos ayudas. |
+| Ranking | Solo `finalizado = 'completo'`; orden por tiempo, luego menos incorrectas, luego menos ayudas, luego el intento que comenzó antes. |
 | Borrado | Lógico en contenido; bloqueado en históricos. |
 
 ---
@@ -659,10 +659,11 @@ Alcance:
 - Estaciones 2 a 5 con la misma lógica de la 1.
 - Transición entre estaciones con confirmación.
 - Pantalla de eliminación por tiempo, por incorrectas y por abandono.
-- Pantalla final con tiempo total, ayudas y posición.
+- Pantalla final con tiempo total, posición, top 10 y ranking completo filtrable por equipo, número de intento y fecha de fin.
 - Calcular puntaje_obtenido (segundos) solo para intentos completados.
-- Ranking básico por tiempo y luego ayudas.
+- Ranking básico por tiempo, luego incorrectas, luego ayudas, luego el intento que comenzó antes.
 - Actualizar ultima_estacion_visitada al avanzar.
+- Permitir abandonar desde la transición de las estaciones 1 a 4.
 - Bloquear el avance fuera de orden.
 
 Reglas:
@@ -674,7 +675,7 @@ Reglas:
 Criterio de aceptación:
 - Un equipo completa las 5 estaciones y ve su resultado.
 - Un equipo es eliminado por tiempo, por incorrectas y por abandono.
-- El ranking ordena por tiempo y desempata por ayudas.
+- El ranking ordena por tiempo, luego por menos incorrectas, luego por menos ayudas y luego por el intento que comenzó antes.
 - Un intento no completado no aparece en el ranking.
 - No se puede saltar de la estación 2 a la 5 por URL.
 
@@ -972,7 +973,7 @@ No se pide desarrollo. Solo se ejecuta el checklist de la sección 7 y se usa el
 | 3 | Las 4 preguntas se mantienen al recargar y no se filtra la correcta. |
 | 4 | Se aplican envíos, ayudas y las 3 formas de eliminación. |
 | 5 | Los tiempos sobreviven recargas y el aviso de 30 s funciona. |
-| 6 | Se completa el recorrido y el ranking ordena por tiempo y ayudas. |
+| 6 | Se completa el recorrido y el ranking ordena por tiempo, luego incorrectas, luego ayudas y luego el intento que comenzó antes. |
 | 7 | Dos personas juegan sin asistencia técnica. |
 | 8 | El ranking se actualiza solo y las estadísticas no exponen datos. |
 | 9 | `/admin` está protegido y el CRUD respeta las validaciones. |

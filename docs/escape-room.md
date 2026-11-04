@@ -16,6 +16,14 @@ Una vez completan las 5 estaciones el sistema les otorgará un puntaje al equipo
 
 El puntaje de los equipos que han logrado llegar al final estará dado por el tiempo que les resulto llegar a completar las 5 estaciones. Asi mismo, si han tenido ayudas, se registrarán, asi como las resuestas incorrectas y entre equipos que hayan demorado lo mismo, tiene mejor ranking el que menos respuestas incorrectas y ayudas haya tenido.
 
+Orden exacto del ranking (solo intentos completados):
+
+1. Menor tiempo total para completar las 5 estaciones.
+2. A igual tiempo, menor cantidad de respuestas incorrectas.
+3. A igual tiempo e incorrectas, menor cantidad de ayudas.
+4. A igualdad de lo anterior, el intento que comenzó antes (`fecha_inicio`).
+5. Desempate final estable por `id` ascendente.
+
 Reglas operativas:
 
 1. Formen un equipo: trabajen juntos y escuchen las ideas de todos los integrantes.
@@ -24,7 +32,7 @@ Reglas operativas:
 4. Lean atentamente: analicen las preguntas y las pistas antes de elegir una respuesta .
 5. Pidan pistas con cuidado: cada equipo podrá solicitar hasta 2 pistas por estación durante el juego.
 6. Colaboren y respeten: todos los integrantes deben participar y respetar las opiniones de sus compañeros.
-7. ¡Completen la misión!: gana el equipo que resuelva correctamente los desafíos en el menor tiempo establecido, ante empates, ganan quienes tengan menos ayudas y menos respuestas incorrecta.
+7. ¡Completen la misión!: gana el equipo que resuelva correctamente los desafíos en el menor tiempo establecido. Ante empates, gana quien tenga menos respuestas incorrectas; si persiste, quien tenga menos ayudas; luego el intento que comenzó antes.
 
 ## Escape Room en la Feria: Presentación y Metodologia de juego
 
@@ -51,7 +59,7 @@ La aplicación debe ser considerando las siguientes pautas:
 
 Mostrar siempre el tiempo general que va incrementando, y el tiempo del escenario que inicia en 4 minutos y va decrementando. Faltando 30 segundos para llegar a 0 el contador del escenario debe emitir un audio de aviso y dejar titilando un texto debajo del contador. En cada página de estación debe mostrarse cantidad de ayudas, cantidad de respuestas incorrectas, cantidad de intentos de envio del formulario (si llega a 2 solo se deja el boton de finalizar juego por respuestas incorrectas).
 
-Debe haber una página por cada escenario, una página inicial de bienvenida a escape room donde se le pida en un formulario pequeño, el nombre del equipo y el nivel de dificultad utilizado (inicial, intermedio, avanzado). Además debe haber una página de finalización del juego que debe ser basada en la de ranking-puntajes/ranking-puntajes.html donde se muestre por orden los equipos desde el que mas puntos tiene (menor tiempo para completar los escenarios, y a igualdad de tiempo, el de menos ayuda e incorrectas). Y una página estadisticas del juego donde pueda mostrar algunos datos y/o graficos estadisticos como cantidad de participantes, cantidad de intentos, tiempo promedio por intento, cantidad de respuestas realizadas / cantidad de respuestas correctas.
+Debe haber una página por cada escenario, una página inicial de bienvenida a escape room donde se le pida en un formulario pequeño, el nombre del equipo y el nivel de dificultad utilizado (inicial, intermedio, avanzado). Además debe haber una página de finalización del juego que debe ser basada en la de ranking-puntajes/ranking-puntajes.html donde se muestre por orden los equipos desde el que menos tiempo tardó en completar los escenarios (a igualdad de tiempo, el de menos respuestas incorrectas y luego el de menos ayudas; si persiste, el intento que comenzó antes). La pantalla final muestra el resultado del intento, la posición, un top 10 y el ranking completo con filtros por nombre de equipo, número de intento y fecha de fin. Cada fila incluye la fecha y hora de fin. Y una página estadisticas del juego donde pueda mostrar algunos datos y/o graficos estadisticos como cantidad de participantes, cantidad de intentos, tiempo promedio por intento, cantidad de respuestas realizadas / cantidad de respuestas correctas.
 
 La base de datos de la aplicación debe ser en mysql. Debe poder representar:
 Equipos (id, nombre, cantidadPersonas), Intento (id, equipo, fechaInicio, FechaFin, seCompletoOK[boolean] , cantidadAyudas, puntajeObtenido, finalizado [completo, abandono, porRespuestasIncorrectas, porTiempo], ultimaEstacionVisitada), Estacion (id, nombre, descripcion), Temas dentro de una estación (id, nombre, estacion), preguntas vinculadas a cada tema (id, titulo, descripcion, tema, dificultad [inicial, intermedio, avanzado]), respuestas a cada pregunta (id, contenido, correcta[boolean], pregunta), y RespuestaElegida(id, fechaRespondida, intento, respuesta). Agregar una tabla para las respuestas incorrectas en una tabla incorrectas(id, pregunta, respuestaElegida, fecha, intento) que se registrara cuando se envie un formulario y la respuesta no sea correcta.
