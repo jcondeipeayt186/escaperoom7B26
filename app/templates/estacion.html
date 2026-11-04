@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block titulo %}Estación {{ estacion.orden }} · Escape Room 7.º B 2026{% endblock %}
+
+{% block contenido %}
+{% include "_hud.html" %}
+
+<div class="row justify-content-center">
+  <div class="col-12 col-xl-10">
+    <div class="mb-4">
+      <p class="text-uppercase text-body-secondary small mb-1">
+        Estación {{ estacion.orden }} de {{ total_estaciones }}
+      </p>
+      <h1 class="display-6 fw-bold mb-2">{{ estacion.nombre }}</h1>
+      {% if estacion.descripcion %}
+        <p class="lead mb-0">{{ estacion.descripcion }}</p>
+      {% endif %}
+    </div>
+
+    <div class="d-grid gap-3">
+      {% for pregunta in preguntas %}
+        <div class="card shadow-sm">
+          <fieldset class="card-body p-4">
+            <legend class="h5 mb-3">
+              <span class="badge text-bg-primary me-2">{{ pregunta.orden }}</span>
+              {{ pregunta.titulo }}
+            </legend>
+
+            {% if pregunta.descripcion %}
+              <p class="text-body-secondary">{{ pregunta.descripcion }}</p>
+            {% endif %}
+
+            {% for opcion in pregunta.opciones %}
+              <div class="form-check mb-2">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="pregunta_{{ pregunta.id }}"
+                  id="pregunta-{{ pregunta.id }}-opcion-{{ opcion.id }}"
+                  value="{{ opcion.id }}"
+                >
+                <label class="form-check-label" for="pregunta-{{ pregunta.id }}-opcion-{{ opcion.id }}">
+                  {{ opcion.contenido }}
+                </label>
+              </div>
+            {% endfor %}
+          </fieldset>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

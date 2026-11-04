@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block titulo %}Estación no disponible · Escape Room 7.º B 2026{% endblock %}
+
+{% block contenido %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-6">
+    <div class="card border-danger shadow-sm">
+      <div class="card-body p-4">
+        <h1 class="h3 mb-3">Estación no disponible</h1>
+        <p class="mb-3">{{ mensaje }}</p>
+        {% if estacion %}
+          <p class="text-body-secondary">
+            Estación {{ estacion.orden }} de {{ total_estaciones }} · {{ estacion.nombre }}
+          </p>
+        {% endif %}
+        <p class="text-body-secondary small">
+          Avisá a la organización para que revise la configuración del juego.
+        </p>
+        <a class="btn btn-primary" href="{{ url_for('juego.bienvenida') }}">Volver al inicio</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

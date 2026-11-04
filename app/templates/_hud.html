@@ -1,6 +1,37 @@
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3 mb-4 rounded bg-dark text-white">
-  <div class="fs-5 fw-semibold">Equipo N.º {{ equipo.id }} · {{ equipo.nombre }}</div>
-  {% if estacion %}
-    <div>Estación {{ estacion.orden }} de {{ total_estaciones }} · {{ estacion.nombre }}</div>
-  {% endif %}
+<div class="card border-0 bg-dark text-white mb-4">
+  <div class="card-body p-3 p-md-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+      <div class="fs-5 fw-semibold">Equipo N.º {{ equipo.id }} · {{ equipo.nombre }}</div>
+      {% if estacion %}
+        <div>Estación {{ estacion.orden }} de {{ total_estaciones }} · {{ estacion.nombre }}</div>
+      {% endif %}
+    </div>
+
+    <div class="row g-2 text-center">
+      <div class="col-6 col-md-3">
+        <div class="border border-light border-opacity-25 rounded p-2 h-100">
+          <div class="small text-white-50">Ayudas</div>
+          <div class="fs-5 fw-semibold">{{ resumen.ayudas }} de {{ maximos.ayudas }}</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="border border-light border-opacity-25 rounded p-2 h-100">
+          <div class="small text-white-50">Incorrectas</div>
+          <div class="fs-5 fw-semibold">{{ resumen.incorrectas }} de {{ maximos.incorrectas }}</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="border border-light border-opacity-25 rounded p-2 h-100">
+          <div class="small text-white-50">Envíos</div>
+          <div class="fs-5 fw-semibold">{{ resumen.envios }} de {{ maximos.envios }}</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="border border-light border-opacity-25 rounded p-2 h-100">
+          <div class="small text-white-50">Dificultad</div>
+          <div class="fs-5 fw-semibold text-capitalize">{{ intento.dificultad }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

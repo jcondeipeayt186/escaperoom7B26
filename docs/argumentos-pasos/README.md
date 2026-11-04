@@ -98,7 +98,7 @@ Regla de sincronización:
 | `paso00-verificar-base-y-contenido.md` | infra | Paso 1 | — | sin commit | hecho |
 | `paso01-esqueleto-flask.md` | código | Pedido 1 | paso00 | `feat: esqueleto flask y configuración` | hecho |
 | `paso02-bienvenida-e-identidad.md` | código | Pedido 2 | paso01 | `feat: bienvenida e identidad de equipo` | hecho |
-| `paso03-seleccion-de-preguntas.md` | código | Pedido 3 | paso02 | `feat: selección persistida de preguntas` | pendiente |
+| `paso03-seleccion-de-preguntas.md` | código | Pedido 3 | paso02 | `feat: selección persistida de preguntas` | hecho |
 | `paso04-envio-y-reglas-de-estacion.md` | código | Pedido 4 | paso03 | `feat: envío de respuestas y reglas de la estación` | pendiente |
 | `paso05-temporizadores-y-reanudacion.md` | código | Pedido 5 | paso04 | `feat: temporizadores y reanudación` | pendiente |
 | `paso06-recorrido-completo-y-finales.md` | código | Pedido 6 | paso05 | `feat: recorrido completo y pantallas de finalización` | pendiente |

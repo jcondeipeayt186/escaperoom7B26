@@ -92,6 +92,7 @@ app/
     configuracion.py   # lectura de configuracion y dificultades habilitadas
     equipos.py         # identidad, alta y reanudación de intentos
     estaciones.py      # orden del recorrido y consultas de estaciones
+    seleccion.py       # selección y congelamiento de preguntas por intento
   routes/
     juego.py           # bienvenida, estaciones, transición, final, abandono
     ranking.py         # ranking público / vista de TV
@@ -270,6 +271,10 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 16. **Identidad del equipo:** `equipo.nombre` es único. Si el nombre ya existe, la bienvenida pide el ID del equipo y no crea uno nuevo. El ID se muestra siempre. Cada reingreso crea un intento nuevo, salvo que el equipo tenga un intento activo (`fecha_fin IS NULL`), en cuyo caso se reanuda. Si dos equipos distintos quieren el mismo nombre, deben usar un sufijo.
 17. **Datos al reingresar:** cuando un equipo existente vuelve a ingresar, `equipo.cantidad_personas` **no se actualiza**: se conserva el valor original. La cantidad del formulario solo se usa al crear el equipo. Los datos pendientes de identificación (nombre normalizado, cantidad y dificultad) se guardan temporalmente en la sesión hasta confirmar el ID; la sesión de juego guarda solo `equipo_id` e `intento_id` y el servidor vuelve a leer la base en cada request. Un ID incorrecto se rechaza sin revelar el nombre ni otros datos del equipo.
 18. **Intento activo y dificultad:** si el equipo tiene un intento activo, se reanuda con la dificultad de ese intento y se ignora la elegida en el formulario. Si no lo tiene, el nuevo intento usa la dificultad pendiente y se revalida que siga habilitada antes de crearlo. `GET /` con un intento activo en la sesión muestra el formulario y un aviso con **Continuar**, sin redirección automática. Los POST inválidos vuelven a mostrar el formulario con estado `400` y errores inline, sin crear ni modificar datos.
+19. **Entrada a estación:** `intento_estacion` y `intento_pregunta` se crean en una sola transacción, bloqueando la fila del intento con `FOR UPDATE`. Si la estación ya tiene su fila, se reutiliza y nunca se reinicia `fecha_inicio`; si la selección ya tiene 4 filas, se usa tal cual.
+20. **Orden de preguntas:** el orden de las 4 preguntas se sortea una vez y se persiste en `intento_pregunta.orden`; no se recalcula al recargar.
+21. **Cobertura insuficiente:** si falta al menos una pregunta por tema activo o no hay 4 del nivel, la estación responde `503` con `estacion_no_disponible.html` y no crea filas parciales. Una selección parcial ya guardada se trata como error y tampoco se completa automáticamente.
+22. **Navegación de estaciones:** `GET /juego` redirige a la estación actual; `GET /juego/estacion/<orden>` valida la estación activa y el rango 1–5. Cualquier orden distinta de la actual redirige a la estación actual; un orden fuera de rango devuelve `404`. La selección congelada se muestra aunque el contenido se desactive después.
 
 ## Convenciones de código
 

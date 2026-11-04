@@ -2,8 +2,9 @@
 
 Fecha: 4/11/2026
 
-- **`paso02` implementado: bienvenida e identidad del equipo.** `GET/POST /`, `GET/POST /equipo/identificar` y `GET /juego` (tablero provisorio) ya funcionan. La bienvenida pide nombre, cantidad de integrantes (1–4) y dificultad; solo ofrece las dificultades habilitadas en `configuracion`. Un nombre nuevo crea `equipo` e `intento` en una transacción; un nombre existente deriva a identificación por ID sin duplicar el equipo. Si el equipo tiene un intento activo se reanuda; si no, se crea uno nuevo con `ultima_estacion_visitada` en la estación activa con `orden = 1`. La sesión guarda solo `equipo_id` e `intento_id` y el servidor vuelve a validarlos en cada request. El HUD mínimo muestra `Equipo N.º X · nombre` y la estación actual. La lógica de dominio vive en `app/servicios/` (`configuracion.py`, `equipos.py`, `estaciones.py`); las plantillas nuevas son `bienvenida.html`, `identificar.html`, `juego.html` y `_hud.html`.
-- Se verificó el criterio del `paso02` con el cliente de pruebas y MySQL: alta con nombre normalizado, variante con mayúsculas/acentos y espacios repetidos que pide ID, ID inexistente rechazado sin revelar datos, cantidad 0/5 y dificultad deshabilitada rechazadas con `400`, recarga que conserva el intento, reanudación del intento activo y creación de uno nuevo al cerrarlo. Los datos de prueba se borraron al terminar.
+- **`paso03` implementado: selección persistida de preguntas y estación 1 jugable.** `GET /juego` redirige a la estación actual y `GET /juego/estacion/<orden>` muestra las 4 preguntas con 3 opciones como radios, sin botón de envío ni temporizadores. La selección vive en `app/servicios/seleccion.py`: bloquea la fila del intento con `FOR UPDATE`, crea `intento_estacion` con `NOW(3)` una sola vez y persiste 4 filas en `intento_pregunta` (al menos una por tema activo, completando al azar y sorteando 4 temas si hay más de 4). Si ya hay selección se reutiliza; una selección parcial devuelve `503` sin completarse. El HUD muestra equipo, estación, ayudas, incorrectas y envíos. `GET /juego/estacion/3` sin haber jugado la 2 redirige a la 1; un orden fuera de rango devuelve `404`. Las plantillas nuevas son `estacion.html`, `estacion_no_disponible.html` y se eliminó `juego.html`.
+- Se verificó el criterio del `paso03` con el cliente de pruebas y MySQL: 4 preguntas × 3 opciones, sin atributos que delaten la correcta, 5 recargas con las mismas preguntas y orden, `intento_pregunta` con 4 filas y cobertura de 1 por tema, `intento_estacion.fecha_inicio` estable, salto de estación bloqueado y selección parcial con `503`. Los datos de prueba se borraron al terminar.
+- **`paso02` implementado: bienvenida e identidad del equipo.** `GET/POST /` y `GET/POST /equipo/identificar` ya funcionan. La bienvenida pide nombre, cantidad de integrantes (1–4) y dificultad; solo ofrece las dificultades habilitadas en `configuracion`. Un nombre nuevo crea `equipo` e `intento` en una transacción; un nombre existente deriva a identificación por ID sin duplicar el equipo. Si el equipo tiene un intento activo se reanuda; si no, se crea uno nuevo con `ultima_estacion_visitada` en la estación activa con `orden = 1`. La sesión guarda solo `equipo_id` e `intento_id` y el servidor vuelve a validarlos en cada request.
 - **La aplicación Flask tiene el esqueleto del `paso01`.** Existe `app/` con la app factory `create_app()`, `app/db.py` (PyMySQL, cursor de diccionarios, conexión por request y helper `transaction()`), los blueprints `juego`, `ranking`, `estadisticas` y `admin`, las plantillas `base.html`, `404.html` y `500.html`, Bootstrap 5.3.3 local en `app/static/vendor/bootstrap/` y la ruta `GET /salud`.
 - `requirements.txt` fija Flask 3.1.3, `PyMySQL[rsa]` 1.2.3, python-dotenv 1.2.4, pytest 9.2.0 y waitress 3.0.2. `.env.example` documenta las 8 variables y `.env` existe local con permisos `600` (no versionado). `.gitignore` cubre `.venv/`, `.env`, cachés de Python y volcados de base.
 - `GET /salud` responde `200 {"estado":"ok","base":"ok"}` con MySQL arriba y `503` genérico si la base falla. También se verificaron las páginas 404 y 500, la ausencia de CDN y los conteos 5/14/20/60.
@@ -20,12 +21,12 @@ Fecha: 4/11/2026
 
 ## Próximo paso
 
-Implementar el `paso03-seleccion-de-preguntas.md` del guion `docs/argumentos-pasos/`:
+Implementar el `paso04-envio-y-reglas-de-estacion.md` del guion `docs/argumentos-pasos/`:
 
 ```text
-/feature @docs/argumentos-pasos/paso03-seleccion-de-preguntas.md
+/feature @docs/argumentos-pasos/paso04-envio-y-reglas-de-estacion.md
 ```
 
-Objetivo: congelar en `intento_pregunta` las 4 preguntas del nivel del intento, con al menos una por tema activo y selección aleatoria estable ante recargas.
+Objetivo: procesar el envío de la estación, registrar respuestas, aplicar el máximo de 2 envíos y 2 incorrectas, y habilitar ayudas y abandono.
 
 Cada paso se lanza con `/feature @docs/argumentos-pasos/<archivo>.md`, se revisa el plan, se implementa, se verifica el criterio de aceptación y se hace el commit indicado. El `paso07` es manual: lo hacen personas jugando, no el agente.

@@ -50,12 +50,33 @@ def dificultades_habilitadas(configuracion):
 def maximo_integrantes(configuracion):
     """Máximo de integrantes configurado, acotado al rango real del juego."""
 
-    try:
-        maximo = int(configuracion.get("max_integrantes_equipo", "4"))
-    except (TypeError, ValueError):
-        maximo = 4
-
+    maximo = entero_configuracion(configuracion, "max_integrantes_equipo", 4)
     return max(1, min(maximo, 4))
+
+
+def maximos_estacion(configuracion):
+    """Máximos visibles en el HUD de una estación."""
+
+    return {
+        "ayudas": max(
+            1, entero_configuracion(configuracion, "max_ayudas_estacion", 2)
+        ),
+        "incorrectas": max(
+            1, entero_configuracion(configuracion, "max_respuestas_incorrectas", 2)
+        ),
+        "envios": max(
+            1, entero_configuracion(configuracion, "max_envios_estacion", 2)
+        ),
+    }
+
+
+def entero_configuracion(configuracion, clave, predeterminado):
+    """Lee una clave numérica de ``configuracion`` con respaldo seguro."""
+
+    try:
+        return int(configuracion.get(clave, predeterminado))
+    except (TypeError, ValueError):
+        return predeterminado
 
 
 def es_dificultad_valida(dificultad, configuracion):

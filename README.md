@@ -65,7 +65,7 @@ curl -i http://127.0.0.1:5000/salud
 Respuesta esperada: `200` con `{"estado": "ok", "base": "ok"}`. Si la base no
 responde, devuelve `503` sin exponer credenciales.
 
-## Flujo implementado hasta el paso 02
+## Flujo implementado hasta el paso 03
 
 - `GET /` muestra la bienvenida con nombre, cantidad de integrantes (1–4) y
   solo las dificultades habilitadas en `configuracion`.
@@ -74,9 +74,13 @@ responde, devuelve `503` sin exponer credenciales.
 - `GET/POST /equipo/identificar` pide el ID del equipo y lo compara con el
   nombre. Si el equipo tiene un intento activo lo reanuda; si no, crea uno
   nuevo con la dificultad elegida.
-- `GET /juego` es un tablero provisorio con el HUD mínimo
-  (`Equipo N.º X · nombre`) y la estación que corresponde al intento. En el
-  `paso03` pasa a mostrar las preguntas de la estación.
+- `GET /juego` redirige a la estación actual del intento.
+- `GET /juego/estacion/<orden>` muestra la estación con sus 4 preguntas y
+  3 opciones cada una. La selección se sortea una vez y queda congelada en
+  `intento_pregunta`; recargar no cambia las preguntas ni el orden.
+  `intento_estacion.fecha_inicio` se crea una sola vez. No se permite saltar
+  estaciones por URL y el HTML no incluye cuál opción es la correcta.
+- El HUD muestra equipo, estación, ayudas, respuestas incorrectas y envíos.
 
 La lógica de identidad y configuración vive en `app/servicios/`. La sesión de
 Flask guarda solo `equipo_id` e `intento_id`; el servidor vuelve a leer y
