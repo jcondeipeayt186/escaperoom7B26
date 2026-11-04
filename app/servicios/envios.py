@@ -159,6 +159,44 @@ def finalizar_por_incorrectas(intento_id, estacion_id, max_envios):
         _cerrar_estacion(cursor, intento_id, estacion_id)
 
 
+def cerrar_por_tiempo_agotado(intento_id, estacion_id, duracion_segundos):
+    """Cierra el intento como ``por_tiempo`` si la estación se agotó.
+
+    Vuelve a comprobar el tiempo con el reloj de MySQL dentro de la
+    transacción. Es idempotente: si el intento ya no está activo, la estación
+    está completada o todavía queda tiempo, no modifica nada y devuelve
+    ``False``.
+    """
+
+    with transaction() as cursor:
+        cursor.execute(
+            "SELECT id FROM intento "
+            "WHERE id = %s AND fecha_fin IS NULL FOR UPDATE",
+            (intento_id,),
+        )
+        if cursor.fetchone() is None:
+            return False
+
+        cursor.execute(
+            "SELECT TIMESTAMPDIFF(SECOND, fecha_inicio, NOW(3)) AS transcurridos, "
+            "       completada "
+            "FROM intento_estacion "
+            "WHERE intento_id = %s AND estacion_id = %s FOR UPDATE",
+            (intento_id, estacion_id),
+        )
+        estacion = cursor.fetchone()
+        if (
+            estacion is None
+            or estacion["completada"]
+            or int(estacion["transcurridos"]) < duracion_segundos
+        ):
+            return False
+
+        _cerrar_intento(cursor, intento_id, "por_tiempo")
+        _cerrar_estacion(cursor, intento_id, estacion_id)
+        return True
+
+
 def _bloquear_intento(cursor, intento_id):
     cursor.execute(
         "SELECT id FROM intento "

@@ -94,6 +94,7 @@ app/
     estaciones.py      # orden del recorrido y consultas de estaciones
     seleccion.py       # selección y congelamiento de preguntas por intento
     envios.py          # envíos, ayudas, abandono y cierre de estación
+    tiempos.py         # contadores calculados desde fechas de MySQL
   routes/
     juego.py           # bienvenida, estaciones, transición, final, abandono
     ranking.py         # ranking público / vista de TV
@@ -113,8 +114,12 @@ app/
     admin/
   static/
     css/
+      temporizadores.css
     js/
+      juego.js
+      temporizadores.js
     audio/
+      aviso-30s.wav
     vendor/            # librerías locales, sin CDN
 tests/
 bd/
@@ -242,12 +247,16 @@ ORDER BY TIMESTAMPDIFF(SECOND, fecha_inicio, fecha_fin) ASC,
 ## Temporizadores
 
 - El contador general se calcula como `ahora - intento.fecha_inicio` y solo aumenta.
-- El contador de estación parte de 4:00 y baja hasta 0:00.
-- Al llegar a 30 segundos restantes: audio + texto titilante visible.
-- Al llegar a 0: el intento pasa a `finalizado = 'por_tiempo'` y no puede continuar.
+- El contador de estación parte de 4:00 y baja hasta 0:00. La duración global vive en `configuracion.duracion_estacion_segundos`; no debe cambiarse mientras haya equipos jugando.
+- Los dos contadores se calculan en `app/servicios/tiempos.py` con `TIMESTAMPDIFF(SECOND, ...)` desde las fechas de MySQL. El navegador solo dibuja la cuenta entre sincronizaciones.
+- `GET /juego/estado` devuelve los contadores en JSON y el JS lo consulta cada 10 segundos y al volver a la pestaña. Normalmente es de solo lectura; si el tiempo ya se agotó, cierra el intento y devuelve una redirección.
+- El tiempo agotado se valida en **cada** request de juego, incluidos los POST, con el reloj del servidor. El reloj del navegador no es fuente de verdad.
+- Al llegar a 30 segundos restantes: audio + texto titilante visible. El aviso visual funciona aunque el audio esté bloqueado.
+- Al llegar a 0: el intento pasa a `finalizado = 'por_tiempo'`, `fecha_fin` se escribe con la hora del servidor, `puntaje_obtenido` queda `NULL` y no puede continuar.
 - El tiempo debe sobrevivir a recargas de página. Persistir `intento_estacion.fecha_inicio` y recalcular desde el servidor.
 - Al reanudar, retomar desde `intento.ultima_estacion_visitada`.
-- El audio puede estar bloqueado por el navegador hasta que haya una interacción del usuario. Desbloquearlo al presionar "Iniciar" y mantener siempre la advertencia visual.
+- La transición muestra los contadores con el tiempo de estación congelado al completarla; el contador general sigue subiendo.
+- El audio puede estar bloqueado por el navegador hasta que haya una interacción del usuario. Se desbloquea con la primera interacción dentro de la estación y se mantiene siempre la advertencia visual.
 - Usar archivos locales de Bootstrap y audio: la feria puede no tener Internet confiable.
 
 ## Decisiones registradas
@@ -284,6 +293,10 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 28. **Doble envío:** se usa POST + redirección (PRG) y se deshabilita el botón al enviar. No hay token de idempotencia: dos POST simultáneos pueden registrarse como dos envíos.
 29. **Respuestas desactivadas:** al enviar se acepta cualquier respuesta que pertenezca a una de las preguntas congeladas, aunque `respuesta.activo = 0` después de la selección. Así la partida no queda trabada por cambios de contenido.
 30. **Transición y eliminación mínimas:** en el `paso04` existen `GET /juego/transicion/<orden>` y `GET /juego/eliminado` en versión mínima. La transición no tiene botón **Continuar**; el recorrido completo y las pantallas definitivas llegan en el `paso06`.
+31. **Ruta `/juego/estado`:** es una ruta nueva respecto de `docs/navegacion-por-app.md`, documentada en `MEMORY.md`. Devuelve JSON de solo lectura con los contadores y la hora del servidor. Si el tiempo de la estación ya se agotó, puede cerrar el intento como `por_tiempo` y devolver `redirigir` a `/juego/eliminado`; en el resto de los casos no modifica datos.
+32. **Contadores en la transición:** se muestran también en `GET /juego/transicion/<orden>`. El contador general sigue subiendo; el de la estación queda congelado en `intento_estacion.fecha_fin` para que se vea el tiempo que tardó la estación completada.
+33. **Desbloqueo del audio:** se intenta con la primera interacción dentro de la estación (`pointerdown` o `keydown`). Si el navegador lo bloquea, el texto titilante de los 30 segundos se muestra igual.
+34. **Precisión de segundos:** los contadores usan segundos enteros con `TIMESTAMPDIFF(SECOND, ...)`. El cierre por tiempo puede ocurrir hasta un segundo después del límite teórico. La duración es global y no debe modificarse mientras haya intentos activos.
 
 ## Convenciones de código
 

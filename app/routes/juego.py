@@ -4,6 +4,7 @@ from flask import (
     Blueprint,
     abort,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -19,6 +20,7 @@ from ..servicios.estaciones import (
     obtener_resumen_estacion,
 )
 from ..servicios.seleccion import ErrorSeleccion, preparar_estacion
+from ..servicios.tiempos import calcular_tiempos
 
 bp = Blueprint("juego", __name__)
 
@@ -216,6 +218,56 @@ def juego():
     return redirect(url_for("juego.estacion", orden=estacion["orden"]))
 
 
+@bp.get("/juego/estado")
+def estado():
+    """Devuelve los contadores para resincronizar sin recargar la página.
+
+    Normalmente es de solo lectura. Si el tiempo de la estación ya se agotó,
+    cierra el intento como ``por_tiempo`` y devuelve la redirección.
+    """
+
+    contexto = equipos.contexto_de_sesion()
+    if contexto is None:
+        if equipos.contexto_finalizado_de_sesion() is not None:
+            destino = url_for("juego.eliminado")
+        else:
+            equipos.limpiar_sesion_juego()
+            destino = url_for("juego.bienvenida")
+        return jsonify({"redirigir": destino})
+
+    actual = obtener_estacion(contexto["intento"]["ultima_estacion_visitada"])
+    if actual is None or not actual["activo"]:
+        return (
+            jsonify(
+                {"error": "La estación actual del intento no está disponible."}
+            ),
+            404,
+        )
+
+    datos, respuesta = _resolver_estacion(
+        actual["orden"], cerrar_por_tiempo=False
+    )
+    if respuesta is not None:
+        if isinstance(respuesta, tuple):
+            return jsonify({"error": "La estación no está disponible."}), 503
+        return jsonify({"redirigir": respuesta.location})
+
+    if datos["tiempo_agotado"]:
+        envios.cerrar_por_tiempo_agotado(
+            datos["contexto"]["intento"]["id"],
+            datos["estacion"]["id"],
+            datos["tiempos"]["duracion_estacion_segundos"],
+        )
+        return jsonify(
+            {
+                "estado": "por_tiempo",
+                "redirigir": url_for("juego.eliminado"),
+            }
+        )
+
+    return jsonify(datos["tiempos"])
+
+
 @bp.get("/juego/estacion/<int:orden>")
 def estacion(orden):
     """Muestra la estación actual con sus 4 preguntas congeladas."""
@@ -240,6 +292,7 @@ def estacion(orden):
         preguntas=preguntas,
         resumen=datos["resumen"],
         maximos=datos["maximos"],
+        tiempos=datos["tiempos"],
         modo_solo_finalizar=(
             datos["resumen"]["envios"] >= datos["maximos"]["envios"]
         ),
@@ -410,6 +463,7 @@ def transicion(orden):
         total_estaciones=datos["total_estaciones"],
         resumen=datos["resumen"],
         maximos=datos["maximos"],
+        tiempos=datos["tiempos"],
     )
 
 
@@ -446,7 +500,7 @@ def eliminado():
     )
 
 
-def _resolver_estacion(orden):
+def _resolver_estacion(orden, cerrar_por_tiempo=True):
     """Valida sesión, orden y estado; devuelve datos o una respuesta."""
 
     contexto = equipos.contexto_de_sesion()
@@ -482,15 +536,28 @@ def _resolver_estacion(orden):
         return None, _estacion_no_disponible(str(error), actual)
 
     parametros = config.leer_configuracion()
+    intento_id = contexto["intento"]["id"]
+    resumen = obtener_resumen_estacion(intento_id, actual["id"])
+    duracion = config.duracion_estacion(parametros)
+    tiempos = calcular_tiempos(intento_id, actual["id"], duracion)
+    tiempo_agotado = (
+        not resumen["completada"] and tiempos["estacion_segundos"] <= 0
+    )
+
+    if tiempo_agotado and cerrar_por_tiempo:
+        if envios.cerrar_por_tiempo_agotado(intento_id, actual["id"], duracion):
+            flash("Se terminó el tiempo de la estación.", "danger")
+        return None, redirect(url_for("juego.eliminado"))
+
     return (
         {
             "contexto": contexto,
             "estacion": actual,
             "total_estaciones": total_estaciones,
-            "resumen": obtener_resumen_estacion(
-                contexto["intento"]["id"], actual["id"]
-            ),
+            "resumen": resumen,
             "maximos": config.maximos_estacion(parametros),
+            "tiempos": tiempos,
+            "tiempo_agotado": tiempo_agotado,
         },
         None,
     )

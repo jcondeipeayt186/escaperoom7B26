@@ -65,6 +65,24 @@ def create_app(config_override=None):
     def error_interno(error):
         return render_template("500.html"), 500
 
+    @app.template_filter("hhmmss")
+    def formato_hhmmss(segundos):
+        """Formatea segundos como ``HH:MM:SS`` para el contador general."""
+
+        total = max(int(segundos or 0), 0)
+        return (
+            f"{total // 3600:02d}:"
+            f"{(total % 3600) // 60:02d}:"
+            f"{total % 60:02d}"
+        )
+
+    @app.template_filter("mmss")
+    def formato_mmss(segundos):
+        """Formatea segundos como ``MM:SS`` para el contador de estación."""
+
+        total = max(int(segundos or 0), 0)
+        return f"{total // 60:02d}:{total % 60:02d}"
+
     return app
 
 

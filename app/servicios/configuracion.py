@@ -54,6 +54,14 @@ def maximo_integrantes(configuracion):
     return max(1, min(maximo, 4))
 
 
+def duracion_estacion(configuracion):
+    """Duración de cada estación en segundos, con respaldo seguro."""
+
+    return max(
+        1, entero_configuracion(configuracion, "duracion_estacion_segundos", 240)
+    )
+
+
 def maximos_estacion(configuracion):
     """Máximos visibles en el HUD de una estación."""
 

@@ -7,6 +7,56 @@
       {% endif %}
     </div>
 
+    {% if tiempos %}
+      <div
+        class="row g-2 text-center mb-3"
+        data-tiempos
+        data-general-segundos="{{ tiempos.general_segundos }}"
+        data-estacion-segundos="{{ tiempos.estacion_segundos }}"
+        data-servidor-ms="{{ tiempos.servidor_ms }}"
+        data-intento-inicio-ms="{{ tiempos.intento_inicio_ms }}"
+        data-estacion-fin-ms="{{ tiempos.estacion_fin_ms }}"
+        data-duracion="{{ tiempos.duracion_estacion_segundos }}"
+        data-aviso-segundos="{{ tiempos.aviso_segundos }}"
+        data-completada="{{ 'si' if tiempos.completada else 'no' }}"
+        data-estado-url="{{ url_for('juego.estado') }}"
+      >
+        <div class="col-6">
+          <div class="border border-light border-opacity-25 rounded p-2 h-100">
+            <div class="small text-white-50">Tiempo total</div>
+            <div class="tiempo-contador" id="tiempo-general">
+              {{ tiempos.general_segundos|hhmmss }}
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="border border-light border-opacity-25 rounded p-2 h-100">
+            <div class="small text-white-50">
+              {% if tiempos.completada %}
+                Tiempo de la estación (congelado)
+              {% else %}
+                Tiempo de estación
+              {% endif %}
+            </div>
+            <div class="tiempo-contador" id="tiempo-estacion">
+              {{ tiempos.estacion_segundos|mmss }}
+            </div>
+            {% if not tiempos.completada %}
+              <div
+                id="aviso-30"
+                class="aviso-30{% if tiempos.aviso_activo %} aviso-30--visible{% endif %}"
+                role="status"
+                aria-live="polite"
+                {% if not tiempos.aviso_activo %}hidden{% endif %}
+              >
+                ¡Quedan 30 segundos!
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
     <div class="row g-2 text-center">
       <div class="col-6 col-md-3">
         <div class="border border-light border-opacity-25 rounded p-2 h-100">

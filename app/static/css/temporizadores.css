@@ -1,0 +1,29 @@
+.tiempo-contador {
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+}
+
+.aviso-30 {
+  margin-top: 0.35rem;
+  font-weight: 700;
+  color: #ffda6a;
+}
+
+.aviso-30--visible {
+  animation: aviso-titilar 1s steps(2, start) infinite;
+}
+
+@keyframes aviso-titilar {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aviso-30--visible {
+    animation: none;
+  }
+}

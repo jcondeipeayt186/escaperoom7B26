@@ -65,7 +65,7 @@ curl -i http://127.0.0.1:5000/salud
 Respuesta esperada: `200` con `{"estado": "ok", "base": "ok"}`. Si la base no
 responde, devuelve `503` sin exponer credenciales.
 
-## Flujo implementado hasta el paso 04
+## Flujo implementado hasta el paso 05
 
 - `GET /` muestra la bienvenida con nombre, cantidad de integrantes (1–4) y
   solo las dificultades habilitadas en `configuracion`.
@@ -74,12 +74,26 @@ responde, devuelve `503` sin exponer credenciales.
 - `GET/POST /equipo/identificar` pide el ID del equipo y lo compara con el
   nombre. Si el equipo tiene un intento activo lo reanuda; si no, crea uno
   nuevo con la dificultad elegida.
-- `GET /juego` redirige a la estación actual del intento.
+- `GET /juego` redirige a la estación actual del intento y retoma desde
+  `intento.ultima_estacion_visitada` después de una recarga.
 - `GET /juego/estacion/<orden>` muestra la estación con sus 4 preguntas y
   3 opciones cada una. La selección se sortea una vez y queda congelada en
   `intento_pregunta`; recargar no cambia las preguntas ni el orden.
   `intento_estacion.fecha_inicio` se crea una sola vez. No se permite saltar
   estaciones por URL y el HTML no incluye cuál opción es la correcta.
+- Los contadores se calculan en `app/servicios/tiempos.py` desde las fechas de
+  MySQL: el tiempo total sube en `HH:MM:SS` y el de la estación baja en
+  `MM:SS` desde 4:00. Recargar no reinicia ninguno de los dos.
+- `static/js/temporizadores.js` dibuja la cuenta entre sincronizaciones y
+  consulta `GET /juego/estado` cada 10 segundos y al volver a la pestaña.
+- A los 30 segundos restantes aparece el texto titilante y se intenta
+  reproducir `app/static/audio/aviso-30s.wav`. El audio se desbloquea con la
+  primera interacción; el aviso visual funciona igual si el navegador lo
+  bloquea.
+- Al agotarse el tiempo, el servidor cierra el intento como `por_tiempo` con
+  `fecha_fin` del servidor y `puntaje_obtenido` en `NULL`, y redirige a
+  `/juego/eliminado`. El control se repite en cada GET y POST, incluso si el
+  reloj del navegador está manipulado.
 - `POST /juego/estacion/<orden>/responder` registra el envío, guarda las 4
   respuestas en `respuesta_elegida` y solo las incorrectas en `incorrecta`.
   Si las 4 son correctas pasa a la transición; las incorrectas acumuladas
@@ -88,8 +102,10 @@ responde, devuelve `503` sin exponer credenciales.
 - `POST /juego/estacion/<orden>/abandonar` y `/finalizar` cierran el intento
   y la estación.
 - `GET /juego/transicion/<orden>` y `GET /juego/eliminado` existen en versión
-  mínima. La transición todavía no tiene botón **Continuar**.
-- El HUD muestra equipo, estación, ayudas, respuestas incorrectas y envíos.
+  mínima. La transición muestra los contadores y todavía no tiene botón
+  **Continuar**.
+- El HUD muestra equipo, estación, los dos contadores, ayudas, respuestas
+  incorrectas y envíos.
 
 La lógica de identidad y configuración vive en `app/servicios/`. La sesión de
 Flask guarda solo `equipo_id` e `intento_id`; el servidor vuelve a leer y
