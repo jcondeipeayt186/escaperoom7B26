@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block titulo %}Ranking · Escape Room 7.º B 2026{% endblock %}
+
+{% block estilos %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/publico.css') }}">
+{% endblock %}
+
+{% block clases_main %}container-fluid px-3 px-lg-4{% endblock %}
+
+{% block contenido %}
+<div
+  class="ranking"
+  id="ranking"
+  data-url="{{ url_for('ranking.datos') }}"
+  data-intervalo="{{ intervalo_ms }}"
+>
+  <header class="ranking__cabecera">
+    <h1 class="ranking__titulo">Ranking Escape Room 7.º B</h1>
+    <p class="ranking__actualizacion" aria-live="polite">
+      Última actualización:
+      <span id="ranking-hora">{{ actualizado }}</span>
+      <span
+        class="ranking__reconectando"
+        id="ranking-reconectando"
+        role="status"
+        hidden
+      >Reconectando…</span>
+    </p>
+    <p class="ranking__vacio" id="ranking-vacio" {% if filas %}hidden{% endif %}>
+      Todavía no hay equipos que hayan completado el recorrido.
+    </p>
+  </header>
+
+  <div class="table-responsive">
+    <table class="table table-striped ranking__tabla align-middle mb-0">
+      <caption class="visually-hidden">
+        Intentos completados ordenados por tiempo total, luego por respuestas
+        incorrectas y luego por ayudas.
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Pos.</th>
+          <th scope="col">Equipo</th>
+          <th scope="col">Intento</th>
+          <th scope="col">Tiempo</th>
+          <th scope="col">Incorrectas</th>
+          <th scope="col">Ayudas</th>
+          <th scope="col">Fecha de fin</th>
+        </tr>
+      </thead>
+      <tbody id="ranking-filas">
+        {% for fila in filas %}
+          <tr>
+            <td>#{{ fila.posicion }}</td>
+            <td>{{ fila.equipo_nombre }}</td>
+            <td>{{ fila.numero_intento }}</td>
+            <td>{{ fila.segundos|hhmmss }}</td>
+            <td>{{ fila.incorrectas }}</td>
+            <td>{{ fila.cantidad_ayudas }}</td>
+            <td>{{ fila.fecha_fin|fecha_hora }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/ranking.js') }}"></script>
+{% endblock %}

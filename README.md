@@ -65,7 +65,7 @@ curl -i http://127.0.0.1:5000/salud
 Respuesta esperada: `200` con `{"estado": "ok", "base": "ok"}`. Si la base no
 responde, devuelve `503` sin exponer credenciales.
 
-## Flujo implementado hasta el paso 06
+## Flujo implementado hasta el paso 08
 
 - `GET /` muestra la bienvenida con nombre, cantidad de integrantes (1–4) y
   solo las dificultades habilitadas en `configuracion`.
@@ -118,6 +118,21 @@ responde, devuelve `503` sin exponer credenciales.
   último, `id`.
 - El HUD muestra equipo, estación, los dos contadores, ayudas, respuestas
   incorrectas y envíos.
+- `GET /ranking` es la vista pública para el televisor: tabla grande con
+  posición, equipo, número de intento, tiempo, incorrectas, ayudas y fecha de
+  fin. Se renderiza en el servidor y se actualiza sola consultando
+  `GET /ranking/datos` cada 8 segundos. Si el polling falla, conserva la tabla
+  y muestra **Reconectando…**. El JSON solo incluye intentos completados y no
+  expone `equipo_id` ni `intento_id`.
+- `GET /estadisticas` muestra agregados de la feria: equipos, integrantes,
+  intentos iniciados y completados, tiempo promedio de los completados,
+  respuestas realizadas, porcentaje de aciertos y barras de intentos por
+  estado. No muestra nombres de equipos, detalle por pregunta ni respuestas
+  correctas. Los aciertos se toman del resultado guardado en cada
+  `intento_envio`, para que el historial no cambie si después se edita una
+  pregunta.
+- La bienvenida enlaza a `/ranking` y `/estadisticas`; el final enlaza a
+  estadísticas y la eliminación a ranking.
 
 La lógica de identidad y configuración vive en `app/servicios/`. La sesión de
 Flask guarda solo `equipo_id` e `intento_id`; el servidor vuelve a leer y

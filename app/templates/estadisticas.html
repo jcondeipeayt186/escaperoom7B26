@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block titulo %}Estadísticas · Escape Room 7.º B 2026{% endblock %}
+
+{% block estilos %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/publico.css') }}">
+{% endblock %}
+
+{% block contenido %}
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
+  <div>
+    <h1 class="h2 mb-1">Estadísticas de la feria</h1>
+    <p class="text-body-secondary mb-0">
+      Datos agregados de todos los intentos. No se muestran nombres de equipos
+      ni el detalle de las respuestas.
+    </p>
+  </div>
+  <p class="text-body-secondary small mb-0">
+    Actualizado: <span id="estadisticas-hora">{{ actualizado }}</span>
+  </p>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg">
+    <div class="card shadow-sm h-100 text-center">
+      <div class="card-body">
+        <div class="estadisticas__etiqueta">Equipos participantes</div>
+        <div class="estadisticas__valor">{{ resumen.equipos }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg">
+    <div class="card shadow-sm h-100 text-center">
+      <div class="card-body">
+        <div class="estadisticas__etiqueta">Integrantes</div>
+        <div class="estadisticas__valor">{{ resumen.integrantes }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg">
+    <div class="card shadow-sm h-100 text-center">
+      <div class="card-body">
+        <div class="estadisticas__etiqueta">Intentos iniciados</div>
+        <div class="estadisticas__valor">{{ resumen.intentos_iniciados }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg">
+    <div class="card shadow-sm h-100 text-center">
+      <div class="card-body">
+        <div class="estadisticas__etiqueta">Intentos completados</div>
+        <div class="estadisticas__valor">{{ resumen.intentos_completados }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-lg">
+    <div class="card shadow-sm h-100 text-center">
+      <div class="card-body">
+        <div class="estadisticas__etiqueta">Tiempo promedio de los completados</div>
+        <div class="estadisticas__valor">
+          {{ resumen.promedio_segundos|hhmmss }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-lg-5">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h2 class="h4 mb-3">Respuestas</h2>
+
+        <dl class="row mb-3">
+          <dt class="col-7 fw-normal text-body-secondary">Realizadas</dt>
+          <dd class="col-5 text-end fs-5 fw-semibold mb-0">
+            {{ resumen.respuestas_realizadas }}
+          </dd>
+
+          <dt class="col-7 fw-normal text-body-secondary">Aciertos</dt>
+          <dd class="col-5 text-end fs-5 fw-semibold mb-0">
+            {{ resumen.aciertos }}
+          </dd>
+
+          <dt class="col-7 fw-normal text-body-secondary">Porcentaje de aciertos</dt>
+          <dd class="col-5 text-end fs-5 fw-semibold mb-0">
+            {{ "%.1f"|format(resumen.porcentaje_aciertos) }} %
+          </dd>
+        </dl>
+
+        <div
+          class="progress estadisticas__progreso"
+          role="img"
+          aria-label="Porcentaje de aciertos: {{ '%.1f'|format(resumen.porcentaje_aciertos) }} por ciento"
+        >
+          <div
+            class="progress-bar bg-success"
+            style="width: {{ resumen.porcentaje_aciertos }}%"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-7">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h2 class="h4 mb-3">Intentos por estado</h2>
+
+        {% if resumen.intentos_iniciados %}
+          <ul class="list-unstyled mb-0">
+            {% for estado in resumen.estados %}
+              <li class="estadisticas__estado">
+                <div class="d-flex justify-content-between gap-2">
+                  <span class="fw-semibold">{{ estado.etiqueta }}</span>
+                  <span class="text-body-secondary">
+                    {{ estado.total }}
+                    ({{ "%.1f"|format(estado.porcentaje_total) }} %)
+                  </span>
+                </div>
+                <div
+                  class="estadisticas__barra"
+                  role="img"
+                  aria-label="{{ estado.etiqueta }}: {{ estado.total }} intentos"
+                >
+                  <div
+                    class="estadisticas__barra-relleno estadisticas__barra-relleno--{{ estado.clave }}"
+                    style="width: {{ estado.ancho }}%"
+                  ></div>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="alert alert-info mb-0" role="alert">
+            Todavía no hay intentos registrados.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

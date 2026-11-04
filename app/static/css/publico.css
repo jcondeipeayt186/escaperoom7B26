@@ -1,0 +1,149 @@
+/* Vistas públicas: ranking del televisor y estadísticas de la feria. */
+
+.ranking__cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.ranking__titulo {
+  margin: 0;
+  font-size: clamp(2rem, 3.2vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+}
+
+.ranking__actualizacion {
+  margin: 0;
+  font-size: clamp(0.95rem, 1.1vw, 1.25rem);
+  color: var(--bs-secondary-color);
+}
+
+.ranking__reconectando {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background-color: #fff3cd;
+  color: #664d03;
+  font-weight: 700;
+}
+
+.ranking__reconectando[hidden] {
+  display: none;
+}
+
+.ranking__vacio {
+  margin: 0;
+  font-size: clamp(1.2rem, 1.6vw, 1.7rem);
+}
+
+.ranking__tabla {
+  font-size: clamp(1.05rem, 1.3vw, 1.55rem);
+  font-variant-numeric: tabular-nums;
+}
+
+.ranking__tabla thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 0.65rem 0.75rem;
+  background-color: #f8f9fa;
+  border-bottom-width: 2px;
+  font-size: clamp(0.8rem, 0.95vw, 1.05rem);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.ranking__tabla tbody td {
+  padding: 0.7rem 0.75rem;
+  white-space: nowrap;
+}
+
+.ranking__tabla tbody td:first-child {
+  font-weight: 700;
+}
+
+.estadisticas__etiqueta {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
+}
+
+.estadisticas__valor {
+  font-size: clamp(1.8rem, 2.6vw, 2.6rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+
+.estadisticas__progreso {
+  height: 1rem;
+}
+
+.estadisticas__estado {
+  margin-bottom: 0.9rem;
+}
+
+.estadisticas__estado:last-child {
+  margin-bottom: 0;
+}
+
+.estadisticas__barra {
+  height: 1.15rem;
+  margin-top: 0.3rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background-color: #e9ecef;
+}
+
+.estadisticas__barra-relleno {
+  height: 100%;
+  border-radius: 999px;
+  background-color: var(--bs-primary);
+}
+
+.estadisticas__barra-relleno--en_curso {
+  background-color: #6c757d;
+}
+
+.estadisticas__barra-relleno--completo {
+  background-color: #198754;
+}
+
+.estadisticas__barra-relleno--abandono {
+  background-color: #b8860b;
+}
+
+.estadisticas__barra-relleno--por_tiempo {
+  background-color: #c2410c;
+}
+
+.estadisticas__barra-relleno--por_fallas {
+  background-color: #dc3545;
+}
+
+@media (max-width: 767.98px) {
+  .ranking__tabla {
+    font-size: 0.95rem;
+  }
+
+  .ranking__tabla thead th,
+  .ranking__tabla tbody td {
+    padding: 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ranking,
+  .estadisticas {
+    scroll-behavior: auto;
+  }
+}

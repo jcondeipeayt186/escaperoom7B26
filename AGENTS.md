@@ -196,9 +196,9 @@ configuracion(clave, valor)                                          # dificulta
 2. **Estación 1 a 5:** una página/ruta por estación, con sus 4 preguntas, el temporizador y el HUD (ayudas, incorrectas, envíos). No permitir saltar estaciones por URL.
 3. **Transición:** confirmar estación superada y permitir continuar. La estación siguiente se prepara y su cronómetro arranca recién al presionar **Continuar**. Desde la transición de las estaciones 1 a 4 también se puede abandonar con confirmación.
 4. **Final:** mostrar el resultado del intento, la posición, el top 10 y el ranking completo filtrable por equipo, número de intento y fecha de fin. Incluye la fecha y hora de fin de cada intento.
-5. **Ranking público:** vista de solo lectura, pensada para el televisor. Debe actualizarse sola (por ejemplo, con polling) y ser legible a distancia.
+5. **Ranking público:** vista de solo lectura, pensada para el televisor. `GET /ranking` renderiza la tabla en el servidor y `GET /ranking/datos` entrega el JSON para el polling cada 8 segundos. Se actualiza sola, conserva la última tabla si falla la conexión y es legible a distancia.
 6. **Eliminación:** pantalla clara cuando el equipo queda fuera por tiempo, respuestas incorrectas o abandono.
-7. **Estadísticas públicas:** solo agregados (participantes, integrantes, intentos, tiempo promedio y respuestas realizadas / correctas). Sin nombres de equipos, sin detalle por pregunta y sin respuestas correctas. Accesible sin login.
+7. **Estadísticas públicas:** solo agregados (participantes, integrantes, intentos iniciados y completados, tiempo promedio de los completados, respuestas realizadas y porcentaje de aciertos), con barras por estado generadas en el servidor. Sin nombres de equipos, sin detalle por pregunta y sin respuestas correctas. Accesible sin login.
 8. **Login de administración:** `/admin`, con usuario y clave.
 9. **Panel de administración:** cards, gráficos y CRUD de las tablas.
 
@@ -317,6 +317,11 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 38. **Final y eliminación:** `/juego/final` solo acepta intentos con `finalizado = 'completo'`; con un intento activo redirige a la estación actual y con uno no completado redirige a `/juego/eliminado`. `/juego/eliminado` redirige al final si el intento está completo.
 39. **Pantalla final:** muestra el resultado del intento, el top 10 y, en una card aparte, el ranking completo con filtros por nombre de equipo, número de intento y fecha de fin. La fecha se muestra como `dd/mm/aaaa HH:MM`. Los filtros se aplican solo al ranking completo y no alteran la posición general.
 40. **Cierre de la quinta estación:** al registrar las 4 respuestas correctas de la última estación activa, el intento pasa a `finalizado = 'completo'`, `fecha_fin` es la misma que la de `intento_estacion` y `puntaje_obtenido` se calcula con esa fecha. Así el puntaje no incluye la transición ni la pantalla final.
+41. **Ranking público:** `GET /ranking` renderiza la tabla en el servidor como respaldo y `GET /ranking/datos` devuelve `{actualizado, filas}` para el polling. Solo incluye `finalizado = 'completo'`, usa el mismo orden y el mismo número de intento que `app/servicios/ranking.py`, y no expone `equipo_id` ni `intento_id`. El JSON se sirve con `Cache-Control: no-store`.
+42. **Polling del televisor:** `static/js/ranking.js` consulta `/ranking/datos` cada 8 segundos y al volver a la pestaña. Reemplaza las filas con `textContent` (nunca `innerHTML` con el nombre del equipo), actualiza la hora del servidor y, si falla la consulta, conserva la tabla y muestra **Reconectando…**. Sin WebSockets y sin borrar datos ante un error.
+43. **Estadísticas públicas:** `GET /estadisticas` calcula todo en `app/servicios/estadisticas.py` con agregados de `equipo`, `intento`, `respuesta_elegida` e `intento_envio`. Los aciertos salen de `intento_envio.respuestas_correctas`, que guarda el resultado del envío en ese momento, para que cambiar después una respuesta correcta no altere el historial. Las barras por estado incluyen **En curso** (`finalizado IS NULL`) y se generan con CSS en el servidor. No se muestran nombres, detalle por pregunta ni la palabra “correcta”: la etiqueta es **Aciertos**.
+44. **Rutas públicas exactas:** los blueprints `ranking` y `estadisticas` se registran sin `url_prefix` y declaran `/ranking`, `/ranking/datos` y `/estadisticas` sin barra final. La bienvenida enlaza a ranking y estadísticas, el final a estadísticas y la eliminación a ranking.
+45. **Fecha de actualización:** las vistas públicas muestran la hora del servidor MySQL con `DATE_FORMAT(NOW(), ...)`, no el reloj del navegador.
 
 ## Convenciones de código
 
@@ -376,6 +381,9 @@ Priorizar pruebas automatizadas para:
 - Toggle de dificultad bloqueado mientras hay intentos activos.
 - Borrado lógico de contenido sin romper intentos históricos.
 - Estadísticas públicas sin nombres de equipos ni respuestas correctas.
+- `/ranking/datos` devuelve solo intentos completados, en el orden del ranking y sin `equipo_id`.
+- `/estadisticas` no expone nombres de equipos, `respuesta_id`, `equipo_id` ni la palabra “correcta”.
+- La tabla de `/ranking` se conserva y muestra **Reconectando…** cuando falla el polling.
 - Selección aleatoria estable tras recargar (mismas 4 preguntas del intento).
 - Registro de todas las respuestas elegidas y de las incorrectas en `incorrecta`.
 - Conteo de envíos del formulario y bloqueo al segundo envío.
@@ -407,6 +415,8 @@ Verificación manual antes de entregar:
 - No presentar `docs/src/index.html` como la aplicación final ni copiar su lógica de respuestas en el cliente.
 - No reutilizar `basededatos.py`, `basededatos_contador.db` ni `contador.php`; el stack es Flask + MySQL.
 - No ordenar el ranking por puntos como en el prototipo de ranking.
+- No ordenar el ranking público por `puntaje_obtenido`: se ordena por tiempo, incorrectas, ayudas, `fecha_inicio` e `id`.
+- No borrar la tabla del ranking ni reemplazarla por un estado vacío cuando falla el polling.
 - No enlazar `/admin` desde la interfaz pública ni dejar sus rutas sin autenticación.
 - No aleatorizar preguntas sin persistir la selección por intento.
 - No borrar físicamente contenido ni filas históricas desde el CRUD; usar borrado lógico o bloquear.

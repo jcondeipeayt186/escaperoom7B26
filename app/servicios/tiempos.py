@@ -5,6 +5,17 @@ from ..db import get_db
 AVISO_SEGUNDOS = 30
 
 
+def ahora_texto():
+    """Devuelve la fecha y hora del servidor MySQL para las vistas públicas."""
+
+    with get_db().cursor() as cursor:
+        cursor.execute(
+            "SELECT DATE_FORMAT(NOW(), %s) AS ahora",
+            ("%d/%m/%Y %H:%i:%s",),
+        )
+        return cursor.fetchone()["ahora"]
+
+
 def calcular_tiempos(intento_id, estacion_id, duracion_segundos):
     """Devuelve el estado de los contadores del intento y la estación.
 
