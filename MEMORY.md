@@ -2,7 +2,9 @@
 
 Fecha: 4/11/2026
 
-- **La aplicación Flask ya tiene el esqueleto del `paso01`.** Existe `app/` con la app factory `create_app()`, `app/db.py` (PyMySQL, cursor de diccionarios, conexión por request y helper `transaction()`), los blueprints vacíos `juego`, `ranking`, `estadisticas` y `admin`, las plantillas `base.html`, `404.html` y `500.html`, Bootstrap 5.3.3 local en `app/static/vendor/bootstrap/` y la ruta `GET /salud`.
+- **`paso02` implementado: bienvenida e identidad del equipo.** `GET/POST /`, `GET/POST /equipo/identificar` y `GET /juego` (tablero provisorio) ya funcionan. La bienvenida pide nombre, cantidad de integrantes (1–4) y dificultad; solo ofrece las dificultades habilitadas en `configuracion`. Un nombre nuevo crea `equipo` e `intento` en una transacción; un nombre existente deriva a identificación por ID sin duplicar el equipo. Si el equipo tiene un intento activo se reanuda; si no, se crea uno nuevo con `ultima_estacion_visitada` en la estación activa con `orden = 1`. La sesión guarda solo `equipo_id` e `intento_id` y el servidor vuelve a validarlos en cada request. El HUD mínimo muestra `Equipo N.º X · nombre` y la estación actual. La lógica de dominio vive en `app/servicios/` (`configuracion.py`, `equipos.py`, `estaciones.py`); las plantillas nuevas son `bienvenida.html`, `identificar.html`, `juego.html` y `_hud.html`.
+- Se verificó el criterio del `paso02` con el cliente de pruebas y MySQL: alta con nombre normalizado, variante con mayúsculas/acentos y espacios repetidos que pide ID, ID inexistente rechazado sin revelar datos, cantidad 0/5 y dificultad deshabilitada rechazadas con `400`, recarga que conserva el intento, reanudación del intento activo y creación de uno nuevo al cerrarlo. Los datos de prueba se borraron al terminar.
+- **La aplicación Flask tiene el esqueleto del `paso01`.** Existe `app/` con la app factory `create_app()`, `app/db.py` (PyMySQL, cursor de diccionarios, conexión por request y helper `transaction()`), los blueprints `juego`, `ranking`, `estadisticas` y `admin`, las plantillas `base.html`, `404.html` y `500.html`, Bootstrap 5.3.3 local en `app/static/vendor/bootstrap/` y la ruta `GET /salud`.
 - `requirements.txt` fija Flask 3.1.3, `PyMySQL[rsa]` 1.2.3, python-dotenv 1.2.4, pytest 9.2.0 y waitress 3.0.2. `.env.example` documenta las 8 variables y `.env` existe local con permisos `600` (no versionado). `.gitignore` cubre `.venv/`, `.env`, cachés de Python y volcados de base.
 - `GET /salud` responde `200 {"estado":"ok","base":"ok"}` con MySQL arriba y `503` genérico si la base falla. También se verificaron las páginas 404 y 500, la ausencia de CDN y los conteos 5/14/20/60.
 - Todavía no hay tests automatizados: `pytest` termina con código 5 y es lo esperado hasta el `paso11`.
@@ -18,12 +20,12 @@ Fecha: 4/11/2026
 
 ## Próximo paso
 
-Implementar el `paso02-bienvenida-e-identidad.md` del guion `docs/argumentos-pasos/`:
+Implementar el `paso03-seleccion-de-preguntas.md` del guion `docs/argumentos-pasos/`:
 
 ```text
-/feature @docs/argumentos-pasos/paso02-bienvenida-e-identidad.md
+/feature @docs/argumentos-pasos/paso03-seleccion-de-preguntas.md
 ```
 
-Objetivo: bienvenida con nombre, cantidad de integrantes (1–4) y dificultad; alta de `equipo` e `intento`; reingreso con el ID del equipo cuando el nombre ya existe; sesión de Flask y HUD mínimo. Al terminar, verificar el criterio de aceptación y commitear como `feat: bienvenida e identidad de equipo`.
+Objetivo: congelar en `intento_pregunta` las 4 preguntas del nivel del intento, con al menos una por tema activo y selección aleatoria estable ante recargas.
 
 Cada paso se lanza con `/feature @docs/argumentos-pasos/<archivo>.md`, se revisa el plan, se implementa, se verifica el criterio de aceptación y se hace el commit indicado. El `paso07` es manual: lo hacen personas jugando, no el agente.

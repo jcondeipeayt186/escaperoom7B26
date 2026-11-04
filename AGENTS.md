@@ -88,6 +88,10 @@ Estructura sugerida una vez creado el scaffold:
 app/
   __init__.py          # app factory, configuración y login de admin
   db.py                # conexión MySQL y helpers
+  servicios/           # lógica de dominio, fuera de las rutas web
+    configuracion.py   # lectura de configuracion y dificultades habilitadas
+    equipos.py         # identidad, alta y reanudación de intentos
+    estaciones.py      # orden del recorrido y consultas de estaciones
   routes/
     juego.py           # bienvenida, estaciones, transición, final, abandono
     ranking.py         # ranking público / vista de TV
@@ -95,6 +99,9 @@ app/
     admin.py           # login y CRUD del panel de administración
   templates/
     bienvenida.html
+    identificar.html
+    juego.html
+    _hud.html
     estacion.html
     transicion.html
     final.html
@@ -261,6 +268,8 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 14. **Regla de contenido:** se usa "al menos 1 pregunta por tema activo y 4 por estación", no la lectura literal de "mínimo 4 preguntas por tema" de `docs/escape-room.md`. El contenido inicial (14 temas, 20 preguntas) cumple esta regla.
 15. **Ayudas:** la app **no muestra pistas**. Por estación y por intento se pueden registrar hasta 2 ayudas con los botones **Ayuda 1** y **Ayuda 2**; cada una suma en `intento_estacion.ayudas` y en `intento.cantidad_ayudas`. Al llegar a 2 se deshabilitan. Las pistas las leen los estudiantes desde `docs/ESCAPE ROOM.pdf`.
 16. **Identidad del equipo:** `equipo.nombre` es único. Si el nombre ya existe, la bienvenida pide el ID del equipo y no crea uno nuevo. El ID se muestra siempre. Cada reingreso crea un intento nuevo, salvo que el equipo tenga un intento activo (`fecha_fin IS NULL`), en cuyo caso se reanuda. Si dos equipos distintos quieren el mismo nombre, deben usar un sufijo.
+17. **Datos al reingresar:** cuando un equipo existente vuelve a ingresar, `equipo.cantidad_personas` **no se actualiza**: se conserva el valor original. La cantidad del formulario solo se usa al crear el equipo. Los datos pendientes de identificación (nombre normalizado, cantidad y dificultad) se guardan temporalmente en la sesión hasta confirmar el ID; la sesión de juego guarda solo `equipo_id` e `intento_id` y el servidor vuelve a leer la base en cada request. Un ID incorrecto se rechaza sin revelar el nombre ni otros datos del equipo.
+18. **Intento activo y dificultad:** si el equipo tiene un intento activo, se reanuda con la dificultad de ese intento y se ignora la elegida en el formulario. Si no lo tiene, el nuevo intento usa la dificultad pendiente y se revalida que siga habilitada antes de crearlo. `GET /` con un intento activo en la sesión muestra el formulario y un aviso con **Continuar**, sin redirección automática. Los POST inválidos vuelven a mostrar el formulario con estado `400` y errores inline, sin crear ni modificar datos.
 
 ## Convenciones de código
 

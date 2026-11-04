@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block titulo %}Bienvenida · Escape Room 7.º B 2026{% endblock %}
+
+{% block contenido %}
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8 col-xl-7">
+    <div class="text-center mb-4">
+      <h1 class="display-5 fw-bold">Escape Room 7.º B</h1>
+      <p class="lead mb-1">Resolvé las estaciones y completá la misión en el menor tiempo posible.</p>
+      <p class="text-body-secondary">Instituto Provincial de Educación Agropecuaria y Técnica N.º 186 Castagnari</p>
+    </div>
+
+    {% if intento_activo %}
+      <div class="alert alert-info d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
+        <div>
+          Tenés un intento en curso:
+          <strong>Equipo N.º {{ intento_activo.equipo.id }} · {{ intento_activo.equipo.nombre }}</strong>.
+        </div>
+        <a class="btn btn-primary flex-shrink-0" href="{{ url_for('juego.juego') }}">Continuar</a>
+      </div>
+    {% endif %}
+
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h2 class="h4 mb-3">Ingresá tu equipo</h2>
+
+        <form method="post" action="{{ url_for('juego.registrar_equipo') }}" novalidate>
+          <div class="mb-3">
+            <label class="form-label" for="nombre">Nombre del equipo</label>
+            <input
+              class="form-control form-control-lg {% if errores.get('nombre') %}is-invalid{% endif %}"
+              id="nombre"
+              name="nombre"
+              type="text"
+              maxlength="120"
+              value="{{ valores.nombre }}"
+              autocomplete="off"
+              required
+              {% if not intento_activo %}autofocus{% endif %}
+            >
+            {% if errores.get('nombre') %}
+              <div class="invalid-feedback">{{ errores.get('nombre') }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="cantidad_personas">Cantidad de integrantes</label>
+            <select
+              class="form-select form-select-lg {% if errores.get('cantidad_personas') %}is-invalid{% endif %}"
+              id="cantidad_personas"
+              name="cantidad_personas"
+              required
+            >
+              <option value="">Elegí una opción</option>
+              {% for cantidad in range(1, max_integrantes + 1) %}
+                <option value="{{ cantidad }}" {% if valores.cantidad_personas == cantidad|string %}selected{% endif %}>
+                  {{ cantidad }} {% if cantidad == 1 %}integrante{% else %}integrantes{% endif %}
+                </option>
+              {% endfor %}
+            </select>
+            {% if errores.get('cantidad_personas') %}
+              <div class="invalid-feedback">{{ errores.get('cantidad_personas') }}</div>
+            {% endif %}
+          </div>
+
+          <fieldset class="mb-4">
+            <legend class="form-label fs-6">Dificultad</legend>
+            {% for dificultad in dificultades %}
+              <div class="form-check form-check-inline">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="dificultad"
+                  id="dificultad-{{ dificultad.valor }}"
+                  value="{{ dificultad.valor }}"
+                  {% if valores.dificultad == dificultad.valor %}checked{% endif %}
+                  required
+                >
+                <label class="form-check-label" for="dificultad-{{ dificultad.valor }}">{{ dificultad.etiqueta }}</label>
+              </div>
+            {% endfor %}
+            {% if errores.get('dificultad') %}
+              <div class="text-danger small mt-1">{{ errores.get('dificultad') }}</div>
+            {% endif %}
+          </fieldset>
+
+          <button class="btn btn-primary btn-lg w-100" type="submit">Iniciar misión</button>
+        </form>
+
+        <p class="text-body-secondary small mt-3 mb-0">
+          Si tu equipo ya jugó, vas a necesitar el ID que te dimos.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

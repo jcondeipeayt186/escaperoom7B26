@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block titulo %}Juego · Escape Room 7.º B 2026{% endblock %}
+
+{% block contenido %}
+{% include "_hud.html" %}
+
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <p class="text-uppercase text-body-secondary small mb-1">Intento N.º {{ intento.id }}</p>
+        <h1 class="h3 mb-3">
+          {% if estacion %}
+            Estación {{ estacion.orden }}: {{ estacion.nombre }}
+          {% else %}
+            Estación por comenzar
+          {% endif %}
+        </h1>
+
+        {% if estacion and estacion.descripcion %}
+          <p class="lead">{{ estacion.descripcion }}</p>
+        {% endif %}
+
+        <dl class="row mb-4">
+          <dt class="col-sm-4">Equipo</dt>
+          <dd class="col-sm-8">N.º {{ equipo.id }} · {{ equipo.nombre }}</dd>
+
+          <dt class="col-sm-4">Integrantes</dt>
+          <dd class="col-sm-8">{{ equipo.cantidad_personas }}</dd>
+
+          <dt class="col-sm-4">Dificultad</dt>
+          <dd class="col-sm-8 text-capitalize">{{ intento.dificultad }}</dd>
+
+          <dt class="col-sm-4">Inicio del intento</dt>
+          <dd class="col-sm-8">{{ intento.fecha_inicio.strftime('%d/%m/%Y %H:%M:%S') }}</dd>
+        </dl>
+
+        <div class="alert alert-secondary mb-0">
+          Muy pronto vas a poder responder las preguntas de esta estación.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

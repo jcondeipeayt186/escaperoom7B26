@@ -65,6 +65,23 @@ curl -i http://127.0.0.1:5000/salud
 Respuesta esperada: `200` con `{"estado": "ok", "base": "ok"}`. Si la base no
 responde, devuelve `503` sin exponer credenciales.
 
+## Flujo implementado hasta el paso 02
+
+- `GET /` muestra la bienvenida con nombre, cantidad de integrantes (1–4) y
+  solo las dificultades habilitadas en `configuracion`.
+- `POST /` valida el formulario, crea `equipo` e `intento` en una transacción
+  o deriva a identificación si el nombre ya existe.
+- `GET/POST /equipo/identificar` pide el ID del equipo y lo compara con el
+  nombre. Si el equipo tiene un intento activo lo reanuda; si no, crea uno
+  nuevo con la dificultad elegida.
+- `GET /juego` es un tablero provisorio con el HUD mínimo
+  (`Equipo N.º X · nombre`) y la estación que corresponde al intento. En el
+  `paso03` pasa a mostrar las preguntas de la estación.
+
+La lógica de identidad y configuración vive en `app/servicios/`. La sesión de
+Flask guarda solo `equipo_id` e `intento_id`; el servidor vuelve a leer y
+validar la base en cada request.
+
 Pruebas automatizadas (todavía no hay tests; `pytest` termina con código 5):
 
 ```bash

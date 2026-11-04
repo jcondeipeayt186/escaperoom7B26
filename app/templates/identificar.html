@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block titulo %}Identificación del equipo · Escape Room 7.º B 2026{% endblock %}
+
+{% block contenido %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h1 class="h3 mb-2">Identificá tu equipo</h1>
+        <p class="text-body-secondary">
+          Ese nombre de equipo ya está registrado. Para continuar, ingresá el ID que se muestra en el HUD.
+        </p>
+
+        <div class="mb-3">
+          <label class="form-label" for="nombre-equipo">Nombre del equipo</label>
+          <input
+            class="form-control form-control-lg"
+            id="nombre-equipo"
+            type="text"
+            value="{{ identificacion.nombre }}"
+            readonly
+          >
+        </div>
+
+        <form method="post" action="{{ url_for('juego.confirmar_identificacion') }}" novalidate>
+          <div class="mb-4">
+            <label class="form-label" for="equipo_id">ID del equipo</label>
+            <input
+              class="form-control form-control-lg {% if error %}is-invalid{% endif %}"
+              id="equipo_id"
+              name="equipo_id"
+              type="text"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              autocomplete="off"
+              required
+              autofocus
+            >
+            {% if error %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endif %}
+          </div>
+
+          <div class="d-grid gap-2">
+            <button class="btn btn-primary btn-lg" type="submit">Continuar</button>
+            <a class="btn btn-outline-secondary" href="{{ url_for('juego.bienvenida') }}">Volver</a>
+          </div>
+        </form>
+
+        <p class="text-body-secondary small mt-3 mb-0">
+          El ID se muestra en el HUD, arriba a la derecha.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

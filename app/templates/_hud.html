@@ -1,0 +1,6 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3 mb-4 rounded bg-dark text-white">
+  <div class="fs-5 fw-semibold">Equipo N.º {{ equipo.id }} · {{ equipo.nombre }}</div>
+  {% if estacion %}
+    <div>Estación {{ estacion.orden }} de {{ total_estaciones }} · {{ estacion.nombre }}</div>
+  {% endif %}
+</div>
