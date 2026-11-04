@@ -1,4 +1,3 @@
-
 # AGENTS.md
 
 Guía para agentes de IA que trabajen en el proyecto **Escape Room 7°B 2026** del IPEATyM 186 Castagnari.
@@ -38,6 +37,7 @@ Reglas principales:
 - La selección de esas 4 preguntas sigue la regla de "Selección de preguntas por estación".
 - Cada estación dura **4 minutos**. Al agotarse el tiempo, el equipo queda eliminado.
 - **Dos respuestas incorrectas** en una estación eliminan al equipo. Ver "Decisiones registradas".
+- Si por cada estación tuvo 1 respuesta incorrecta, al finalizar tendría 5 respuestas incorrectas, esto es válido.
 - Abandonar el juego también elimina al equipo.
 - Se muestra siempre un **tiempo general ascendente** y un **tiempo de estación descendente**.
 - En cada página de estación se muestra: **cantidad de ayudas**, **cantidad de respuestas incorrectas** y **cantidad de envíos del formulario**. Al llegar a 2 envíos solo queda disponible el botón de finalizar juego por respuestas incorrectas.
@@ -245,7 +245,7 @@ ORDER BY TIMESTAMPDIFF(SECOND, fecha_inicio, fecha_fin) ASC,
 
 Estas decisiones interpretan puntos que el documento no cierra del todo. Si el equipo las redefine, actualizar esta sección y el código.
 
-1. **Eliminación por respuestas incorrectas:** se acumulan las respuestas incorrectas del intento dentro de la estación; al llegar a **2** el intento pasa a `finalizado = 'por_respuestas_incorrectas'`. Además hay un máximo de **2 envíos** del formulario por estación: si el segundo envío no tiene todo correcto, solo queda el botón de finalizar. Un mismo envío con 2 o más incorrectas elimina de inmediato.
+1. **Eliminación por respuestas incorrectas:** se acumulan las respuestas incorrectas del intento dentro de la estación; al llegar a **2** el intento pasa a `finalizado = 'por_respuestas_incorrectas'`. Además hay un máximo de **2 envíos** del formulario por estación: si el segundo envío no tiene todo correcto, solo queda el botón de finalizar. Un mismo envío con 2 o más incorrectas elimina de inmediato. 
 2. **Ranking:** participa únicamente `finalizado = 'completo'`.
 3. **Puntaje:** `puntaje_obtenido` = segundos totales del intento completado; `NULL` en el resto.
 4. **Selección de preguntas:** siempre 4, del nivel del intento. Se elige al menos 1 por tema y se completa al azar; con más de 4 temas se sortean 4 temas y 1 pregunta de cada uno. Se persiste en `intento_pregunta`.
@@ -360,7 +360,6 @@ Verificación manual antes de entregar:
 - No commitear `.env`, volcados de base de datos ni archivos generados.
 - No mostrar ni cargar pistas en la aplicación: solo se registran las ayudas.
 - No permitir dos equipos con el mismo nombre ni crear un equipo nuevo cuando la bienvenida pide el ID.
-
 
 ## Forma de trabajar
 

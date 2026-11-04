@@ -62,7 +62,7 @@ admin.
 ## Reglas de eliminación
 
 - `por_tiempo`: se agotó el tiempo de la estación.
-- `por_respuestas_incorrectas`: se acumularon 2 incorrectas o se agotaron los
+- `por_respuestas_incorrectas`: en una estación se acumularon 2 incorrectas o se agotaron los
   envíos.
 - `abandono`: el equipo confirmó el abandono.
 - En los tres casos: `fecha_fin` del servidor y `puntaje_obtenido = NULL`.
@@ -74,22 +74,24 @@ admin.
 Solo intentos completos, ordenados por:
 
 1. menor tiempo total (`TIMESTAMPDIFF(SECOND, fecha_inicio, fecha_fin)`);
-2. menor cantidad de ayudas;
-3. `id` ascendente como desempate estable.
+2. menor cantidad de incorrectas
+3. menor cantidad de ayudas;
+4. `id` ascendente como desempate estable.
 
 El ranking se muestra recortado en `/juego/final`. No ordenar por
 `puntaje_obtenido` ni por puntos.
 
 ## Criterio de aceptación
 
-- [ ] Un equipo completa las 5 estaciones y ve su resultado.
-- [ ] Un equipo es eliminado por tiempo, por incorrectas y por abandono.
-- [ ] El ranking ordena por tiempo y desempata por ayudas.
-- [ ] Un intento no completado no aparece en el ranking.
-- [ ] No se puede saltar de la estación 2 a la 5 por URL.
-- [ ] El tiempo total de un intento completo coincide con la diferencia
-      entre `fecha_inicio` y `fecha_fin`.
-- [ ] `puntaje_obtenido` queda `NULL` en los intentos no completados.
+- [ ]  Un equipo completa las 5 estaciones y ve su resultado.
+- [ ]  Un equipo tiene una incorrecta en cada estación, es decir, en cada primer envio de respuestas va una incorrecta, luego las responde bien pasando correctamente en el segundo envio. Recibe 2 ayudas. Completa las 5 estaciones y ve su resultado con sus incorrectas.
+- [ ]  Un equipo es eliminado por tiempo, por incorrectas y por abandono.
+- [ ]  El ranking ordena por tiempo y desempata por ayudas.
+- [ ]  Un intento no completado no aparece en el ranking.
+- [ ]  No se puede saltar de la estación 2 a la 5 por URL.
+- [ ]  El tiempo total de un intento completo coincide con la diferencia
+  entre `fecha_inicio` y `fecha_fin`.
+- [ ]  `puntaje_obtenido` queda `NULL` en los intentos no completados.
 
 ## Verificación
 
@@ -128,6 +130,7 @@ ORDER BY segundos ASC, i.cantidad_ayudas ASC, i.id ASC;
 - No usar `estacion.id` como si fuera `estacion.orden`.
 - No contar el tiempo de la transición ni de la pantalla final.
 - No finalizar el intento al completar una estación intermedia.
+- No finalizar el intento por tener 2 o más incorrectas mientras cada una sea de una estación distinta.
 - No permitir reanudar un intento finalizado.
 - No mostrar el ranking con intentos abandonados o eliminados.
 - Cuidado con el doble POST al continuar una transición: la creación de la
