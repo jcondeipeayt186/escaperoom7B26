@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block titulo %}Estación superada · Escape Room 7.º B 2026{% endblock %}
+
+{% block contenido %}
+{% include "_hud.html" %}
+
+<div class="row justify-content-center">
+  <div class="col-12 col-md-9 col-lg-7">
+    <div class="card border-success shadow-sm">
+      <div class="card-body p-4 p-md-5 text-center">
+        <p class="display-5 mb-2">✅</p>
+        <h1 class="h2 mb-3">¡Estación superada!</h1>
+        <p class="lead mb-4">
+          Completaron <strong>{{ estacion.nombre }}</strong>.
+        </p>
+
+        <div class="row g-2 text-start mb-4">
+          <div class="col-6 col-md-4">
+            <div class="border rounded p-2 h-100">
+              <div class="small text-body-secondary">Ayudas</div>
+              <div class="fw-semibold">{{ resumen.ayudas }} de {{ maximos.ayudas }}</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-4">
+            <div class="border rounded p-2 h-100">
+              <div class="small text-body-secondary">Incorrectas</div>
+              <div class="fw-semibold">{{ resumen.incorrectas }}</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-4">
+            <div class="border rounded p-2 h-100">
+              <div class="small text-body-secondary">Envíos</div>
+              <div class="fw-semibold">{{ resumen.envios }} de {{ maximos.envios }}</div>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-body-secondary mb-4">
+          La próxima estación se habilita en el siguiente paso del recorrido.
+        </p>
+        <a class="btn btn-outline-primary" href="{{ url_for('juego.bienvenida') }}">
+          Volver al inicio
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

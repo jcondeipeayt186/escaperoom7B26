@@ -17,37 +17,129 @@
       {% endif %}
     </div>
 
-    <div class="d-grid gap-3">
-      {% for pregunta in preguntas %}
-        <div class="card shadow-sm">
-          <fieldset class="card-body p-4">
-            <legend class="h5 mb-3">
-              <span class="badge text-bg-primary me-2">{{ pregunta.orden }}</span>
-              {{ pregunta.titulo }}
-            </legend>
+    {% if modo_solo_finalizar %}
+      <div class="alert alert-warning" role="alert">
+        <strong>Ya no quedan envíos.</strong>
+        Revisá las respuestas con los estudiantes de 7.º y, cuando terminen,
+        finalizá el juego.
+      </div>
+    {% elif resumen.envios > 0 %}
+      <div class="alert alert-info" role="alert">
+        Envíos realizados: {{ resumen.envios }} de {{ maximos.envios }}.
+        Incorrectas acumuladas: {{ resumen.incorrectas }} de
+        {{ maximos.incorrectas }}.
+      </div>
+    {% endif %}
 
-            {% if pregunta.descripcion %}
-              <p class="text-body-secondary">{{ pregunta.descripcion }}</p>
-            {% endif %}
+    {% if not modo_solo_finalizar %}
+      <form
+        method="post"
+        action="{{ url_for('juego.responder', orden=estacion.orden) }}"
+        id="formulario-estacion"
+      >
+        <div class="d-grid gap-3">
+          {% for pregunta in preguntas %}
+            <div class="card shadow-sm">
+              <fieldset class="card-body p-4">
+                <legend class="h5 mb-3">
+                  <span class="badge text-bg-primary me-2">{{ pregunta.orden }}</span>
+                  {{ pregunta.titulo }}
+                </legend>
 
-            {% for opcion in pregunta.opciones %}
-              <div class="form-check mb-2">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  name="pregunta_{{ pregunta.id }}"
-                  id="pregunta-{{ pregunta.id }}-opcion-{{ opcion.id }}"
-                  value="{{ opcion.id }}"
-                >
-                <label class="form-check-label" for="pregunta-{{ pregunta.id }}-opcion-{{ opcion.id }}">
-                  {{ opcion.contenido }}
-                </label>
-              </div>
-            {% endfor %}
-          </fieldset>
+                {% if pregunta.descripcion %}
+                  <p class="text-body-secondary">{{ pregunta.descripcion }}</p>
+                {% endif %}
+
+                {% for opcion in pregunta.opciones %}
+                  <div class="form-check mb-2">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      name="pregunta_{{ pregunta.id }}"
+                      id="pregunta-{{ pregunta.id }}-opcion-{{ opcion.id }}"
+                      value="{{ opcion.id }}"
+                      required
+                    >
+                    <label class="form-check-label" for="pregunta-{{ pregunta.id }}-opcion-{{ opcion.id }}">
+                      {{ opcion.contenido }}
+                    </label>
+                  </div>
+                {% endfor %}
+              </fieldset>
+            </div>
+          {% endfor %}
         </div>
-      {% endfor %}
+
+        <div class="d-grid mt-4">
+          <button
+            class="btn btn-primary btn-lg"
+            type="submit"
+            data-deshabilitar-al-enviar
+          >
+            Comprobar respuestas
+          </button>
+        </div>
+      </form>
+    {% else %}
+      <form
+        method="post"
+        action="{{ url_for('juego.finalizar', orden=estacion.orden) }}"
+        data-confirmar="¿Finalizar el juego por respuestas incorrectas?"
+      >
+        <div class="d-grid">
+          <button class="btn btn-danger btn-lg" type="submit">
+            Finalizar juego
+          </button>
+        </div>
+      </form>
+    {% endif %}
+
+    <div class="d-flex flex-wrap gap-2 mt-4">
+      {% if not modo_solo_finalizar %}
+        <form
+          method="post"
+          action="{{ url_for('juego.ayuda', orden=estacion.orden) }}"
+          data-confirmar="¿Pedir la Ayuda 1? La pista se lee en papel."
+        >
+          <button
+            class="btn btn-outline-secondary"
+            type="submit"
+            {% if resumen.ayudas >= maximos.ayudas %}disabled{% endif %}
+          >
+            Ayuda 1
+          </button>
+        </form>
+        <form
+          method="post"
+          action="{{ url_for('juego.ayuda', orden=estacion.orden) }}"
+          data-confirmar="¿Pedir la Ayuda 2? La pista se lee en papel."
+        >
+          <button
+            class="btn btn-outline-secondary"
+            type="submit"
+            {% if resumen.ayudas >= maximos.ayudas %}disabled{% endif %}
+          >
+            Ayuda 2
+          </button>
+        </form>
+      {% endif %}
+
+      {% if not modo_solo_finalizar %}
+        <form
+          method="post"
+          action="{{ url_for('juego.abandonar', orden=estacion.orden) }}"
+          data-confirmar="¿Abandonar el juego? El intento quedará cerrado."
+        >
+          <button class="btn btn-outline-danger" type="submit">
+            Abandonar
+          </button>
+        </form>
+      {% endif %}
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/juego.js') }}"></script>
 {% endblock %}

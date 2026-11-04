@@ -157,6 +157,50 @@ def contexto_de_sesion():
     }
 
 
+def contexto_finalizado_de_sesion():
+    """Devuelve el intento de la sesión si ya terminó, para eliminación."""
+
+    equipo_id = session.get(CLAVE_EQUIPO)
+    intento_id = session.get(CLAVE_INTENTO)
+    if not isinstance(equipo_id, int) or not isinstance(intento_id, int):
+        return None
+
+    with get_db().cursor() as cursor:
+        cursor.execute(
+            "SELECT i.id AS intento_id, i.equipo_id, i.dificultad, i.fecha_inicio, "
+            "       i.fecha_fin, i.finalizado, i.cantidad_ayudas, "
+            "       i.puntaje_obtenido, i.ultima_estacion_visitada, "
+            "       e.nombre AS equipo_nombre, e.cantidad_personas "
+            "FROM intento i "
+            "JOIN equipo e ON e.id = i.equipo_id "
+            "WHERE i.id = %s AND i.equipo_id = %s AND i.fecha_fin IS NOT NULL "
+            "LIMIT 1",
+            (intento_id, equipo_id),
+        )
+        fila = cursor.fetchone()
+
+    if fila is None:
+        return None
+
+    return {
+        "equipo": {
+            "id": fila["equipo_id"],
+            "nombre": fila["equipo_nombre"],
+            "cantidad_personas": fila["cantidad_personas"],
+        },
+        "intento": {
+            "id": fila["intento_id"],
+            "dificultad": fila["dificultad"],
+            "fecha_inicio": fila["fecha_inicio"],
+            "fecha_fin": fila["fecha_fin"],
+            "finalizado": fila["finalizado"],
+            "cantidad_ayudas": int(fila["cantidad_ayudas"]),
+            "puntaje_obtenido": fila["puntaje_obtenido"],
+            "ultima_estacion_visitada": fila["ultima_estacion_visitada"],
+        },
+    }
+
+
 def guardar_sesion(equipo_id, intento_id):
     """Deja la sesión apuntando al equipo y su intento."""
 

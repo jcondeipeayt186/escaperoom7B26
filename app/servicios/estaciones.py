@@ -94,7 +94,7 @@ def obtener_resumen_estacion(intento_id, estacion_id):
 
     with get_db().cursor() as cursor:
         cursor.execute(
-            "SELECT ie.ayudas, "
+            "SELECT ie.ayudas, ie.completada, "
             "  (SELECT COUNT(*) FROM intento_envio e "
             "   WHERE e.intento_id = %s AND e.estacion_id = %s) AS envios, "
             "  (SELECT COUNT(*) FROM incorrecta i "
@@ -114,10 +114,16 @@ def obtener_resumen_estacion(intento_id, estacion_id):
         fila = cursor.fetchone()
 
     if fila is None:
-        return {"ayudas": 0, "incorrectas": 0, "envios": 0}
+        return {
+            "ayudas": 0,
+            "incorrectas": 0,
+            "envios": 0,
+            "completada": False,
+        }
 
     return {
         "ayudas": int(fila["ayudas"]),
         "incorrectas": int(fila["incorrectas"]),
         "envios": int(fila["envios"]),
+        "completada": bool(fila["completada"]),
     }

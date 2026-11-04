@@ -93,6 +93,7 @@ app/
     equipos.py         # identidad, alta y reanudación de intentos
     estaciones.py      # orden del recorrido y consultas de estaciones
     seleccion.py       # selección y congelamiento de preguntas por intento
+    envios.py          # envíos, ayudas, abandono y cierre de estación
   routes/
     juego.py           # bienvenida, estaciones, transición, final, abandono
     ranking.py         # ranking público / vista de TV
@@ -275,6 +276,14 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 20. **Orden de preguntas:** el orden de las 4 preguntas se sortea una vez y se persiste en `intento_pregunta.orden`; no se recalcula al recargar.
 21. **Cobertura insuficiente:** si falta al menos una pregunta por tema activo o no hay 4 del nivel, la estación responde `503` con `estacion_no_disponible.html` y no crea filas parciales. Una selección parcial ya guardada se trata como error y tampoco se completa automáticamente.
 22. **Navegación de estaciones:** `GET /juego` redirige a la estación actual; `GET /juego/estacion/<orden>` valida la estación activa y el rango 1–5. Cualquier orden distinta de la actual redirige a la estación actual; un orden fuera de rango devuelve `404`. La selección congelada se muestra aunque el contenido se desactive después.
+23. **Envío de respuestas:** se exige exactamente una opción por cada una de las 4 preguntas congeladas y que cada respuesta pertenezca a su pregunta. En una transacción con bloqueo de intento y estación se crea `intento_envio`, se guardan las 4 filas de `respuesta_elegida` y solo las falladas en `incorrecta`. Un envío inválido no crea ninguna fila.
+24. **Orden de evaluación del envío:** primero todo correcto (estación completada), después incorrectas acumuladas en la estación (eliminación), después fin de envíos (modo “solo finalizar”) y si no, se vuelve a mostrar el formulario.
+25. **Modo “solo finalizar”:** con `envios >= max_envios_estacion` y la estación sin completar, se ocultan el formulario, las ayudas y el abandono. Solo queda el botón **Finalizar juego**, que cierra el intento como `por_respuestas_incorrectas`.
+26. **Ayudas:** se permiten mientras queden ayudas, la estación no esté completada y no se haya llegado al máximo de envíos. Cada ayuda suma en `intento_estacion.ayudas` e `intento.cantidad_ayudas` en una transacción. La app no muestra el texto de la pista.
+27. **Abandono y eliminación:** ambos cierran `intento.fecha_fin`, `intento.finalizado` y también `intento_estacion.fecha_fin` si estaba abierta. `puntaje_obtenido` queda `NULL`. En el `paso04` el abandono se toma solamente desde la estación; la transición completa llega en el `paso06`.
+28. **Doble envío:** se usa POST + redirección (PRG) y se deshabilita el botón al enviar. No hay token de idempotencia: dos POST simultáneos pueden registrarse como dos envíos.
+29. **Respuestas desactivadas:** al enviar se acepta cualquier respuesta que pertenezca a una de las preguntas congeladas, aunque `respuesta.activo = 0` después de la selección. Así la partida no queda trabada por cambios de contenido.
+30. **Transición y eliminación mínimas:** en el `paso04` existen `GET /juego/transicion/<orden>` y `GET /juego/eliminado` en versión mínima. La transición no tiene botón **Continuar**; el recorrido completo y las pantallas definitivas llegan en el `paso06`.
 
 ## Convenciones de código
 

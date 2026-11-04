@@ -65,7 +65,7 @@ curl -i http://127.0.0.1:5000/salud
 Respuesta esperada: `200` con `{"estado": "ok", "base": "ok"}`. Si la base no
 responde, devuelve `503` sin exponer credenciales.
 
-## Flujo implementado hasta el paso 03
+## Flujo implementado hasta el paso 04
 
 - `GET /` muestra la bienvenida con nombre, cantidad de integrantes (1–4) y
   solo las dificultades habilitadas en `configuracion`.
@@ -80,6 +80,15 @@ responde, devuelve `503` sin exponer credenciales.
   `intento_pregunta`; recargar no cambia las preguntas ni el orden.
   `intento_estacion.fecha_inicio` se crea una sola vez. No se permite saltar
   estaciones por URL y el HTML no incluye cuál opción es la correcta.
+- `POST /juego/estacion/<orden>/responder` registra el envío, guarda las 4
+  respuestas en `respuesta_elegida` y solo las incorrectas en `incorrecta`.
+  Si las 4 son correctas pasa a la transición; las incorrectas acumuladas
+  eliminan; al agotar los envíos solo queda **Finalizar juego**.
+- `POST /juego/estacion/<orden>/ayuda` suma una ayuda sin mostrar la pista.
+- `POST /juego/estacion/<orden>/abandonar` y `/finalizar` cierran el intento
+  y la estación.
+- `GET /juego/transicion/<orden>` y `GET /juego/eliminado` existen en versión
+  mínima. La transición todavía no tiene botón **Continuar**.
 - El HUD muestra equipo, estación, ayudas, respuestas incorrectas y envíos.
 
 La lógica de identidad y configuración vive en `app/servicios/`. La sesión de

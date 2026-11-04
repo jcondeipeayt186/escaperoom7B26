@@ -2,6 +2,8 @@
 
 Fecha: 4/11/2026
 
+- **`paso04` implementado: envío, ayudas y reglas de la estación.** La estación 1 procesa envíos, registra ayudas, permite abandonar y finalizar el intento. Las rutas nuevas son `POST /juego/estacion/<orden>/responder`, `/ayuda`, `/abandonar` y `/finalizar`; esta última no figuraba en el mapa de navegación y queda anotada aquí. También existen `GET /juego/transicion/<orden>` y `GET /juego/eliminado` en versión mínima, sin botón **Continuar** todavía. La lógica vive en `app/servicios/envios.py`, que bloquea intento y estación en una transacción, guarda las 4 filas de `respuesta_elegida`, solo las falladas en `incorrecta` y aplica en orden: todo correcto, incorrectas acumuladas, fin de envíos y formulario disponible. El modo “solo finalizar” oculta formulario, ayudas y abandono, y deja únicamente el botón **Finalizar juego**. El abandono y la eliminación cierran también `intento_estacion.fecha_fin`. La protección contra doble clic es PRG + botón deshabilitado, sin token de idempotencia. Las plantillas nuevas son `transicion.html`, `eliminado.html` y `app/static/js/juego.js`.
+- Se verificó el criterio del `paso04` con el cliente de pruebas y MySQL: envío todo correcto con transición y estación completada; 2 incorrectas en un envío y 2 envíos con 1 incorrecta eliminan; envío incompleto, respuesta de otra pregunta y campo duplicado no crean filas; ayudas llegan a 2 y deshabilitan los botones; abandono cierra intento y estación; el modo “solo finalizar” se probó subiendo temporalmente `max_respuestas_incorrectas` a 3 y se restauró a 2. Los datos de prueba se borraron al terminar.
 - **`paso03` implementado: selección persistida de preguntas y estación 1 jugable.** `GET /juego` redirige a la estación actual y `GET /juego/estacion/<orden>` muestra las 4 preguntas con 3 opciones como radios, sin botón de envío ni temporizadores. La selección vive en `app/servicios/seleccion.py`: bloquea la fila del intento con `FOR UPDATE`, crea `intento_estacion` con `NOW(3)` una sola vez y persiste 4 filas en `intento_pregunta` (al menos una por tema activo, completando al azar y sorteando 4 temas si hay más de 4). Si ya hay selección se reutiliza; una selección parcial devuelve `503` sin completarse. El HUD muestra equipo, estación, ayudas, incorrectas y envíos. `GET /juego/estacion/3` sin haber jugado la 2 redirige a la 1; un orden fuera de rango devuelve `404`. Las plantillas nuevas son `estacion.html`, `estacion_no_disponible.html` y se eliminó `juego.html`.
 - Se verificó el criterio del `paso03` con el cliente de pruebas y MySQL: 4 preguntas × 3 opciones, sin atributos que delaten la correcta, 5 recargas con las mismas preguntas y orden, `intento_pregunta` con 4 filas y cobertura de 1 por tema, `intento_estacion.fecha_inicio` estable, salto de estación bloqueado y selección parcial con `503`. Los datos de prueba se borraron al terminar.
 - **`paso02` implementado: bienvenida e identidad del equipo.** `GET/POST /` y `GET/POST /equipo/identificar` ya funcionan. La bienvenida pide nombre, cantidad de integrantes (1–4) y dificultad; solo ofrece las dificultades habilitadas en `configuracion`. Un nombre nuevo crea `equipo` e `intento` en una transacción; un nombre existente deriva a identificación por ID sin duplicar el equipo. Si el equipo tiene un intento activo se reanuda; si no, se crea uno nuevo con `ultima_estacion_visitada` en la estación activa con `orden = 1`. La sesión guarda solo `equipo_id` e `intento_id` y el servidor vuelve a validarlos en cada request.
@@ -21,12 +23,12 @@ Fecha: 4/11/2026
 
 ## Próximo paso
 
-Implementar el `paso04-envio-y-reglas-de-estacion.md` del guion `docs/argumentos-pasos/`:
+Implementar el `paso05-temporizadores-y-reanudacion.md` del guion `docs/argumentos-pasos/`:
 
 ```text
-/feature @docs/argumentos-pasos/paso04-envio-y-reglas-de-estacion.md
+/feature @docs/argumentos-pasos/paso05-temporizadores-y-reanudacion.md
 ```
 
-Objetivo: procesar el envío de la estación, registrar respuestas, aplicar el máximo de 2 envíos y 2 incorrectas, y habilitar ayudas y abandono.
+Objetivo: calcular los dos contadores desde fechas de MySQL, avisar a los 30 segundos y eliminar por tiempo agotado sin reiniciar los tiempos al recargar.
 
 Cada paso se lanza con `/feature @docs/argumentos-pasos/<archivo>.md`, se revisa el plan, se implementa, se verifica el criterio de aceptación y se hace el commit indicado. El `paso07` es manual: lo hacen personas jugando, no el agente.
