@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block titulo %}Intentos activos · Administración · Escape Room 7.º B 2026{% endblock %}
+
+{% block contenido %}
+{% include "admin/_nav.html" %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
+  <div>
+    <h1 class="h2 fw-bold mb-1">Intentos activos</h1>
+    <p class="text-body-secondary mb-0">
+      Equipos jugando en este momento. Mientras haya filas acá no se pueden
+      cambiar las dificultades.
+    </p>
+  </div>
+  <div class="d-flex flex-wrap align-items-center gap-2">
+    <span class="text-body-secondary small">
+      Actualizado: {{ actualizado }}
+    </span>
+    <a href="{{ url_for('admin.intentos_activos') }}" class="btn btn-outline-secondary">
+      Actualizar
+    </a>
+  </div>
+</div>
+
+{% if filas %}
+  <div class="alert alert-warning" role="alert">
+    Hay {{ total }} intento{{ '' if total == 1 else 's' }} activo{{
+    '' if total == 1 else 's' }}. No se pueden deshabilitar dificultades ni
+    cambiar parámetros del juego hasta que terminen.
+    <a href="{{ url_for('admin.dificultades') }}" class="alert-link">Ir a dificultades</a>.
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-sm table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">Equipo</th>
+            <th scope="col">Intento</th>
+            <th scope="col">Dificultad</th>
+            <th scope="col">Estación actual</th>
+            <th scope="col">Tiempo transcurrido</th>
+            <th scope="col">Última actividad</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fila in filas %}
+            <tr>
+              <td>
+                <a
+                  class="text-decoration-none"
+                  href="{{ url_for('admin.detalle', tabla='equipo', fila_id=fila.equipo_id) }}"
+                >{{ fila.equipo_nombre }}</a>
+                <span class="text-body-secondary small">#{{ fila.equipo_id }}</span>
+              </td>
+              <td>
+                <a
+                  class="text-decoration-none"
+                  href="{{ url_for('admin.detalle', tabla='intento', fila_id=fila.id) }}"
+                >#{{ fila.id }}</a>
+              </td>
+              <td>{{ fila.dificultad|capitalize }}</td>
+              <td>
+                <span class="text-body-secondary">{{ fila.estacion_orden }}.</span>
+                {{ fila.estacion_nombre }}
+              </td>
+              <td>{{ fila.transcurrido|hhmmss }}</td>
+              <td>{{ fila.ultima_actividad|fecha_hora }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="card-footer text-body-secondary small">
+      Mostrando {{ total }} intento{{ '' if total == 1 else 's' }} activo{{
+      '' if total == 1 else 's' }}.
+    </div>
+  </div>
+{% else %}
+  <div class="alert alert-info" role="alert">
+    No hay equipos jugando en este momento. Los toggles de dificultad están
+    habilitados.
+  </div>
+{% endif %}
+{% endblock %}

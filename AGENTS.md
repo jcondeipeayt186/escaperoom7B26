@@ -211,6 +211,10 @@ La administración es un **requisito**, no un extra opcional.
 - Credenciales por variables de entorno: `ADMIN_USER` y `ADMIN_PASSWORD_HASH` (usar `werkzeug.security.generate_password_hash`). Nunca hardcodear claves ni commitearlas.
 - Sesión de Flask para mantener el login; incluir cierre de sesión.
 - Panel de control con cards de Bootstrap, una por tabla, y acceso a los listados.
+- `GET /admin/cobertura`: reporte estación × nivel con temas activos, preguntas por tema, total y estado verde/rojo.
+- `GET/POST /admin/dificultades`: toggles de `intermedio` y `avanzado`, con cobertura resumida y bloqueo por intentos activos.
+- `GET /admin/intentos-activos`: equipos jugando, estación actual, tiempo transcurrido y última actividad.
+- `GET /admin/estadisticas`: gráficos de equipos, intentos finalizados, tiempo promedio por estación, tiempo promedio de completados, utilización de cada pregunta y porcentaje de aciertos.
 - Gráficos estadísticos: equipos participantes, intentos finalizados, tiempo promedio por estación, tiempo promedio de los intentos finalizados, porcentaje de utilización de cada pregunta sobre el total de intentos (completados o no) y porcentaje de aciertos.
 - CRUD de todas las tablas del modelo base.
 - En los listados, permitir filtros y ordenamiento por `id` y por otros campos relevantes (nombre, dificultad, estación, tema, fechas).
@@ -283,7 +287,7 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 4. **Selección de preguntas:** siempre 4, del nivel del intento. Se elige al menos 1 por tema y se completa al azar; con más de 4 temas se sortean 4 temas y 1 pregunta de cada uno. Se persiste en `intento_pregunta`.
 5. **Dificultades:** `inicial` siempre habilitada. `intermedio` y `avanzado` solo se habilitan si todas las estaciones tienen cobertura de ese nivel y solo se deshabilitan si no hay equipos jugando.
 6. **Admin:** un único usuario configurado por variables de entorno.
-7. **Gráficos:** Chart.js incluido localmente en `static/vendor/` (sin CDN). Si se prefiere cero dependencias, reemplazar por barras SVG/CSS generadas en el servidor.
+7. **Gráficos:** barras CSS generadas en el servidor, sin Chart.js ni CDN. Bootstrap y el audio quedan locales en `static/`.
 8. **`se_completo_ok`:** derivado de `finalizado`; no se edita a mano.
 9. **Cantidad de integrantes:** se pide en la bienvenida, es obligatoria y va de 1 a 4.
 10. **Borrado:** lógico (`activo`) en el contenido; bloqueado en los históricos.
@@ -323,12 +327,16 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 44. **Rutas públicas exactas:** los blueprints `ranking` y `estadisticas` se registran sin `url_prefix` y declaran `/ranking`, `/ranking/datos` y `/estadisticas` sin barra final. La bienvenida enlaza a ranking y estadísticas, el final a estadísticas y la eliminación a ranking.
 45. **Fecha de actualización:** las vistas públicas muestran la hora del servidor MySQL con `DATE_FORMAT(NOW(), ...)`, no el reloj del navegador.
 46. **Sesión del admin:** el panel usa solo `session["admin_autenticado"]` y no toca `equipo_id` ni `intento_id` de la partida. El login valida `ADMIN_USER` y `ADMIN_PASSWORD_HASH` con `check_password_hash`; un error devuelve `401` con un mensaje genérico. El logout es `POST /admin/logout` y elimina únicamente `admin_autenticado`. Las cookies de sesión se configuran `HttpOnly`, `SameSite=Lax` y sin `Secure` para el aula sin HTTPS. No hay CSRF ni rate limiting todavía; quedan para el `paso11`.
-47. **Rutas del admin:** el blueprint `admin` se registra sin `url_prefix` y declara `/admin`, `/admin/login`, `/admin/logout`, `/admin/`, `/admin/<tabla>`, `/admin/<tabla>/nuevo`, `/admin/<tabla>/<fila_id>`, `/admin/<tabla>/<fila_id>/editar` y `/admin/<tabla>/<fila_id>/desactivar`. Todas salvo el login exigen sesión. El panel muestra cards de las 12 tablas y el estado del juego; no existe `/admin/intentos-activos` ni gráficos en este paso.
+47. **Rutas del admin:** el blueprint `admin` se registra sin `url_prefix` y declara `/admin`, `/admin/login`, `/admin/logout`, `/admin/`, `/admin/<tabla>`, `/admin/<tabla>/nuevo`, `/admin/<tabla>/<fila_id>`, `/admin/<tabla>/<fila_id>/editar`, `/admin/<tabla>/<fila_id>/desactivar`, `/admin/cobertura`, `/admin/dificultades` (GET y POST), `/admin/intentos-activos` y `/admin/estadisticas`. Todas salvo el login exigen sesión. Las rutas estáticas se resuelven antes que `/admin/<tabla>`. El panel muestra cards de las 12 tablas, el estado del juego y accesos a cobertura, dificultades, intentos activos y estadísticas.
 48. **Edición del contenido:** las tablas históricas (`equipo`, `intento`, `intento_estacion`, `intento_envio`, `intento_pregunta`, `respuesta_elegida`, `incorrecta`) son de solo lectura: sus rutas de alta, edición y baja devuelven `404`. En el contenido, la baja es lógica. Una pregunta nueva se guarda inactiva y solo se activa con al menos 2 respuestas activas y exactamente 1 correcta. Marcar una respuesta como correcta desmarca las demás de esa pregunta.
 49. **Bloqueos por intentos activos:** con un intento `fecha_fin IS NULL` no se crean estaciones, no se cambia su `orden` ni su `activo`, no se editan los parámetros del juego y no se agregan respuestas ni se cambia `correcta`/`activo` de respuestas de preguntas seleccionadas en ese intento. Tampoco se mueve contenido ya usado entre `pregunta.tema_id`, `tema.estacion_id` o `respuesta.pregunta_id`.
 50. **Orden de estaciones:** los órdenes son únicos entre 1 y 5. Al editar una estación hacia un orden ocupado se intercambian ambas en la misma transacción. Siempre debe quedar al menos una estación activa con `orden = 1`. Con los 5 órdenes ocupados no se puede crear otra estación hasta liberar uno.
-51. **Configuración desde el admin:** `dificultad_intermedia_habilitada`, `dificultad_avanzada_habilitada`, `preguntas_por_estacion` y `max_temas_por_estacion` no se editan desde el CRUD de configuración; las dificultades se manejan en el `paso10`. Los parámetros del juego se validan por rango y se bloquean con intentos activos. La `clave` de una fila es inmutable.
+51. **Configuración desde el admin:** `dificultad_intermedia_habilitada`, `dificultad_avanzada_habilitada`, `preguntas_por_estacion` y `max_temas_por_estacion` no se editan desde el CRUD de configuración; las dificultades se administran en `/admin/dificultades`. Los parámetros del juego se validan por rango y se bloquean con intentos activos. La `clave` de una fila es inmutable.
 52. **Filtros del admin:** los filtros, el orden y la paginación se resuelven en el servidor. Los valores inválidos caen a los predeterminados; el `ORDER BY` sale siempre de una lista blanca de `app/servicios/admin_tablas.py`. El buscador escapa `%`, `_` y `\` para `LIKE`.
+53. **Cobertura de niveles:** se calcula en `app/servicios/cobertura.py` con una única función reutilizada por el reporte y por los toggles. Solo cuenta estaciones, temas y preguntas activas. Cada tema activo necesita al menos 1 pregunta activa del nivel y cada estación al menos `preguntas_por_estacion` (4, leído de `configuracion` con respaldo 4). Sin estaciones activas el nivel no está completo. `inicial` se reporta pero nunca se habilita ni deshabilita desde la app.
+54. **Toggles de dificultad:** `POST /admin/dificultades` valida en el servidor aunque el cliente mande el formulario directamente. Los cambios se aplican en una transacción con `FOR UPDATE` y solo sobre transiciones reales. Con un intento activo (`fecha_fin IS NULL`) se bloquean todos los cambios, tanto habilitar como deshabilitar. Habilitar exige cobertura completa del nivel; deshabilitar no exige cobertura. `inicial` y claves desconocidas se rechazan; se persiste `'1'` o `'0'` en `configuracion`. Ante un error, el formulario se vuelve a mostrar con el estado persistido y los errores inline, con `400`.
+55. **Estadísticas del admin:** `GET /admin/estadisticas` calcula todo en `app/servicios/admin_estadisticas.py`, con filtros `desde`, `hasta` y `dificultad` sobre `intento.fecha_inicio` e `intento.dificultad`. Si `desde > hasta` se avisa y se muestra un rango vacío, sin intercambiar fechas. El tiempo promedio por estación usa solo `intento_estacion.completada = 1` con `fecha_fin` no nula. La utilización de preguntas incluye las activas con 0 usos y las inactivas que ya se usaron, marcadas como inactivas; se calcula sobre los intentos filtrados. El gráfico de intentos incluye **En curso** y los finalizados se muestran en un KPI aparte. Las barras son CSS generadas en el servidor, sin Chart.js ni CDN.
+56. **Intentos activos y navegación:** `GET /admin/intentos-activos` lista equipo, intento, dificultad, estación actual, tiempo transcurrido y última actividad, y muestra el motivo del bloqueo de los toggles. El panel y `admin/_nav.html` enlazan a cobertura, dificultades, intentos activos y estadísticas. Las cuatro rutas nuevas exigen login y no se enlazan desde páginas públicas.
 
 ## Convenciones de código
 
@@ -385,7 +393,11 @@ Priorizar pruebas automatizadas para:
 - Selección de 4 preguntas con al menos una por tema y 4 en total.
 - Con más de 4 temas, se usan 4 temas al azar y una pregunta de cada uno.
 - Nivel no habilitable si falta cobertura en alguna estación o tema.
-- Toggle de dificultad bloqueado mientras hay intentos activos.
+- Cobertura estación × nivel: tema sin preguntas del nivel y estación con menos de 4 se marcan en rojo; `inicial` aparece siempre habilitada.
+- Toggle de dificultad bloqueado mientras hay intentos activos, tanto para habilitar como para deshabilitar.
+- POST directo para habilitar un nivel sin cobertura rechazado con `400` y sin cambios en `configuracion`.
+- Estadísticas del admin con filtros por fecha y dificultad, rango invertido sin datos y barras generadas en el servidor.
+- Panel `/admin` sin Chart.js ni referencias a CDN.
 - Borrado lógico de contenido sin romper intentos históricos.
 - Estadísticas públicas sin nombres de equipos ni respuestas correctas.
 - `/ranking/datos` devuelve solo intentos completados, en el orden del ranking y sin `equipo_id`.

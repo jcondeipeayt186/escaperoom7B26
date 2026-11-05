@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block titulo %}Dificultades · Administración · Escape Room 7.º B 2026{% endblock %}
+
+{% block contenido %}
+{% include "admin/_nav.html" %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
+  <div>
+    <h1 class="h2 fw-bold mb-1">Dificultades</h1>
+    <p class="text-body-secondary mb-0">
+      Habilitá o deshabilitá los niveles intermedio y avanzado. La bienvenida
+      solo ofrece los niveles habilitados.
+    </p>
+  </div>
+  <a href="{{ url_for('admin.cobertura') }}" class="btn btn-outline-secondary">
+    Ver cobertura
+  </a>
+</div>
+
+{% if intentos_activos %}
+  <div class="alert alert-warning" role="alert">
+    Hay {{ intentos_activos }} intento{{ '' if intentos_activos == 1 else 's' }}
+    activo{{ '' if intentos_activos == 1 else 's' }}. No se pueden cambiar las
+    dificultades hasta que terminen.
+    <a href="{{ url_for('admin.intentos_activos') }}" class="alert-link">Ver intentos activos</a>.
+  </div>
+{% endif %}
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <form method="post" action="{{ url_for('admin.guardar_dificultades') }}">
+      {% if error_general %}
+        <div class="alert alert-danger" role="alert">{{ error_general }}</div>
+      {% endif %}
+
+      <div class="list-group list-group-flush mb-3">
+        <div class="list-group-item px-0">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="dificultad-inicial" checked disabled>
+            <label class="form-check-label fw-semibold" for="dificultad-inicial">
+              Inicial
+            </label>
+            <span class="badge text-bg-primary ms-1">Siempre habilitada</span>
+          </div>
+          <p class="small text-body-secondary mb-0 mt-1">
+            No se puede deshabilitar.
+          </p>
+        </div>
+
+        {% for dificultad in dificultades %}
+          {% set bloqueado = intentos_activos > 0 or (not dificultad.habilitada and not dificultad.cobertura_completa) %}
+          <div class="list-group-item px-0">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+              <div>
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    name="{{ dificultad.valor }}"
+                    value="1"
+                    id="dificultad-{{ dificultad.valor }}"
+                    {% if dificultad.habilitada %}checked{% endif %}
+                    {% if bloqueado %}disabled{% endif %}
+                  >
+                  <label class="form-check-label fw-semibold" for="dificultad-{{ dificultad.valor }}">
+                    {{ dificultad.etiqueta }}
+                  </label>
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
+                  {% if dificultad.cobertura_completa %}
+                    <span class="badge text-bg-success">Cobertura completa</span>
+                  {% else %}
+                    <span class="badge text-bg-danger">Falta cobertura</span>
+                    <span class="small text-body-secondary">
+                      {{ dificultad.estaciones_completas }} de
+                      {{ dificultad.total_estaciones }} estaciones completas ·
+                      {{ dificultad.temas_sin_preguntas }} tema{{
+                      '' if dificultad.temas_sin_preguntas == 1 else 's' }}
+                      sin preguntas
+                    </span>
+                  {% endif %}
+                </div>
+
+                {% if errores[dificultad.valor] %}
+                  <div class="text-danger small mt-1">{{ errores[dificultad.valor] }}</div>
+                {% endif %}
+              </div>
+
+              <a href="{{ url_for('admin.cobertura') }}" class="btn btn-sm btn-outline-secondary">
+                Revisar cobertura
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <button type="submit" class="btn btn-primary" {% if intentos_activos %}disabled{% endif %}>
+          Guardar
+        </button>
+        {% if intentos_activos %}
+          <span class="small text-body-secondary">
+            Esperá a que terminen los intentos activos para poder guardar.
+          </span>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

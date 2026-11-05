@@ -18,12 +18,21 @@ from werkzeug.security import check_password_hash
 
 from ..servicios import admin_acciones as acciones
 from ..servicios import admin_consultas as consultas
+from ..servicios import admin_estadisticas
+from ..servicios import cobertura as servicio_cobertura
 from ..servicios.admin_tablas import (
     CLAVES_JUEGO,
     CLAVES_SOLO_LECTURA,
     TABLAS,
     resolver_campos,
 )
+from ..servicios.configuracion import (
+    DIFICULTADES,
+    ETIQUETAS_DIFICULTAD,
+    dificultad_habilitada,
+    leer_configuracion,
+)
+from ..servicios.tiempos import ahora_texto
 
 bp = Blueprint("admin", __name__)
 
@@ -100,6 +109,76 @@ def panel():
     """Panel de control con cards por tabla y estado del juego."""
 
     return render_template("admin/panel.html", **consultas.resumen_panel())
+
+
+@bp.get("/admin/cobertura")
+@login_requerido
+def cobertura():
+    """Reporte de cobertura de cada nivel por estación y tema."""
+
+    datos = servicio_cobertura.obtener_cobertura()
+    configuracion = leer_configuracion()
+    datos["habilitadas"] = {
+        dificultad: dificultad_habilitada(dificultad, configuracion)
+        for dificultad in DIFICULTADES
+    }
+    datos["intentos_activos"] = consultas.obtener_intentos_activos()["total"]
+    return render_template("admin/cobertura.html", **datos)
+
+
+@bp.get("/admin/dificultades")
+@login_requerido
+def dificultades():
+    """Formulario con los toggles de intermedio y avanzado."""
+
+    return render_template("admin/dificultades.html", **_datos_dificultades())
+
+
+@bp.post("/admin/dificultades")
+@login_requerido
+def guardar_dificultades():
+    """Valida y persiste los toggles de dificultad."""
+
+    deseadas = {
+        "intermedio": request.form.get("intermedio") == "1",
+        "avanzado": request.form.get("avanzado") == "1",
+    }
+
+    try:
+        acciones.guardar_dificultades(deseadas)
+    except acciones.ErrorAdmin as error:
+        return (
+            render_template(
+                "admin/dificultades.html",
+                **_datos_dificultades(error.errores, error.mensaje),
+            ),
+            400,
+        )
+
+    flash("Dificultades actualizadas.", "success")
+    return redirect(url_for("admin.dificultades"))
+
+
+@bp.get("/admin/intentos-activos")
+@login_requerido
+def intentos_activos():
+    """Equipos jugando en este momento y motivo del bloqueo."""
+
+    return render_template(
+        "admin/intentos_activos.html", **consultas.obtener_intentos_activos()
+    )
+
+
+@bp.get("/admin/estadisticas")
+@login_requerido
+def estadisticas():
+    """Métricas y gráficos del panel, con filtros por fecha y dificultad."""
+
+    return render_template(
+        "admin/estadisticas.html",
+        **admin_estadisticas.obtener_estadisticas(request.args),
+        actualizado=ahora_texto(),
+    )
 
 
 @bp.get("/admin/<tabla>")
@@ -277,6 +356,41 @@ def desactivar(tabla, fila_id):
         flash("Fila desactivada.", "success")
 
     return redirect(url_for("admin.listado", tabla=tabla))
+
+
+def _datos_dificultades(errores=None, error_general=None):
+    """Arma el estado de cobertura y toggles para la plantilla."""
+
+    configuracion = leer_configuracion()
+    datos_cobertura = servicio_cobertura.obtener_cobertura()
+    activos = consultas.obtener_intentos_activos()
+
+    dificultades = []
+    for dificultad in ("intermedio", "avanzado"):
+        nivel = servicio_cobertura.obtener_nivel(datos_cobertura, dificultad)
+        dificultades.append(
+            {
+                "valor": dificultad,
+                "etiqueta": ETIQUETAS_DIFICULTAD[dificultad],
+                "habilitada": dificultad_habilitada(dificultad, configuracion),
+                "cobertura_completa": bool(nivel and nivel["completa"]),
+                "estaciones_completas": (
+                    nivel["estaciones_completas"] if nivel else 0
+                ),
+                "total_estaciones": nivel["total_estaciones"] if nivel else 0,
+                "temas_sin_preguntas": (
+                    nivel["temas_sin_preguntas"] if nivel else 0
+                ),
+            }
+        )
+
+    return {
+        "cobertura": datos_cobertura,
+        "dificultades": dificultades,
+        "intentos_activos": activos["total"],
+        "errores": errores or {},
+        "error_general": error_general,
+    }
 
 
 def _meta_editable(tabla):

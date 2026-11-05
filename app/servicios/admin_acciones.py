@@ -12,6 +12,8 @@ from .admin_tablas import (
     TABLAS,
     normalizar_clave,
 )
+from .cobertura import calcular_cobertura, nivel_completo
+from .configuracion import CLAVES_DIFICULTAD
 
 PATRON_CLAVE = re.compile(r"^[a-z][a-z0-9_]{0,79}$")
 
@@ -164,6 +166,86 @@ def desactivar(tabla, clave):
         ) from error
 
     raise ErrorAdmin("Esa tabla es de solo lectura.")
+
+
+# ---------------------------------------------------------------------------
+# Dificultades
+# ---------------------------------------------------------------------------
+
+
+def guardar_dificultades(deseadas):
+    """Actualiza los toggles de intermedio y avanzado en una transacción.
+
+    ``deseadas`` solo puede contener las claves de ``CLAVES_DIFICULTAD``.
+    Cualquier cambio se bloquea si hay intentos activos; habilitar además
+    exige cobertura completa del nivel.
+    """
+
+    for dificultad in deseadas:
+        if dificultad not in CLAVES_DIFICULTAD:
+            raise ErrorAdmin("Esa dificultad no se administra desde el panel.")
+
+    claves = tuple(CLAVES_DIFICULTAD.values())
+
+    with transaction() as cursor:
+        cursor.execute(
+            "SELECT clave, valor FROM configuracion "
+            "WHERE clave IN (%s, %s) FOR UPDATE",
+            claves,
+        )
+        actuales = {
+            fila["clave"]: str(fila["valor"]).strip() == "1"
+            for fila in cursor.fetchall()
+        }
+
+        if any(clave not in actuales for clave in claves):
+            raise ErrorAdmin(
+                "Falta la configuración de dificultades en la base. "
+                "Revisá la tabla Configuración."
+            )
+
+        cambios = {}
+        for dificultad, clave in CLAVES_DIFICULTAD.items():
+            if dificultad not in deseadas:
+                continue
+            estado = bool(deseadas[dificultad])
+            if estado != actuales[clave]:
+                cambios[dificultad] = estado
+
+        if not cambios:
+            return {
+                dificultad: actuales[clave]
+                for dificultad, clave in CLAVES_DIFICULTAD.items()
+            }
+
+        if _hay_intentos_activos(cursor):
+            raise ErrorAdmin(
+                "No se pueden cambiar las dificultades mientras hay equipos "
+                "jugando. Esperá a que terminen los intentos activos."
+            )
+
+        cobertura = calcular_cobertura(cursor)
+        errores = {}
+        for dificultad, estado in cambios.items():
+            if estado and not nivel_completo(cobertura, dificultad):
+                errores[dificultad] = (
+                    "No hay cobertura completa en todas las estaciones. "
+                    "Revisá el reporte de cobertura antes de habilitarlo."
+                )
+
+        if errores:
+            raise ErrorAdmin("Revisá las dificultades marcadas.", errores)
+
+        for dificultad, estado in cambios.items():
+            cursor.execute(
+                "UPDATE configuracion SET valor = %s WHERE clave = %s",
+                ("1" if estado else "0", CLAVES_DIFICULTAD[dificultad]),
+            )
+
+        return {
+            dificultad: cambios.get(dificultad, actuales[clave])
+            for dificultad, clave in CLAVES_DIFICULTAD.items()
+        }
 
 
 # ---------------------------------------------------------------------------

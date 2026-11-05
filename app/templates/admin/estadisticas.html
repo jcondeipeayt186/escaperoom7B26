@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+
+{% block titulo %}Estadísticas · Administración · Escape Room 7.º B 2026{% endblock %}
+
+{% block contenido %}
+{% include "admin/_nav.html" %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
+  <div>
+    <h1 class="h2 fw-bold mb-1">Estadísticas del juego</h1>
+    <p class="text-body-secondary mb-0">
+      Métricas calculadas en el servidor a partir de los intentos, envíos y
+      respuestas guardadas.
+    </p>
+  </div>
+  <p class="text-body-secondary small mb-0">Actualizado: {{ actualizado }}</p>
+</div>
+
+<form method="get" action="{{ url_for('admin.estadisticas') }}" class="card shadow-sm mb-4">
+  <div class="card-body">
+    <div class="row g-2 align-items-end">
+      <div class="col-6 col-md-3">
+        <label for="desde" class="form-label">Desde</label>
+        <input type="date" class="form-control" id="desde" name="desde" value="{{ filtros.desde }}">
+      </div>
+      <div class="col-6 col-md-3">
+        <label for="hasta" class="form-label">Hasta</label>
+        <input type="date" class="form-control" id="hasta" name="hasta" value="{{ filtros.hasta }}">
+      </div>
+      <div class="col-6 col-md-3">
+        <label for="dificultad" class="form-label">Dificultad</label>
+        <select class="form-select" id="dificultad" name="dificultad">
+          <option value="">Todas</option>
+          {% for opcion in opciones_dificultad %}
+            <option value="{{ opcion.valor }}" {% if filtros.dificultad == opcion.valor %}selected{% endif %}>{{ opcion.etiqueta }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-6 col-md-3 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a href="{{ url_for('admin.estadisticas') }}" class="btn btn-outline-secondary">Limpiar</a>
+      </div>
+    </div>
+    <p class="small text-body-secondary mb-0 mt-2">
+      Los filtros se aplican sobre la fecha de inicio y la dificultad de cada
+      intento.
+    </p>
+  </div>
+</form>
+
+{% if rango_invalido %}
+  <div class="alert alert-warning" role="alert">
+    La fecha <strong>desde</strong> es posterior a la fecha
+    <strong>hasta</strong>. No se muestran datos para ese rango.
+  </div>
+{% endif %}
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-4 col-xl-2">
+    <div class="card shadow-sm h-100 text-center">
+      <div class="card-body">
+        <div class="small text-body-secondary">Equipos participantes</div>
+        <div class="fs-3 fw-bold">{{ resumen.equipos }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-4 col-xl-2">
+    <div class="card shadow-sm h-100 text-center">
+      <div class="card-body">
+        <div class="small text-body-secondary">Intentos iniciados</div>
+        <div class="fs-3 fw-bold">{{ resumen.intentos_iniciados }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-4 col-xl-2">
+    <div class="card shadow-sm h-100 text-center">
+      <div class="card-body">
+        <div class="small text-body-secondary">Intentos finalizados</div>
+        <div class="fs-3 fw-bold">{{ resumen.intentos_finalizados }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-4 col-xl-2">
+    <div class="card shadow-sm h-100 text-center">
+      <div class="card-body">
+        <div class="small text-body-secondary">Intentos completados</div>
+        <div class="fs-3 fw-bold">{{ resumen.intentos_completados }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-4 col-xl-2">
+    <div class="card shadow-sm h-100 text-center">
+      <div class="card-body">
+        <div class="small text-body-secondary">Tiempo promedio completados</div>
+        <div class="fs-4 fw-bold">{{ resumen.promedio_completados|hhmmss }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-4 col-xl-2">
+    <div class="card shadow-sm h-100 text-center">
+      <div class="card-body">
+        <div class="small text-body-secondary">Aciertos</div>
+        <div class="fs-3 fw-bold">{{ "%.1f"|format(resumen.porcentaje_aciertos) }} %</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-12 col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h2 class="h5 mb-3">Intentos por estado</h2>
+        {% if resumen.intentos_iniciados %}
+          <ul class="list-unstyled mb-0">
+            {% set colores = {
+              'en_curso': 'bg-secondary',
+              'completo': 'bg-success',
+              'abandono': 'bg-warning',
+              'por_tiempo': 'bg-danger',
+              'por_fallas': 'bg-dark'
+            } %}
+            {% for estado in estados %}
+              <li class="mb-3">
+                <div class="d-flex justify-content-between gap-2">
+                  <span class="fw-semibold">{{ estado.etiqueta }}</span>
+                  <span class="text-body-secondary">
+                    {{ estado.total }}
+                    ({{ "%.1f"|format(estado.porcentaje_total) }} %)
+                  </span>
+                </div>
+                <div
+                  class="progress"
+                  role="img"
+                  aria-label="{{ estado.etiqueta }}: {{ estado.total }} intentos"
+                >
+                  <div
+                    class="progress-bar {{ colores[estado.clave] }}"
+                    style="width: {{ estado.ancho }}%"
+                  ></div>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="alert alert-info mb-0" role="alert">
+            No hay intentos para los filtros elegidos.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h2 class="h5 mb-3">Tiempo promedio por estación</h2>
+        <p class="small text-body-secondary">
+          Solo estaciones completadas, con fecha de fin.
+        </p>
+        <ul class="list-unstyled mb-0">
+          {% for estacion in estaciones %}
+            <li class="mb-3">
+              <div class="d-flex justify-content-between gap-2">
+                <span class="fw-semibold">
+                  <span class="text-body-secondary">{{ estacion.orden }}.</span>
+                  {{ estacion.nombre }}
+                </span>
+                <span class="text-body-secondary">
+                  {{ estacion.promedio|hhmmss }}
+                  {% if estacion.muestras %}
+                    <span class="small">({{ estacion.muestras }})</span>
+                  {% endif %}
+                </span>
+              </div>
+              <div
+                class="progress"
+                role="img"
+                aria-label="{{ estacion.nombre }}: promedio {{ estacion.promedio|hhmmss }}"
+              >
+                <div class="progress-bar bg-primary" style="width: {{ estacion.ancho }}%"></div>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-12 col-lg-5">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h2 class="h5 mb-3">Respuestas y aciertos</h2>
+        <dl class="row mb-3">
+          <dt class="col-7 fw-normal text-body-secondary">Realizadas</dt>
+          <dd class="col-5 text-end fs-5 fw-semibold mb-0">
+            {{ resumen.respuestas_realizadas }}
+          </dd>
+
+          <dt class="col-7 fw-normal text-body-secondary">Aciertos</dt>
+          <dd class="col-5 text-end fs-5 fw-semibold mb-0">
+            {{ resumen.aciertos }}
+          </dd>
+
+          <dt class="col-7 fw-normal text-body-secondary">Porcentaje de aciertos</dt>
+          <dd class="col-5 text-end fs-5 fw-semibold mb-0">
+            {{ "%.1f"|format(resumen.porcentaje_aciertos) }} %
+          </dd>
+        </dl>
+        <div
+          class="progress"
+          role="img"
+          aria-label="Porcentaje de aciertos: {{ '%.1f'|format(resumen.porcentaje_aciertos) }} por ciento"
+        >
+          <div class="progress-bar bg-success" style="width: {{ resumen.porcentaje_aciertos }}%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-7">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h2 class="h5 mb-3">Utilización de preguntas</h2>
+        <p class="small text-body-secondary">
+          Porcentaje de intentos filtrados en los que se seleccionó cada
+          pregunta. Se incluyen las preguntas activas sin usos y las inactivas
+          que ya se usaron.
+        </p>
+
+        {% if preguntas %}
+          <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col">Pregunta</th>
+                  <th scope="col">Estación / tema</th>
+                  <th scope="col">Dificultad</th>
+                  <th scope="col" class="text-end">Usos</th>
+                  <th scope="col" style="min-width: 8rem;">% del total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for pregunta in preguntas %}
+                  <tr>
+                    <td>
+                      {{ pregunta.titulo }}
+                      {% if not pregunta.activo %}
+                        <span class="badge text-bg-secondary">Inactiva</span>
+                      {% endif %}
+                    </td>
+                    <td class="small text-body-secondary">
+                      {{ pregunta.estacion_orden }}. {{ pregunta.estacion_nombre }} /
+                      {{ pregunta.tema_nombre }}
+                    </td>
+                    <td class="small">{{ pregunta.dificultad|capitalize }}</td>
+                    <td class="text-end">{{ pregunta.usos }}</td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div
+                          class="progress flex-grow-1"
+                          role="img"
+                          aria-label="{{ pregunta.titulo }}: {{ '%.1f'|format(pregunta.porcentaje) }} por ciento de los intentos"
+                        >
+                          <div class="progress-bar bg-info" style="width: {{ pregunta.ancho }}%"></div>
+                        </div>
+                        <span class="small text-body-secondary text-nowrap">
+                          {{ "%.1f"|format(pregunta.porcentaje) }} %
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="alert alert-info mb-0" role="alert">
+            No hay preguntas activas ni preguntas usadas.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

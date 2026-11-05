@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block titulo %}Cobertura de niveles · Administración · Escape Room 7.º B 2026{% endblock %}
+
+{% block contenido %}
+{% include "admin/_nav.html" %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
+  <div>
+    <h1 class="h2 fw-bold mb-1">Cobertura de niveles</h1>
+    <p class="text-body-secondary mb-0">
+      Preguntas activas por estación y nivel. Solo se cuentan estaciones,
+      temas y preguntas activas.
+    </p>
+  </div>
+  <a href="{{ url_for('admin.dificultades') }}" class="btn btn-primary">
+    Administrar dificultades
+  </a>
+</div>
+
+<div class="alert alert-secondary">
+  <strong>Regla:</strong> cada tema activo necesita al menos 1 pregunta activa
+  del nivel y la estación necesita {{ preguntas_por_estacion }} preguntas
+  activas en total.
+  {% if intentos_activos %}
+    <div class="mt-2 mb-0">
+      Hay {{ intentos_activos }} intento{{ '' if intentos_activos == 1 else 's' }}
+      activo{{ '' if intentos_activos == 1 else 's' }}:
+      <a href="{{ url_for('admin.intentos_activos') }}">ver equipos jugando</a>.
+    </div>
+  {% endif %}
+</div>
+
+{% if not estaciones_activas %}
+  <div class="alert alert-warning" role="alert">
+    No hay estaciones activas. Sin estaciones no se puede habilitar ningún
+    nivel.
+  </div>
+{% endif %}
+
+{% for nivel in niveles %}
+  <section class="card shadow-sm mb-4">
+    <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-start gap-2">
+      <div>
+        <h2 class="h5 mb-1">{{ nivel.etiqueta }}</h2>
+        <p class="small text-body-secondary mb-0">
+          {{ nivel.estaciones_completas }} de {{ nivel.total_estaciones }}
+          estaciones completas · {{ nivel.temas_sin_preguntas }} tema{{
+          '' if nivel.temas_sin_preguntas == 1 else 's' }} sin preguntas
+        </p>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        {% if nivel.valor == 'inicial' %}
+          <span class="badge text-bg-primary">Siempre habilitada</span>
+        {% elif habilitadas[nivel.valor] %}
+          <span class="badge text-bg-success">Habilitada</span>
+        {% else %}
+          <span class="badge text-bg-secondary">Deshabilitada</span>
+        {% endif %}
+        {% if nivel.completa %}
+          <span class="badge text-bg-success">Cobertura completa</span>
+        {% else %}
+          <span class="badge text-bg-danger">Falta cobertura</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-sm align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">Estación</th>
+            <th scope="col">Temas activos (preguntas del nivel)</th>
+            <th scope="col" class="text-center">Total</th>
+            <th scope="col" class="text-center">Estado</th>
+            <th scope="col" class="text-end">Preguntas</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for estacion in nivel.estaciones %}
+            <tr>
+              <td class="text-nowrap">
+                <span class="text-body-secondary">{{ estacion.orden }}.</span>
+                {{ estacion.nombre }}
+              </td>
+              <td>
+                {% if estacion.temas %}
+                  <div class="d-flex flex-wrap gap-1">
+                    {% for tema in estacion.temas %}
+                      <span class="badge {% if tema.suficiente %}text-bg-success{% else %}text-bg-danger{% endif %}">
+                        {{ tema.nombre }}: {{ tema.preguntas }}
+                      </span>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  <span class="text-danger small">Sin temas activos.</span>
+                {% endif %}
+              </td>
+              <td class="text-center fw-semibold {% if estacion.completa %}text-success{% else %}text-danger{% endif %}">
+                {{ estacion.total }} / {{ estacion.requeridas }}
+                {% if not estacion.completa and estacion.faltantes %}
+                  <div class="small fw-normal">Faltan {{ estacion.faltantes }}</div>
+                {% endif %}
+              </td>
+              <td class="text-center">
+                {% if estacion.completa %}
+                  <span class="badge text-bg-success">Completa</span>
+                {% else %}
+                  <span class="badge text-bg-danger">Incompleta</span>
+                {% endif %}
+              </td>
+              <td class="text-end text-nowrap">
+                <a
+                  class="btn btn-sm btn-outline-secondary"
+                  href="{{ url_for('admin.listado', tabla='pregunta', estacion_id=estacion.id, dificultad=nivel.valor) }}"
+                >Ver preguntas</a>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="5" class="text-center text-body-secondary py-3">
+                No hay estaciones activas.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endfor %}
+{% endblock %}

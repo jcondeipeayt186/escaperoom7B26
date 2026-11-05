@@ -45,6 +45,51 @@
   </div>
 </div>
 
+<h2 class="h5 mb-3">Niveles, intentos y métricas</h2>
+<div class="row g-3 mb-4">
+  <div class="col-12 col-sm-6 col-lg-3">
+    <a href="{{ url_for('admin.cobertura') }}" class="card h-100 shadow-sm text-decoration-none text-reset">
+      <div class="card-body">
+        <h3 class="h6 mb-1">Cobertura de niveles</h3>
+        <p class="small text-body-secondary mb-0">
+          Preguntas por estación, tema y nivel. Marcá lo que falta antes de
+          habilitar una dificultad.
+        </p>
+      </div>
+    </a>
+  </div>
+  <div class="col-12 col-sm-6 col-lg-3">
+    <a href="{{ url_for('admin.dificultades') }}" class="card h-100 shadow-sm text-decoration-none text-reset">
+      <div class="card-body">
+        <h3 class="h6 mb-1">Dificultades</h3>
+        <p class="small text-body-secondary mb-0">
+          Habilitá intermedio y avanzado solo con cobertura completa.
+        </p>
+      </div>
+    </a>
+  </div>
+  <div class="col-12 col-sm-6 col-lg-3">
+    <a href="{{ url_for('admin.intentos_activos') }}" class="card h-100 shadow-sm text-decoration-none text-reset">
+      <div class="card-body">
+        <h3 class="h6 mb-1">Intentos activos</h3>
+        <p class="small text-body-secondary mb-0">
+          Quién está jugando y desde qué estación.
+        </p>
+      </div>
+    </a>
+  </div>
+  <div class="col-12 col-sm-6 col-lg-3">
+    <a href="{{ url_for('admin.estadisticas') }}" class="card h-100 shadow-sm text-decoration-none text-reset">
+      <div class="card-body">
+        <h3 class="h6 mb-1">Estadísticas</h3>
+        <p class="small text-body-secondary mb-0">
+          Equipos, intentos, tiempos, aciertos y uso de cada pregunta.
+        </p>
+      </div>
+    </a>
+  </div>
+</div>
+
 <h2 class="h5 mb-3">Contenido y configuración</h2>
 <div class="row g-3 mb-4">
   {% for item in tablas if item.grupo == 'contenido' %}

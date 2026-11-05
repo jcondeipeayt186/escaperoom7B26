@@ -229,6 +229,52 @@ def hay_intentos_activos():
         return int(cursor.fetchone()["total"]) > 0
 
 
+def obtener_intentos_activos():
+    """Equipos jugando, estación actual y última actividad registrada."""
+
+    with get_db().cursor() as cursor:
+        cursor.execute(
+            "SELECT DATE_FORMAT(NOW(), %s) AS ahora",
+            ("%d/%m/%Y %H:%i:%s",),
+        )
+        ahora = cursor.fetchone()["ahora"]
+
+        cursor.execute(
+            "SELECT i.id, i.equipo_id, e.nombre AS equipo_nombre, "
+            "       i.dificultad, i.ultima_estacion_visitada, "
+            "       es.nombre AS estacion_nombre, es.orden AS estacion_orden, "
+            "       i.fecha_inicio, i.cantidad_ayudas, "
+            "       GREATEST("
+            "         i.fecha_inicio,"
+            "         COALESCE(("
+            "           SELECT MAX(ie.fecha) FROM intento_envio ie "
+            "           WHERE ie.intento_id = i.id"
+            "         ), i.fecha_inicio),"
+            "         COALESCE(("
+            "           SELECT MAX(re.fecha_respondida) FROM respuesta_elegida re "
+            "           WHERE re.intento_id = i.id"
+            "         ), i.fecha_inicio),"
+            "         COALESCE(("
+            "           SELECT MAX(ies.fecha_inicio) FROM intento_estacion ies "
+            "           WHERE ies.intento_id = i.id"
+            "         ), i.fecha_inicio)"
+            "       ) AS ultima_actividad, "
+            "       TIMESTAMPDIFF(SECOND, i.fecha_inicio, NOW()) AS transcurrido "
+            "FROM intento i "
+            "JOIN equipo e ON e.id = i.equipo_id "
+            "JOIN estacion es ON es.id = i.ultima_estacion_visitada "
+            "WHERE i.fecha_fin IS NULL "
+            "ORDER BY i.fecha_inicio, i.id"
+        )
+        filas = cursor.fetchall()
+
+    return {
+        "filas": filas,
+        "total": len(filas),
+        "actualizado": ahora,
+    }
+
+
 def resumen_panel():
     """Conteos por tabla y estado general del juego."""
 

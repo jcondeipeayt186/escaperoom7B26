@@ -65,7 +65,7 @@ curl -i http://127.0.0.1:5000/salud
 Respuesta esperada: `200` con `{"estado": "ok", "base": "ok"}`. Si la base no
 responde, devuelve `503` sin exponer credenciales.
 
-## Flujo implementado hasta el paso 09
+## Flujo implementado hasta el paso 10
 
 - `GET /` muestra la bienvenida con nombre, cantidad de integrantes (1–4) y
   solo las dificultades habilitadas en `configuracion`.
@@ -156,6 +156,24 @@ responde, devuelve `503` sin exponer credenciales.
   estado de las estaciones, los parámetros del juego, ni las respuestas
   correctas de las preguntas en curso. Tampoco se puede mover contenido ya
   usado en un intento.
+- `/admin/cobertura` muestra la cobertura de cada nivel por estación y tema:
+  preguntas activas por tema, total, lo que falta y estado verde/rojo.
+  `inicial` siempre figura habilitada. Cada tema activo necesita al menos
+  1 pregunta del nivel y cada estación 4 en total.
+- `/admin/dificultades` permite habilitar o deshabilitar `intermedio` y
+  `avanzado`. Habilitar exige cobertura completa en todas las estaciones y
+  cualquier cambio se bloquea mientras haya intentos activos. El servidor
+  valida los toggles aunque el formulario se envíe directamente.
+- `/admin/intentos-activos` lista los equipos que están jugando, su estación
+  actual, el tiempo transcurrido y la última actividad registrada.
+- `/admin/estadisticas` muestra equipos, intentos iniciados, finalizados y
+  completados, tiempo promedio de los completados, aciertos, intentos por
+  estado (incluye **En curso**), tiempo promedio por estación completada y
+  utilización de cada pregunta. Los filtros por fecha y dificultad se aplican
+  sobre `intento.fecha_inicio` e `intento.dificultad`. Las barras son CSS
+  generadas en el servidor, sin Chart.js ni CDN.
+- El panel de administración y la barra de navegación del admin enlazan a
+  cobertura, dificultades, intentos activos y estadísticas.
 
 La lógica de identidad y configuración vive en `app/servicios/`. La sesión de
 Flask guarda solo `equipo_id` e `intento_id`; el servidor vuelve a leer y
