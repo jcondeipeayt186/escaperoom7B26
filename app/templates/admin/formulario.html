@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+  {% if modo == 'crear' %}Nueva fila{% else %}Editar fila{% endif %} · {{ meta.etiqueta }} · Administración
+{% endblock %}
+
+{% block contenido %}
+{% include "admin/_nav.html" %}
+
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-9 col-xl-8">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
+      <div>
+        <h1 class="h2 fw-bold mb-1">
+          {% if modo == 'crear' %}Nueva fila{% else %}Editar fila{% endif %}
+        </h1>
+        <p class="text-body-secondary mb-0">{{ meta.singular }} · {{ meta.etiqueta }}</p>
+      </div>
+      <a href="{{ url_for('admin.listado', tabla=tabla) }}" class="btn btn-outline-secondary">Volver al listado</a>
+    </div>
+
+    {% if error_general %}
+      <div class="alert alert-danger" role="alert">{{ error_general }}</div>
+    {% endif %}
+
+    {% if tabla == 'pregunta' and modo == 'crear' %}
+      <div class="alert alert-info">
+        La pregunta se guarda inactiva. Después agregá sus respuestas: para
+        activarla va a necesitar al menos dos respuestas activas y exactamente
+        una correcta.
+      </div>
+    {% endif %}
+
+    <form method="post" class="card shadow-sm">
+      <div class="card-body p-4">
+        {% for campo in campos %}
+          {% set tiene_error = errores.get(campo.nombre) %}
+          <div class="mb-3">
+            {% if campo.tipo == 'checkbox' %}
+              <div class="form-check">
+                <input
+                  class="form-check-input {% if tiene_error %}is-invalid{% endif %}"
+                  type="checkbox"
+                  id="campo-{{ campo.nombre }}"
+                  name="{{ campo.nombre }}"
+                  value="1"
+                  {% if datos[campo.nombre] %}checked{% endif %}
+                  {% if campo.solo_lectura or (tabla == 'pregunta' and modo == 'crear' and campo.nombre == 'activo') %}disabled{% endif %}
+                >
+                <label class="form-check-label" for="campo-{{ campo.nombre }}">{{ campo.etiqueta }}</label>
+                {% if tabla == 'pregunta' and modo == 'crear' and campo.nombre == 'activo' %}
+                  <div class="form-text">Se activa desde la edición, cuando tenga respuestas válidas.</div>
+                {% elif campo.ayuda %}
+                  <div class="form-text">{{ campo.ayuda }}</div>
+                {% endif %}
+                {% if tiene_error %}
+                  <div class="invalid-feedback d-block">{{ tiene_error }}</div>
+                {% endif %}
+              </div>
+            {% else %}
+              <label for="campo-{{ campo.nombre }}" class="form-label">{{ campo.etiqueta }}</label>
+
+              {% if campo.tipo == 'textarea' %}
+                <textarea
+                  class="form-control {% if tiene_error %}is-invalid{% endif %}"
+                  id="campo-{{ campo.nombre }}"
+                  name="{{ campo.nombre }}"
+                  rows="4"
+                  {% if campo.maximo %}maxlength="{{ campo.maximo }}"{% endif %}
+                  {% if campo.solo_lectura %}readonly{% endif %}
+                >{{ datos[campo.nombre] }}</textarea>
+              {% elif campo.tipo == 'select' %}
+                <select
+                  class="form-select {% if tiene_error %}is-invalid{% endif %}"
+                  id="campo-{{ campo.nombre }}"
+                  name="{{ campo.nombre }}"
+                  {% if campo.solo_lectura %}disabled{% endif %}
+                >
+                  <option value="">Elegí una opción</option>
+                  {% for opcion in campo.opciones %}
+                    <option value="{{ opcion.valor }}" {% if datos[campo.nombre]|string == opcion.valor|string %}selected{% endif %}>{{ opcion.etiqueta }}</option>
+                  {% endfor %}
+                </select>
+              {% elif campo.tipo == 'numero' %}
+                <input
+                  type="number"
+                  class="form-control {% if tiene_error %}is-invalid{% endif %}"
+                  id="campo-{{ campo.nombre }}"
+                  name="{{ campo.nombre }}"
+                  value="{{ datos[campo.nombre] }}"
+                  {% if campo.minimo_numero is not none %}min="{{ campo.minimo_numero }}"{% endif %}
+                  {% if campo.maximo_numero is not none %}max="{{ campo.maximo_numero }}"{% endif %}
+                  {% if campo.solo_lectura %}readonly{% endif %}
+                >
+              {% else %}
+                <input
+                  type="text"
+                  class="form-control {% if tiene_error %}is-invalid{% endif %}"
+                  id="campo-{{ campo.nombre }}"
+                  name="{{ campo.nombre }}"
+                  value="{{ datos[campo.nombre] }}"
+                  {% if campo.maximo %}maxlength="{{ campo.maximo }}"{% endif %}
+                  {% if campo.solo_lectura %}readonly{% endif %}
+                >
+              {% endif %}
+
+              {% if campo.ayuda %}
+                <div class="form-text">{{ campo.ayuda }}</div>
+              {% endif %}
+              {% if tiene_error %}
+                <div class="invalid-feedback d-block">{{ tiene_error }}</div>
+              {% endif %}
+            {% endif %}
+          </div>
+        {% endfor %}
+
+        <div class="d-flex flex-wrap gap-2 pt-2">
+          <button type="submit" class="btn btn-primary" data-deshabilitar-al-enviar>Guardar</button>
+          <a href="{{ url_for('admin.listado', tabla=tabla) }}" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/juego.js') }}"></script>
+{% endblock %}

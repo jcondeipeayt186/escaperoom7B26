@@ -65,7 +65,7 @@ curl -i http://127.0.0.1:5000/salud
 Respuesta esperada: `200` con `{"estado": "ok", "base": "ok"}`. Si la base no
 responde, devuelve `503` sin exponer credenciales.
 
-## Flujo implementado hasta el paso 08
+## Flujo implementado hasta el paso 09
 
 - `GET /` muestra la bienvenida con nombre, cantidad de integrantes (1–4) y
   solo las dificultades habilitadas en `configuracion`.
@@ -133,6 +133,29 @@ responde, devuelve `503` sin exponer credenciales.
   pregunta.
 - La bienvenida enlaza a `/ranking` y `/estadisticas`; el final enlaza a
   estadísticas y la eliminación a ranking.
+- `GET /admin` muestra el login y `POST /admin/login` valida `ADMIN_USER` y
+  `ADMIN_PASSWORD_HASH`. `POST /admin/logout` cierra la sesión administrativa.
+  Todas las rutas `/admin/*` salvo el login exigen sesión; `/admin` no está
+  enlazada desde ninguna página pública.
+- `/admin/` muestra cards con el total y los activos/inactivos de las 12
+  tablas, además del estado del juego (intentos activos, equipos jugando y
+  última actividad).
+- `/admin/<tabla>` lista cualquier tabla con búsqueda, filtros, orden y
+  paginación resueltos en el servidor. El orden siempre sale de una lista
+  blanca y los valores inválidos caen a los predeterminados.
+- `/admin/<tabla>/nuevo`, `/admin/<tabla>/<id>/editar` y
+  `POST /admin/<tabla>/<id>/desactivar` gestionan estaciones, temas,
+  preguntas, respuestas y configuración. La baja es lógica (`activo = 0`).
+  `/admin/<tabla>/<id>` muestra el detalle de cualquier fila.
+- Las tablas históricas (`equipo`, `intento`, `intento_estacion`,
+  `intento_envio`, `intento_pregunta`, `respuesta_elegida` e `incorrecta`) son
+  de solo lectura: sus rutas de alta, edición y baja devuelven `404`.
+- Una pregunta nueva queda inactiva hasta tener al menos 2 respuestas activas
+  y exactamente 1 correcta. Marcar una respuesta como correcta desmarca las
+  demás de esa pregunta. Con intentos activos no se cambian el orden ni el
+  estado de las estaciones, los parámetros del juego, ni las respuestas
+  correctas de las preguntas en curso. Tampoco se puede mover contenido ya
+  usado en un intento.
 
 La lógica de identidad y configuración vive en `app/servicios/`. La sesión de
 Flask guarda solo `equipo_id` e `intento_id`; el servidor vuelve a leer y

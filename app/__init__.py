@@ -33,6 +33,9 @@ def create_app(config_override=None):
         MYSQL_DB=os.environ.get("MYSQL_DB"),
         ADMIN_USER=os.environ.get("ADMIN_USER"),
         ADMIN_PASSWORD_HASH=os.environ.get("ADMIN_PASSWORD_HASH"),
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE="Lax",
+        SESSION_COOKIE_SECURE=False,
     )
 
     if config_override:

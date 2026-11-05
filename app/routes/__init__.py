@@ -10,4 +10,4 @@ def register_blueprints(app):
     app.register_blueprint(juego_bp)
     app.register_blueprint(ranking_bp)
     app.register_blueprint(estadisticas_bp)
-    app.register_blueprint(admin_bp, url_prefix="/admin")
+    app.register_blueprint(admin_bp)

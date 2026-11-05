@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block titulo %}Panel de administración · Escape Room 7.º B 2026{% endblock %}
+
+{% block contenido %}
+{% include "admin/_nav.html" %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
+  <div>
+    <h1 class="h2 fw-bold mb-1">Panel de control</h1>
+    <p class="text-body-secondary mb-0">Contenido, configuración e historial del juego.</p>
+  </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h2 class="h5 mb-3">Estado del juego</h2>
+    <div class="row g-3">
+      <div class="col-12 col-sm-4">
+        <div class="border rounded p-3 h-100">
+          <div class="text-body-secondary small">Intentos activos</div>
+          <div class="fs-3 fw-bold">{{ estado.intentos_activos }}</div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-4">
+        <div class="border rounded p-3 h-100">
+          <div class="text-body-secondary small">Equipos jugando</div>
+          <div class="fs-3 fw-bold">{{ estado.equipos_jugando }}</div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-4">
+        <div class="border rounded p-3 h-100">
+          <div class="text-body-secondary small">Última actividad</div>
+          <div class="fs-5 fw-semibold">{{ estado.ultima_actividad|fecha_hora }}</div>
+        </div>
+      </div>
+    </div>
+    {% if estado.intentos_activos %}
+      <p class="text-body-secondary small mt-3 mb-0">
+        Mientras haya intentos activos no se pueden cambiar el orden de las
+        estaciones, los parámetros del juego ni las respuestas correctas de las
+        preguntas en curso.
+      </p>
+    {% endif %}
+  </div>
+</div>
+
+<h2 class="h5 mb-3">Contenido y configuración</h2>
+<div class="row g-3 mb-4">
+  {% for item in tablas if item.grupo == 'contenido' %}
+    <div class="col-12 col-sm-6 col-lg-4">
+      <a href="{{ url_for('admin.listado', tabla=item.tabla) }}" class="card h-100 shadow-sm text-decoration-none text-reset">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <div>
+              <h3 class="h6 mb-1">{{ item.etiqueta }}</h3>
+              <div class="fs-3 fw-bold">{{ item.total }}</div>
+            </div>
+            {% if item.editable %}
+              <span class="badge text-bg-primary">Editable</span>
+            {% else %}
+              <span class="badge text-bg-secondary">Solo lectura</span>
+            {% endif %}
+          </div>
+          {% if item.activos is not none %}
+            <div class="small text-body-secondary mt-2">
+              {{ item.activos }} activos · {{ item.inactivos }} inactivos
+            </div>
+          {% endif %}
+        </div>
+      </a>
+    </div>
+  {% endfor %}
+</div>
+
+<h2 class="h5 mb-3">Historial</h2>
+<div class="row g-3">
+  {% for item in tablas if item.grupo == 'historico' %}
+    <div class="col-12 col-sm-6 col-lg-4">
+      <a href="{{ url_for('admin.listado', tabla=item.tabla) }}" class="card h-100 shadow-sm text-decoration-none text-reset">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <div>
+              <h3 class="h6 mb-1">{{ item.etiqueta }}</h3>
+              <div class="fs-3 fw-bold">{{ item.total }}</div>
+            </div>
+            <span class="badge text-bg-secondary">Solo lectura</span>
+          </div>
+          <div class="small text-body-secondary mt-2">
+            Los registros históricos no se editan ni se desactivan.
+          </div>
+        </div>
+      </a>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

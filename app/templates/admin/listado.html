@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% from "admin/_valor.html" import valor %}
+
+{% block titulo %}{{ meta.etiqueta }} · Administración · Escape Room 7.º B 2026{% endblock %}
+
+{% block contenido %}
+{% include "admin/_nav.html" %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
+  <div>
+    <h1 class="h2 fw-bold mb-1">{{ meta.etiqueta }}</h1>
+    <p class="text-body-secondary mb-0">
+      {% if meta.campos %}
+        Alta, edición y baja lógica.
+      {% else %}
+        Registros históricos de solo lectura.
+      {% endif %}
+    </p>
+  </div>
+  <div class="d-flex gap-2">
+    {% if meta.campos %}
+      <a href="{{ url_for('admin.nuevo', tabla=tabla) }}" class="btn btn-primary">Nueva fila</a>
+    {% endif %}
+  </div>
+</div>
+
+{% if not meta.campos %}
+  <div class="alert alert-secondary">
+    Estos registros son históricos: no se editan, no se desactivan y no se borran.
+  </div>
+{% elif tabla == 'pregunta' %}
+  <div class="alert alert-info">
+    Las preguntas nuevas se crean inactivas. Para activarlas necesitan al menos
+    dos respuestas activas y exactamente una correcta.
+  </div>
+{% elif meta.tiene_activo %}
+  <div class="alert alert-secondary">
+    La baja es lógica: el registro queda con <code>activo = 0</code> y el
+    historial se conserva.
+  </div>
+{% endif %}
+
+<form method="get" action="{{ url_for('admin.listado', tabla=tabla) }}" class="card shadow-sm mb-3">
+  <div class="card-body">
+    <div class="row g-2 align-items-end">
+      {% if meta.busqueda %}
+        <div class="col-12 col-md-4">
+          <label for="q" class="form-label">Buscar</label>
+          <input type="search" class="form-control" id="q" name="q" value="{{ busqueda }}">
+        </div>
+      {% endif %}
+
+      {% for filtro in filtros %}
+        <div class="col-6 col-md-3">
+          <label for="filtro-{{ filtro.param }}" class="form-label">{{ filtro.etiqueta }}</label>
+          {% if filtro.tipo == 'numero' %}
+            <input
+              type="number"
+              class="form-control"
+              id="filtro-{{ filtro.param }}"
+              name="{{ filtro.param }}"
+              value="{{ valores[filtro.param] }}"
+              min="1"
+            >
+          {% else %}
+            <select class="form-select" id="filtro-{{ filtro.param }}" name="{{ filtro.param }}">
+              <option value="">Todos</option>
+              {% for opcion in filtro.opciones %}
+                <option value="{{ opcion.valor }}" {% if valores[filtro.param] == opcion.valor %}selected{% endif %}>{{ opcion.etiqueta }}</option>
+              {% endfor %}
+            </select>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      {% if meta.columna_fecha %}
+        <div class="col-6 col-md-2">
+          <label for="desde" class="form-label">Desde</label>
+          <input type="date" class="form-control" id="desde" name="desde" value="{{ valores.desde }}">
+        </div>
+        <div class="col-6 col-md-2">
+          <label for="hasta" class="form-label">Hasta</label>
+          <input type="date" class="form-control" id="hasta" name="hasta" value="{{ valores.hasta }}">
+        </div>
+      {% endif %}
+
+      <div class="col-6 col-md-2">
+        <label for="orden" class="form-label">Ordenar por</label>
+        <select class="form-select" id="orden" name="orden">
+          {% for opcion in ordenes %}
+            <option value="{{ opcion.valor }}" {% if orden == opcion.valor %}selected{% endif %}>{{ opcion.etiqueta }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-6 col-md-2">
+        <label for="dir" class="form-label">Dirección</label>
+        <select class="form-select" id="dir" name="dir">
+          <option value="asc" {% if direccion == 'asc' %}selected{% endif %}>Ascendente</option>
+          <option value="desc" {% if direccion == 'desc' %}selected{% endif %}>Descendente</option>
+        </select>
+      </div>
+
+      <div class="col-12 d-flex flex-wrap gap-2 pt-2">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a href="{{ url_for('admin.listado', tabla=tabla) }}" class="btn btn-outline-secondary">Limpiar</a>
+      </div>
+    </div>
+  </div>
+</form>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-sm table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          {% for columna in meta.columnas %}
+            <th scope="col">{{ columna.etiqueta }}</th>
+          {% endfor %}
+          <th scope="col" class="text-end">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for fila in filas %}
+          <tr>
+            {% for columna in meta.columnas %}
+              <td>{{ valor(columna, fila) }}</td>
+            {% endfor %}
+            <td class="text-end text-nowrap">
+              <a
+                class="btn btn-sm btn-outline-secondary"
+                href="{{ url_for('admin.detalle', tabla=tabla, fila_id=fila[meta.pk]) }}"
+              >Ver</a>
+              {% if meta.campos %}
+                <a
+                  class="btn btn-sm btn-outline-primary"
+                  href="{{ url_for('admin.editar', tabla=tabla, fila_id=fila[meta.pk]) }}"
+                >Editar</a>
+              {% endif %}
+              {% if meta.campos and meta.tiene_activo and fila['activo'] %}
+                <form
+                  method="post"
+                  action="{{ url_for('admin.desactivar', tabla=tabla, fila_id=fila[meta.pk]) }}"
+                  class="d-inline"
+                  data-confirmar="¿Desactivar este registro? No se borra: queda inactivo y el historial se conserva."
+                >
+                  <button type="submit" class="btn btn-sm btn-outline-danger" data-deshabilitar-al-enviar>Desactivar</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="{{ meta.columnas|length + 1 }}" class="text-center text-body-secondary py-4">
+              No hay filas con esos filtros.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <span class="text-body-secondary small">
+      {% if total %}
+        Mostrando {{ desde_fila }}–{{ hasta_fila }} de {{ total }} filas.
+      {% else %}
+        Sin filas.
+      {% endif %}
+    </span>
+    {% if total_paginas > 1 %}
+      {% set base = url_for('admin.listado', tabla=tabla) %}
+      {% set separador = '?' ~ consulta ~ '&' if consulta else '?' %}
+      <nav aria-label="Paginación">
+        <ul class="pagination pagination-sm mb-0">
+          <li class="page-item {% if pagina <= 1 %}disabled{% endif %}">
+            <a class="page-link" href="{{ base }}{{ separador }}pagina={{ pagina - 1 }}">Anterior</a>
+          </li>
+          <li class="page-item disabled">
+            <span class="page-link">Página {{ pagina }} de {{ total_paginas }}</span>
+          </li>
+          <li class="page-item {% if pagina >= total_paginas %}disabled{% endif %}">
+            <a class="page-link" href="{{ base }}{{ separador }}pagina={{ pagina + 1 }}">Siguiente</a>
+          </li>
+        </ul>
+      </nav>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/juego.js') }}"></script>
+{% endblock %}

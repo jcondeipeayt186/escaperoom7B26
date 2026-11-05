@@ -1,0 +1,36 @@
+{% macro valor(columna, fila) -%}
+  {%- set v = fila[columna.campo] -%}
+  {%- if v is none or v == '' -%}
+    <span class="text-body-secondary">—</span>
+  {%- elif columna.formato == 'activo' -%}
+    {%- if v -%}
+      <span class="badge text-bg-success">Activo</span>
+    {%- else -%}
+      <span class="badge text-bg-secondary">Inactivo</span>
+    {%- endif -%}
+  {%- elif columna.formato == 'booleano' -%}
+    {%- if v -%}
+      <span class="text-success fw-semibold">Sí</span>
+    {%- else -%}
+      <span class="text-body-secondary">No</span>
+    {%- endif -%}
+  {%- elif columna.formato == 'fecha' -%}
+    {{ v|fecha_hora }}
+  {%- elif columna.formato == 'dificultad' -%}
+    {{ v|capitalize }}
+  {%- elif columna.formato == 'finalizado' -%}
+    {%- set etiquetas = {
+      'completo': 'Completo',
+      'abandono': 'Abandono',
+      'por_respuestas_incorrectas': 'Por respuestas incorrectas',
+      'por_tiempo': 'Por tiempo'
+    } -%}
+    {{ etiquetas.get(v, v) }}
+  {%- else -%}
+    {%- if columna.recortar -%}
+      {{ v|string|truncate(70, True, '…') }}
+    {%- else -%}
+      {{ v }}
+    {%- endif -%}
+  {%- endif -%}
+{%- endmacro %}

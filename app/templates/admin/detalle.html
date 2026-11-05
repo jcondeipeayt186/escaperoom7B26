@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "admin/_valor.html" import valor %}
+
+{% block titulo %}{{ meta.singular }} · Administración · Escape Room 7.º B 2026{% endblock %}
+
+{% block contenido %}
+{% include "admin/_nav.html" %}
+
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-9 col-xl-8">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
+      <div>
+        <h1 class="h2 fw-bold mb-1">{{ meta.singular }}</h1>
+        <p class="text-body-secondary mb-0">{{ meta.etiqueta }} · {{ fila[meta.pk] }}</p>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <a href="{{ url_for('admin.listado', tabla=tabla) }}" class="btn btn-outline-secondary">Volver al listado</a>
+        {% if meta.campos %}
+          <a
+            href="{{ url_for('admin.editar', tabla=tabla, fila_id=fila[meta.pk]) }}"
+            class="btn btn-primary"
+          >Editar</a>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if not meta.campos %}
+      <div class="alert alert-secondary">
+        Registro histórico de solo lectura: no se edita, no se desactiva y no se borra.
+      </div>
+    {% endif %}
+
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <dl class="row mb-0">
+          {% for columna in columnas %}
+            <dt class="col-sm-4 col-md-3">{{ columna.etiqueta }}</dt>
+            <dd class="col-sm-8 col-md-9">{{ valor(columna, fila) }}</dd>
+          {% endfor %}
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

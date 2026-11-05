@@ -1,0 +1,13 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div>
+    <a href="{{ url_for('admin.panel') }}" class="text-decoration-none fw-bold">Panel</a>
+    <span class="text-body-secondary mx-1">·</span>
+    <span class="text-body-secondary">Administración</span>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <a href="{{ url_for('ranking.publico') }}" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener">Ver ranking</a>
+    <form method="post" action="{{ url_for('admin.logout') }}" class="d-inline">
+      <button type="submit" class="btn btn-outline-danger btn-sm">Cerrar sesión</button>
+    </form>
+  </div>
+</div>
