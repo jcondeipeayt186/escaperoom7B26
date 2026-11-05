@@ -26,3 +26,5 @@ instance/
 *.sql.gz
 *.dump
 respaldo_*.sql
+
+docs/chatdeopencode.md
