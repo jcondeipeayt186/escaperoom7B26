@@ -109,22 +109,27 @@ responde, devuelve `503` sin exponer credenciales.
 - Al completar la quinta estación, el intento queda `finalizado = 'completo'`
   con la misma `fecha_fin` de la estación y `puntaje_obtenido` igual a los
   segundos totales. El contador general queda congelado.
-- `GET /juego/final` muestra el resultado, la posición, el top 10 y el
-  ranking completo con filtros por nombre de equipo, número de intento y
-  fecha de fin. Las filas incluyen la fecha y hora de fin (`dd/mm/aaaa HH:MM`).
+- `GET /juego/final` muestra el resultado, la posición dentro del nivel del
+  intento, la posición general, el top 10 del nivel y el ranking completo con
+  columnas **Pos. general**, **Pos. nivel** y **Nivel**. Se puede filtrar por
+  nombre de equipo, número de intento, fecha de fin y nivel. Las filas incluyen
+  la fecha y hora de fin (`dd/mm/aaaa HH:MM`).
 - `GET /juego/eliminado` explica el motivo (`por_tiempo`,
   `por_respuestas_incorrectas` o `abandono`) y muestra un resumen del intento.
 - El ranking usa solo intentos completos y ordena por tiempo, luego
   incorrectas, luego ayudas, luego el intento que comenzó antes y, por
-  último, `id`.
+  último, `id`. La competencia es por nivel: `posicion` es la general y
+  `posicion_nivel` la del nivel del intento, con el mismo orden.
 - El HUD muestra equipo, estación, los dos contadores, ayudas, respuestas
   incorrectas y envíos.
-- `GET /ranking` es la vista pública para el televisor: tabla grande con
-  posición, equipo, número de intento, tiempo, incorrectas, ayudas y fecha de
-  fin. Se renderiza en el servidor y se actualiza sola consultando
-  `GET /ranking/datos` cada 8 segundos. Si el polling falla, conserva la tabla
-  y muestra **Reconectando…**. El JSON solo incluye intentos completados y no
-  expone `equipo_id` ni `intento_id`.
+- `GET /ranking` es la vista pública para el televisor: una tabla grande por
+  nivel con posición, equipo, número de intento, tiempo, incorrectas, ayudas y
+  fecha de fin. Se renderiza en el servidor y se actualiza sola consultando
+  `GET /ranking/datos` cada 8 segundos. Si el polling falla, conserva todas las
+  tablas y muestra **Reconectando…**. El JSON agrupa las filas por nivel, solo
+  incluye intentos completados y no expone `equipo_id` ni `intento_id`.
+  `inicial` se muestra siempre; `intermedio` y `avanzado` si están habilitados
+  o si ya tienen intentos completados.
 - `GET /estadisticas` muestra agregados de la feria: equipos, integrantes,
   intentos iniciados y completados, tiempo promedio de los completados,
   respuestas realizadas, porcentaje de aciertos y barras de intentos por

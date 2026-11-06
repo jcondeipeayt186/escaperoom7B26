@@ -262,3 +262,66 @@ def test_recorrido_completo_cierra_la_quinta_estacion(cliente, db):
     html = cliente.get("/juego/final").get_data(as_text=True)
     assert "Equipo Completo" in html
     assert "Ranking" in html
+    assert "Top 10 · Inicial" in html
+    assert "Posición · Inicial" in html
+
+
+def test_final_de_intermedio_usa_el_ranking_de_su_nivel(cliente, db):
+    equipo_id = ejecutar(
+        db,
+        "INSERT INTO equipo (nombre, cantidad_personas) "
+        "VALUES ('Equipo Intermedio', 2)",
+    )
+    intento_id = ejecutar(
+        db,
+        "INSERT INTO intento "
+        "(equipo_id, dificultad, fecha_inicio, fecha_fin, cantidad_ayudas, "
+        " puntaje_obtenido, finalizado, ultima_estacion_visitada) "
+        "VALUES (%s, 'intermedio', '2026-01-01 10:00:00', "
+        "        '2026-01-01 10:05:00', 0, 300, 'completo', 1)",
+        (equipo_id,),
+    )
+
+    equipo_rival = ejecutar(
+        db,
+        "INSERT INTO equipo (nombre, cantidad_personas) "
+        "VALUES ('Rival Intermedio', 2)",
+    )
+    ejecutar(
+        db,
+        "INSERT INTO intento "
+        "(equipo_id, dificultad, fecha_inicio, fecha_fin, cantidad_ayudas, "
+        " puntaje_obtenido, finalizado, ultima_estacion_visitada) "
+        "VALUES (%s, 'intermedio', '2026-01-01 09:00:00', "
+        "        '2026-01-01 09:04:00', 0, 240, 'completo', 1)",
+        (equipo_rival,),
+    )
+
+    equipo_inicial = ejecutar(
+        db,
+        "INSERT INTO equipo (nombre, cantidad_personas) "
+        "VALUES ('Inicial Rápido', 2)",
+    )
+    ejecutar(
+        db,
+        "INSERT INTO intento "
+        "(equipo_id, dificultad, fecha_inicio, fecha_fin, cantidad_ayudas, "
+        " puntaje_obtenido, finalizado, ultima_estacion_visitada) "
+        "VALUES (%s, 'inicial', '2026-01-01 08:00:00', "
+        "        '2026-01-01 08:01:00', 0, 60, 'completo', 1)",
+        (equipo_inicial,),
+    )
+
+    iniciar_sesion(cliente, equipo_id, intento_id)
+    html = cliente.get("/juego/final").get_data(as_text=True)
+
+    assert "Posición · Intermedio" in html
+    assert "Top 10 · Intermedio" in html
+    assert "Pos. general" in html
+    assert "Pos. nivel" in html
+    assert "Rival Intermedio" in html
+
+    # El top 10 se limita al nivel del intento.
+    top = html.split("Ranking completo", 1)[0]
+    assert "Rival Intermedio" in top
+    assert "Inicial Rápido" not in top

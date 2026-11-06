@@ -4,12 +4,22 @@
   const contenedor = document.getElementById("ranking");
   if (!contenedor) return;
 
-  const cuerpo = document.getElementById("ranking-filas");
   const hora = document.getElementById("ranking-hora");
   const reconectando = document.getElementById("ranking-reconectando");
   const vacio = document.getElementById("ranking-vacio");
   const url = contenedor.dataset.url;
   const intervalo = Number(contenedor.dataset.intervalo) || 8000;
+
+  // Una entrada por sección de nivel renderizada por el servidor.
+  const secciones = new Map();
+  document.querySelectorAll("section[data-nivel]").forEach(function (seccion) {
+    secciones.set(seccion.getAttribute("data-nivel"), {
+      seccion: seccion,
+      cuerpo: seccion.querySelector("tbody"),
+      vacio: seccion.querySelector("[data-vacio]"),
+      tabla: seccion.querySelector("[data-tabla]"),
+    });
+  });
 
   let consultando = false;
 
@@ -46,13 +56,41 @@
     return tr;
   }
 
-  function pintar(datos) {
-    if (!Array.isArray(datos.filas)) return;
+  function pintarNivel(nivel) {
+    const seccion = secciones.get(nivel.valor);
+    if (!seccion) return false;
+
+    const filas = Array.isArray(nivel.filas) ? nivel.filas : [];
 
     // textContent en cada celda: el nombre del equipo nunca se interpreta
     // como HTML.
-    cuerpo.replaceChildren.apply(cuerpo, datos.filas.map(crearFila));
-    vacio.hidden = datos.filas.length > 0;
+    if (seccion.cuerpo) {
+      seccion.cuerpo.replaceChildren(...filas.map(crearFila));
+    }
+    if (seccion.vacio) seccion.vacio.hidden = filas.length > 0;
+    if (seccion.tabla) seccion.tabla.hidden = filas.length === 0;
+    seccion.seccion.hidden = false;
+
+    return filas.length > 0;
+  }
+
+  function pintar(datos) {
+    if (!Array.isArray(datos.niveles)) return;
+
+    let hayFilas = false;
+    const vistos = new Set();
+
+    datos.niveles.forEach(function (nivel) {
+      vistos.add(nivel.valor);
+      if (pintarNivel(nivel)) hayFilas = true;
+    });
+
+    // Si un nivel se deshabilita y deja de venir, se oculta su sección.
+    secciones.forEach(function (seccion, valor) {
+      if (!vistos.has(valor)) seccion.seccion.hidden = true;
+    });
+
+    vacio.hidden = hayFilas;
     if (datos.actualizado) hora.textContent = datos.actualizado;
     reconectando.hidden = true;
     contenedor.classList.remove("ranking--sin-conexion");
@@ -73,7 +111,7 @@
 
       pintar(await respuesta.json());
     } catch (error) {
-      // Se conserva la última tabla y solo se avisa que no hay conexión.
+      // Se conservan las últimas tablas y solo se avisa que no hay conexión.
       reconectando.hidden = false;
       contenedor.classList.add("ranking--sin-conexion");
     } finally {

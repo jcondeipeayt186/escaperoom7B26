@@ -180,11 +180,11 @@ Comportamiento:
 
 Elementos:
 
-- Encabezado oscuro con el equipo, la cantidad de estaciones completadas, el tiempo total, la posición, las ayudas y las incorrectas.
+- Encabezado oscuro con el equipo, la cantidad de estaciones completadas, el tiempo total, la posición dentro de su nivel, la posición general, las ayudas y las incorrectas.
 - Mensaje **"¡Misión completada!"**.
-- Tiempo total, posición en el ranking y botón **Volver al inicio** para un nuevo intento.
-- Card **Top 10** con posición, equipo, número de intento, tiempo, incorrectas, ayudas y fecha de fin.
-- Card **Ranking completo** con filtros por nombre de equipo, número de intento y fecha de fin.
+- Tiempo total, posición en el nivel y botón **Volver al inicio** para un nuevo intento.
+- Card **Top 10** del nivel del intento con posición, equipo, número de intento, tiempo, incorrectas, ayudas y fecha de fin.
+- Card **Ranking completo** con posiciones general y de nivel, columna **Nivel** y filtros por nombre de equipo, número de intento, fecha de fin y nivel.
 - La fecha de fin se muestra como `dd/mm/aaaa HH:MM`.
 - Enlace a `/estadisticas`.
 
@@ -194,7 +194,7 @@ Comportamiento:
 - `puntaje_obtenido` se calcula en el servidor como segundos totales.
 - Si el intento está activo, redirige a la estación actual.
 - Si el intento no está completo, redirige a `/juego/eliminado`.
-- El top 10 no se filtra. Los filtros se aplican solo al ranking completo y no cambian la posición general de cada fila.
+- El top 10 es del nivel del intento y no se filtra. Los filtros se aplican solo al ranking completo y no cambian la posición general ni la de nivel de cada fila.
 
 ### 3.6 Eliminación (`/juego/eliminado`)
 
@@ -229,17 +229,18 @@ Comportamiento:
 Elementos:
 
 - Título **"Ranking Escape Room 7.º B"**.
-- Tabla grande con: posición, equipo, número de intento, tiempo total, incorrectas, ayudas y fecha de fin.
+- Una sección y una tabla por nivel, con el nombre del nivel como encabezado: posición, equipo, número de intento, tiempo total, incorrectas, ayudas y fecha de fin.
 - Indicador de última actualización.
-- Aviso si todavía no hay intentos completados.
+- Aviso general si todavía no hay intentos completados y aviso por nivel si ese nivel todavía no tiene equipos.
 - Sin botones de administración ni datos sensibles.
 
 Comportamiento:
 
 - Solo muestra `finalizado = 'completo'`.
-- Orden: tiempo ascendente; en empate, menos incorrectas; luego menos ayudas; luego el intento que comenzó antes; luego `id` ascendente.
-- Se actualiza sola cada 5–10 segundos consultando `/ranking/datos`.
-- Si el polling falla, mantiene la última tabla y muestra "sin conexión" sin borrar datos.
+- Orden: tiempo ascendente; en empate, menos incorrectas; luego menos ayudas; luego el intento que comenzó antes; luego `id` ascendente. La posición que se muestra es la del nivel.
+- `inicial` se muestra siempre; `intermedio` y `avanzado` se muestran si están habilitados o si ya tienen intentos completados.
+- Se actualiza sola cada 5–10 segundos consultando `/ranking/datos`, que devuelve las filas agrupadas por nivel.
+- Si el polling falla, mantiene todas las tablas y muestra "Reconectando…" sin borrar datos.
 - Tipografía y contraste pensados para leerse a varios metros.
 
 ### 4.2 Estadísticas públicas (`/estadisticas`)

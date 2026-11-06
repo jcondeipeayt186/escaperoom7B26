@@ -14,6 +14,7 @@ def _crear_intento(
     incorrectas=0,
     ayudas=0,
     con_fin=True,
+    dificultad="inicial",
 ):
     equipo_id = ejecutar(
         db,
@@ -28,9 +29,10 @@ def _crear_intento(
         "INSERT INTO intento "
         "(equipo_id, dificultad, fecha_inicio, fecha_fin, cantidad_ayudas, "
         " puntaje_obtenido, finalizado, ultima_estacion_visitada) "
-        "VALUES (%s, 'inicial', %s, %s, %s, %s, %s, 1)",
+        "VALUES (%s, %s, %s, %s, %s, %s, %s, 1)",
         (
             equipo_id,
+            dificultad,
             inicio,
             fecha_fin,
             ayudas,
@@ -93,6 +95,13 @@ def test_ranking_datos_es_json_sin_ids_y_sin_cache(cliente, db):
     _crear_intento(db, "Equipo Uno", datetime(2026, 1, 1, 10, 0, 0), 90)
     _crear_intento(
         db,
+        "Equipo Intermedio",
+        datetime(2026, 1, 3, 10, 0, 0),
+        300,
+        dificultad="intermedio",
+    )
+    _crear_intento(
+        db,
         "Equipo Tiempo",
         datetime(2026, 1, 4, 10, 0, 0),
         5,
@@ -105,12 +114,27 @@ def test_ranking_datos_es_json_sin_ids_y_sin_cache(cliente, db):
     assert respuesta.status_code == 200
     assert respuesta.headers["Cache-Control"] == "no-store"
     assert datos["actualizado"]
-    assert [fila["equipo"] for fila in datos["filas"]] == [
+    assert [nivel["valor"] for nivel in datos["niveles"]] == [
+        "inicial",
+        "intermedio",
+    ]
+
+    inicial = datos["niveles"][0]
+    assert inicial["etiqueta"] == "Inicial"
+    assert [fila["equipo"] for fila in inicial["filas"]] == [
         "Equipo Uno",
         "Equipo Dos",
     ]
-    assert [fila["posicion"] for fila in datos["filas"]] == [1, 2]
-    assert set(datos["filas"][0]) == {
+    assert [fila["posicion"] for fila in inicial["filas"]] == [1, 2]
+
+    intermedio = datos["niveles"][1]
+    assert [fila["equipo"] for fila in intermedio["filas"]] == [
+        "Equipo Intermedio"
+    ]
+    # Dentro de su nivel vuelve a empezar en 1.
+    assert intermedio["filas"][0]["posicion"] == 1
+
+    assert set(inicial["filas"][0]) == {
         "posicion",
         "equipo",
         "numero_intento",
@@ -123,6 +147,25 @@ def test_ranking_datos_es_json_sin_ids_y_sin_cache(cliente, db):
     assert "equipo_id" not in texto
     assert "intento_id" not in texto
     assert "respuesta" not in texto
+
+
+def test_ranking_muestra_una_tabla_por_nivel(cliente, db):
+    _crear_intento(db, "Equipo Inicial", datetime(2026, 1, 1, 10, 0, 0), 90)
+    _crear_intento(
+        db,
+        "Equipo Intermedio",
+        datetime(2026, 1, 2, 10, 0, 0),
+        300,
+        dificultad="intermedio",
+    )
+
+    html = cliente.get("/ranking").get_data(as_text=True)
+
+    assert 'data-nivel="inicial"' in html
+    assert 'data-nivel="intermedio"' in html
+    assert 'id="ranking-filas-inicial"' in html
+    assert 'id="ranking-filas-intermedio"' in html
+    assert html.index("Equipo Inicial") < html.index("Equipo Intermedio")
 
 
 def test_estadisticas_publicas_solo_agregados(cliente, db):

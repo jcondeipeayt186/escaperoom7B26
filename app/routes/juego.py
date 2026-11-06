@@ -596,18 +596,27 @@ def final():
     intento_id = finalizado["intento"]["id"]
     filtros, error_filtro = _leer_filtros_ranking(request.args)
 
+    dificultad = finalizado["intento"]["dificultad"]
+
     return render_template(
         "final.html",
         equipo=finalizado["equipo"],
         intento=finalizado["intento"],
         total_estaciones=contar_estaciones_activas(),
         fila=ranking.obtener_fila_ranking(intento_id),
-        top=ranking.obtener_ranking(limite=10),
+        top=ranking.obtener_ranking(limite=10, dificultad=dificultad),
         completo=ranking.obtener_ranking(
             equipo=filtros["equipo"] or None,
             numero_intento=filtros["numero_intento"],
             fecha=filtros["fecha"],
+            dificultad=filtros["dificultad"],
         ),
+        niveles=[
+            {"valor": nivel, "etiqueta": config.ETIQUETAS_DIFICULTAD[nivel]}
+            for nivel in config.DIFICULTADES
+        ],
+        etiqueta_dificultad=config.ETIQUETAS_DIFICULTAD[dificultad],
+        etiquetas_dificultad=config.ETIQUETAS_DIFICULTAD,
         filtros=filtros,
         error_filtro=error_filtro,
     )
@@ -678,8 +687,17 @@ def _leer_filtros_ranking(args):
         "numero_intento_texto": args.get("numero_intento", "").strip(),
         "fecha": None,
         "fecha_texto": args.get("fecha", "").strip(),
+        "dificultad": None,
+        "dificultad_texto": args.get("dificultad", "").strip(),
     }
     error = None
+
+    dificultad_texto = filtros["dificultad_texto"]
+    if dificultad_texto:
+        if dificultad_texto in config.DIFICULTADES:
+            filtros["dificultad"] = dificultad_texto
+        else:
+            error = "El nivel elegido no es válido."
 
     numero_texto = filtros["numero_intento_texto"]
     if numero_texto:

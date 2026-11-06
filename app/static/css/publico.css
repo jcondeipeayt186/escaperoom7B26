@@ -42,6 +42,38 @@
   font-size: clamp(1.2rem, 1.6vw, 1.7rem);
 }
 
+.ranking__nivel {
+  margin-bottom: 2rem;
+}
+
+.ranking__nivel:last-child {
+  margin-bottom: 0;
+}
+
+.ranking__nivel-titulo {
+  margin: 0 0 0.75rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 3px solid var(--bs-primary);
+  font-size: clamp(1.4rem, 2vw, 2.1rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.ranking__nivel-vacio {
+  margin: 0 0 1rem;
+  font-size: clamp(1rem, 1.3vw, 1.35rem);
+  color: var(--bs-secondary-color);
+}
+
+.ranking__nivel-vacio[hidden],
+.ranking__nivel [data-tabla][hidden] {
+  display: none;
+}
+
+.ranking--sin-conexion .ranking__tabla {
+  opacity: 0.85;
+}
+
 .ranking__tabla {
   font-size: clamp(1.05rem, 1.3vw, 1.55rem);
   font-variant-numeric: tabular-nums;

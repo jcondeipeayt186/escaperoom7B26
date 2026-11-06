@@ -15,6 +15,7 @@ def crear_intento_controlado(
     inicio="2026-01-01T10:00:00",
     finalizado="completo",
     con_fin=True,
+    dificultad="inicial",
 ):
     equipo_id = ejecutar(
         db,
@@ -31,8 +32,16 @@ def crear_intento_controlado(
         "INSERT INTO intento "
         "(equipo_id, dificultad, fecha_inicio, fecha_fin, cantidad_ayudas, "
         " puntaje_obtenido, finalizado, ultima_estacion_visitada) "
-        "VALUES (%s, 'inicial', %s, %s, %s, %s, %s, 1)",
-        (equipo_id, fecha_inicio, fecha_fin, ayudas, puntaje, finalizado),
+        "VALUES (%s, %s, %s, %s, %s, %s, %s, 1)",
+        (
+            equipo_id,
+            dificultad,
+            fecha_inicio,
+            fecha_fin,
+            ayudas,
+            puntaje,
+            finalizado,
+        ),
     )
 
     if incorrectas:
@@ -173,3 +182,72 @@ def test_filtros_del_ranking_no_cambian_la_posicion(app, db):
     ]
     assert [fila["posicion"] for fila in por_fecha] == [1, 3]
     assert [fila["posicion"] for fila in completo] == [1, 2, 3]
+
+
+def test_posicion_general_y_posicion_por_nivel(app, db):
+    crear_intento_controlado(
+        db, "Inicial Rápido", 90, inicio="2026-01-01T10:00:00"
+    )
+    crear_intento_controlado(
+        db, "Inicial Lento", 200, inicio="2026-01-01T10:01:00"
+    )
+    crear_intento_controlado(
+        db,
+        "Intermedio Primero",
+        300,
+        inicio="2026-01-01T10:02:00",
+        dificultad="intermedio",
+    )
+    crear_intento_controlado(
+        db,
+        "Intermedio Segundo",
+        400,
+        inicio="2026-01-01T10:03:00",
+        dificultad="intermedio",
+    )
+
+    with app.app_context():
+        general = ranking.obtener_ranking()
+        intermedio = ranking.obtener_ranking(dificultad="intermedio")
+        por_nivel = ranking.obtener_ranking_por_nivel()
+
+    assert [fila["posicion"] for fila in general] == [1, 2, 3, 4]
+    assert [fila["posicion_nivel"] for fila in general] == [1, 2, 1, 2]
+    assert [fila["equipo_nombre"] for fila in intermedio] == [
+        "Intermedio Primero",
+        "Intermedio Segundo",
+    ]
+    # La posición general se conserva aunque se filtre por nivel.
+    assert [fila["posicion"] for fila in intermedio] == [3, 4]
+    assert [fila["posicion_nivel"] for fila in intermedio] == [1, 2]
+
+    valores = [nivel["valor"] for nivel in por_nivel]
+    assert valores == ["inicial", "intermedio"]
+    assert [fila["equipo_nombre"] for fila in por_nivel[0]["filas"]] == [
+        "Inicial Rápido",
+        "Inicial Lento",
+    ]
+    assert [fila["posicion_nivel"] for fila in por_nivel[1]["filas"]] == [1, 2]
+
+
+def test_ranking_por_nivel_omite_niveles_vacios_no_habilitados(app, db):
+    crear_intento_controlado(db, "Solo Inicial", 100)
+
+    with app.app_context():
+        por_nivel = ranking.obtener_ranking_por_nivel()
+
+    assert [nivel["valor"] for nivel in por_nivel] == ["inicial"]
+    assert por_nivel[0]["etiqueta"] == "Inicial"
+
+
+def test_filtro_de_nivel_ignora_valores_invalidos(app, db):
+    crear_intento_controlado(db, "Equipo Inicial", 100)
+    crear_intento_controlado(
+        db, "Equipo Intermedio", 150, dificultad="intermedio"
+    )
+
+    with app.app_context():
+        invalido = ranking.obtener_ranking(dificultad="imposible")
+        completo = ranking.obtener_ranking()
+
+    assert len(invalido) == len(completo) == 2
