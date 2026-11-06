@@ -1,4 +1,3 @@
-
 Estado actual (verificado recién)
 MySQL está activo en 127.0.0.1:3306.
 La base tiene el seed completo: 5 estaciones, 14 temas, 20 preguntas, 60 respuestas, 9 filas de configuración.
@@ -11,6 +10,8 @@ Configuración: duracion_estacion_segundos = 240, max_respuestas_incorrectas = 2
 
 source .venv/bin/activate
 flask --app app run --debug
+
+flask --app app run --debug --host 0.0.0.0
 Queda en http://127.0.0.1:5000.
 
 Antes de jugar, comprobá que responde y que ve la base:
