@@ -1,6 +1,6 @@
 # Primeros pasos
 
-Hoja de ruta para construir la aplicación del **Escape Room 7.º B 2026** antes de la feria del **13 de noviembre de 2026**.
+Hoja de ruta para construir la aplicación del **Escape Room 7.º B 2026** antes de la feria del **16 de noviembre de 2026**.
 
 Este documento no reemplaza a las fuentes de verdad:
 
@@ -332,7 +332,7 @@ El admin y las estadísticas pueden quedar para después del MVP, pero antes del
 | 10/11 | Pedido 11: pruebas automatizadas y endurecimiento. |
 | 11/11 | Pedido 12: congelar contenido, backup y puesta en marcha. |
 | 12/11 | Ensayo general en el aula. |
-| 13/11 | Feria. |
+| 16/11 | Feria. |
 
 ---
 
@@ -958,7 +958,7 @@ Al terminar: resumí el procedimiento, los comandos y dejá el commit
 
 ---
 
-### Día de la feria (13/11)
+### Día de la feria (16/11)
 
 No se pide desarrollo. Solo se ejecuta el checklist de la sección 7 y se usa el procedimiento del pedido 12.
 

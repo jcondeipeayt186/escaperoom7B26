@@ -1,6 +1,6 @@
 # Escape Room 7.º B 2026
 
-Aplicación web para la Feria de Producciones del IPEATyM 186 Castagnari (13/11/2026).
+Aplicación web para la Feria de Producciones del IPEATyM 186 Castagnari (16/11/2026).
 
 ## Documentación
 
