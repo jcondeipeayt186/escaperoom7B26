@@ -102,12 +102,14 @@ Regla de sincronización:
 | `paso04-envio-y-reglas-de-estacion.md` | código | Pedido 4 | paso03 | `feat: envío de respuestas y reglas de la estación` | hecho |
 | `paso05-temporizadores-y-reanudacion.md` | código | Pedido 5 | paso04 | `feat: temporizadores y reanudación` | hecho |
 | `paso06-recorrido-completo-y-finales.md` | código | Pedido 6 | paso05 | `feat: recorrido completo y pantallas de finalización` | hecho |
-| `paso07-prueba-manual-del-mvp.md` | manual | Pedido 7 | paso06 | `fix: correcciones del MVP` | pendiente |
-| `paso08-ranking-publico-y-estadisticas.md` | código | Pedido 8 | paso07 | `feat: ranking público y estadísticas` | pendiente |
-| `paso09-admin-login-y-crud.md` | código | Pedido 9 | paso08 | `feat: panel de administración y CRUD` | pendiente |
-| `paso10-cobertura-y-dificultades.md` | código | Pedido 10 | paso09 | `feat: cobertura y control de dificultades` | pendiente |
-| `paso11-pruebas-y-endurecimiento.md` | test | Pedido 11 | paso10 | `test: reglas del juego y endurecimiento` | pendiente |
-| `paso12-congelar-y-puesta-en-marcha.md` | infra | Pedido 12 | paso11 | `docs: puesta en marcha y respaldo` | pendiente |
+| `paso07-prueba-manual-del-mvp.md` | manual | Pedido 7 | paso06 | `fix: correcciones del MVP` | hecho |
+| `paso08-ranking-publico-y-estadisticas.md` | código | Pedido 8 | paso07 | `feat: ranking público y estadísticas` | hecho |
+| `paso09-admin-login-y-crud.md` | código | Pedido 9 | paso08 | `feat: panel de administración y CRUD` | hecho |
+| `paso10-cobertura-y-dificultades.md` | código | Pedido 10 | paso09 | `feat: cobertura y control de dificultades` | hecho |
+| `paso11-pruebas-y-endurecimiento.md` | test | Pedido 11 | paso10 | `test: reglas del juego y endurecimiento` | hecho |
+| `paso11b-ranking-por-nivel.md` | feat | Pedido 11b | paso11 | `feat: ranking por nivel` | hecho |
+| `paso11c-contenido-intermedio.md` | feat | Pedido 11c | paso11b | `feat: contenido de nivel intermedio` | pendiente |
+| `paso12-congelar-y-puesta-en-marcha.md` | infra | Pedido 12 | paso11c | `docs: puesta en marcha y respaldo` | pendiente |
 
 Estados posibles: `pendiente`, `en curso`, `hecho`.
 
@@ -129,7 +131,10 @@ llegar al **MVP jugable** (`paso06`) y recién después seguir.
 | D | 06 | Recorrido completo. **Corte: MVP jugable.** |
 | E | 07 | Prueba manual con dos o tres personas. |
 | F | 08, 09, 10 | Ranking público, estadísticas y admin. |
-| G | 11, 12 | Tests, backup y puesta en marcha. |
+| G | 11, 11b, 11c, 12 | Tests, ranking por nivel, contenido intermedio, backup y puesta en marcha. |
+
+El paso 13 (Docker) es opcional y posterior a la feria. No reemplaza el camino
+de waitress/systemd del paso 12.
 
 Si el día no alcanza, cortar después del bloque D o E. No dejar el MVP a
 medio hacer para empezar el admin.
