@@ -32,6 +32,7 @@
     {% endif %}
 
     <form method="post" class="card shadow-sm">
+      {% include "_csrf_campo.html" %}
       <div class="card-body p-4">
         {% for campo in campos %}
           {% set tiene_error = errores.get(campo.nombre) %}

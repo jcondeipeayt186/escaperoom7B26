@@ -30,6 +30,7 @@
 <div class="card shadow-sm">
   <div class="card-body">
     <form method="post" action="{{ url_for('admin.guardar_dificultades') }}">
+      {% include "_csrf_campo.html" %}
       {% if error_general %}
         <div class="alert alert-danger" role="alert">{{ error_general }}</div>
       {% endif %}

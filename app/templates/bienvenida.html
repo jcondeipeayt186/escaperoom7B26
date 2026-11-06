@@ -26,6 +26,7 @@
         <h2 class="h4 mb-3">Ingresá tu equipo</h2>
 
         <form method="post" action="{{ url_for('juego.registrar_equipo') }}" novalidate>
+          {% include "_csrf_campo.html" %}
           <div class="mb-3">
             <label class="form-label" for="nombre">Nombre del equipo</label>
             <input

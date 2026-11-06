@@ -47,6 +47,7 @@
         action="{{ url_for('juego.responder', orden=estacion.orden) }}"
         id="formulario-estacion"
       >
+        {% include "_csrf_campo.html" %}
         <div class="d-grid gap-3">
           {% for pregunta in preguntas %}
             <div class="card shadow-sm">
@@ -96,6 +97,7 @@
         action="{{ url_for('juego.finalizar', orden=estacion.orden) }}"
         data-confirmar="¿Finalizar el juego por respuestas incorrectas?"
       >
+        {% include "_csrf_campo.html" %}
         <div class="d-grid">
           <button class="btn btn-danger btn-lg" type="submit">
             Finalizar juego
@@ -111,6 +113,7 @@
           action="{{ url_for('juego.ayuda', orden=estacion.orden) }}"
           data-confirmar="¿Pedir la Ayuda 1? La pista se lee en papel."
         >
+          {% include "_csrf_campo.html" %}
           <button
             class="btn btn-outline-secondary"
             type="submit"
@@ -124,6 +127,7 @@
           action="{{ url_for('juego.ayuda', orden=estacion.orden) }}"
           data-confirmar="¿Pedir la Ayuda 2? La pista se lee en papel."
         >
+          {% include "_csrf_campo.html" %}
           <button
             class="btn btn-outline-secondary"
             type="submit"
@@ -140,6 +144,7 @@
           action="{{ url_for('juego.abandonar', orden=estacion.orden) }}"
           data-confirmar="¿Abandonar el juego? El intento quedará cerrado."
         >
+          {% include "_csrf_campo.html" %}
           <button class="btn btn-outline-danger" type="submit">
             Abandonar
           </button>

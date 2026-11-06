@@ -10,6 +10,7 @@ import os
 from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template
 
+from . import csrf
 from . import db as db_module
 from .routes import register_blueprints
 
@@ -44,6 +45,7 @@ def create_app(config_override=None):
     _validar_configuracion(app)
 
     db_module.init_app(app)
+    csrf.init_app(app)
     register_blueprints(app)
 
     @app.get("/salud")
@@ -59,6 +61,10 @@ def create_app(config_override=None):
             return jsonify({"estado": "error", "base": "error"}), 503
 
         return jsonify({"estado": "ok", "base": "ok"})
+
+    @app.errorhandler(400)
+    def solicitud_invalida(error):
+        return render_template("400.html"), 400
 
     @app.errorhandler(404)
     def no_encontrado(error):

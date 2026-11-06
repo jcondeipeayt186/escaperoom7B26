@@ -24,6 +24,7 @@
         </div>
 
         <form method="post" action="{{ url_for('juego.confirmar_identificacion') }}" novalidate>
+          {% include "_csrf_campo.html" %}
           <div class="mb-4">
             <label class="form-label" for="equipo_id">ID del equipo</label>
             <input

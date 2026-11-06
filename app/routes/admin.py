@@ -16,6 +16,7 @@ from flask import (
 )
 from werkzeug.security import check_password_hash
 
+from ..csrf import rotar_token
 from ..servicios import admin_acciones as acciones
 from ..servicios import admin_consultas as consultas
 from ..servicios import admin_estadisticas
@@ -89,6 +90,7 @@ def autenticar():
         )
 
     session["admin_autenticado"] = True
+    rotar_token()
     flash("Sesión iniciada.", "success")
     return redirect(url_for("admin.panel"))
 
@@ -99,6 +101,7 @@ def logout():
     """Cierra solamente la sesión administrativa."""
 
     session.pop("admin_autenticado", None)
+    rotar_token()
     flash("Sesión cerrada.", "info")
     return redirect(url_for("admin.login"))
 

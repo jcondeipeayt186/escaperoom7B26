@@ -66,6 +66,7 @@
 
           <div class="d-grid gap-2">
             <form method="post" action="{{ url_for('juego.continuar_transicion', orden=estacion.orden) }}">
+              {% include "_csrf_campo.html" %}
               <button class="btn btn-primary btn-lg w-100" type="submit">
                 Continuar
               </button>
@@ -75,6 +76,7 @@
               action="{{ url_for('juego.abandonar_transicion', orden=estacion.orden) }}"
               data-confirmar="¿Abandonar el juego? El intento quedará cerrado."
             >
+              {% include "_csrf_campo.html" %}
               <button class="btn btn-outline-danger w-100" type="submit">
                 Abandonar
               </button>

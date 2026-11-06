@@ -11,6 +11,7 @@ Aplicación web para la Feria de Producciones del IPEATyM 186 Castagnari (13/11/
 - `docs/navegacion-por-app.md` — pantallas, rutas, elementos y objetivos.
 - `docs/tecnologias.md` — stack explicado: frontend, backend, base de datos y herramientas.
 - `docs/instalacion-y-puesta-en-funcionamiento.md` — instalación en Ubuntu y uso desde las notebooks.
+- `docs/dejar-funcionando-proyecto-luego-clone.md` — pasos para dejar el proyecto funcionando después de clonarlo: MySQL, base de datos, entorno virtual, `.env` y pruebas.
 - `sql/descripcion-de-la-base-de-datos.md` — modelo de datos, tablas y consultas.
 - `AGENTS.md` — decisiones registradas, modelo de datos y convenciones.
 
@@ -65,7 +66,7 @@ curl -i http://127.0.0.1:5000/salud
 Respuesta esperada: `200` con `{"estado": "ok", "base": "ok"}`. Si la base no
 responde, devuelve `503` sin exponer credenciales.
 
-## Flujo implementado hasta el paso 10
+## Flujo implementado hasta el paso 11
 
 - `GET /` muestra la bienvenida con nombre, cantidad de integrantes (1–4) y
   solo las dificultades habilitadas en `configuracion`.
@@ -174,16 +175,35 @@ responde, devuelve `503` sin exponer credenciales.
   generadas en el servidor, sin Chart.js ni CDN.
 - El panel de administración y la barra de navegación del admin enlazan a
   cobertura, dificultades, intentos activos y estadísticas.
+- Todos los formularios POST (bienvenida, identificación, estación, ayudas,
+  abandono, transición, admin, login y logout) incluyen un token CSRF guardado
+  en la sesión. El servidor lo valida antes de ejecutar cualquier vista: un
+  POST sin token o con un token inválido devuelve `400` sin modificar datos.
+  El token se rota al iniciar y al cerrar la sesión de administración.
+  `GET /juego/estado` queda fuera porque el polling no envía formularios.
 
 La lógica de identidad y configuración vive en `app/servicios/`. La sesión de
 Flask guarda solo `equipo_id` e `intento_id`; el servidor vuelve a leer y
 validar la base en cada request.
 
-Pruebas automatizadas (todavía no hay tests; `pytest` termina con código 5):
+## Pruebas automatizadas
+
+La suite usa una base MySQL independiente. Al iniciar la sesión de pytest se
+elimina y se vuelve a crear `escape_room_7b2026_test` (o la que indique
+`TEST_MYSQL_DB`), se carga `bd/schema.sql` y el seed, y antes y después de
+cada test se limpian las tablas y se vuelve a ejecutar el seed. La base de
+desarrollo nunca se toca: el nombre debe terminar en `_test` y ser distinto de
+`MYSQL_DB`. El usuario de MySQL necesita permisos `CREATE` y `DROP` sobre esa
+base.
 
 ```bash
-pytest
+source .venv/bin/activate
+pytest -q
+pytest -q
 ```
+
+La configuración está en `pytest.ini` (`testpaths = tests` y
+`pythonpath = .`). Al terminar, la base de test queda creada y con el seed.
 
 > Para la feria se usa waitress, no el servidor de desarrollo. El
 > procedimiento de producción está en

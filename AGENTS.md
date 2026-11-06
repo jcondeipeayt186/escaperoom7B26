@@ -326,7 +326,7 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 43. **Estadísticas públicas:** `GET /estadisticas` calcula todo en `app/servicios/estadisticas.py` con agregados de `equipo`, `intento`, `respuesta_elegida` e `intento_envio`. Los aciertos salen de `intento_envio.respuestas_correctas`, que guarda el resultado del envío en ese momento, para que cambiar después una respuesta correcta no altere el historial. Las barras por estado incluyen **En curso** (`finalizado IS NULL`) y se generan con CSS en el servidor. No se muestran nombres, detalle por pregunta ni la palabra “correcta”: la etiqueta es **Aciertos**.
 44. **Rutas públicas exactas:** los blueprints `ranking` y `estadisticas` se registran sin `url_prefix` y declaran `/ranking`, `/ranking/datos` y `/estadisticas` sin barra final. La bienvenida enlaza a ranking y estadísticas, el final a estadísticas y la eliminación a ranking.
 45. **Fecha de actualización:** las vistas públicas muestran la hora del servidor MySQL con `DATE_FORMAT(NOW(), ...)`, no el reloj del navegador.
-46. **Sesión del admin:** el panel usa solo `session["admin_autenticado"]` y no toca `equipo_id` ni `intento_id` de la partida. El login valida `ADMIN_USER` y `ADMIN_PASSWORD_HASH` con `check_password_hash`; un error devuelve `401` con un mensaje genérico. El logout es `POST /admin/logout` y elimina únicamente `admin_autenticado`. Las cookies de sesión se configuran `HttpOnly`, `SameSite=Lax` y sin `Secure` para el aula sin HTTPS. No hay CSRF ni rate limiting todavía; quedan para el `paso11`.
+46. **Sesión del admin:** el panel usa solo `session["admin_autenticado"]` y no toca `equipo_id` ni `intento_id` de la partida. El login valida `ADMIN_USER` y `ADMIN_PASSWORD_HASH` con `check_password_hash`; un error devuelve `401` con un mensaje genérico. El logout es `POST /admin/logout` y elimina únicamente `admin_autenticado`. Las cookies de sesión se configuran `HttpOnly`, `SameSite=Lax` y sin `Secure` para el aula sin HTTPS. El rate limiting sigue pendiente; el CSRF se resolvió en el `paso11` (decisión 57).
 47. **Rutas del admin:** el blueprint `admin` se registra sin `url_prefix` y declara `/admin`, `/admin/login`, `/admin/logout`, `/admin/`, `/admin/<tabla>`, `/admin/<tabla>/nuevo`, `/admin/<tabla>/<fila_id>`, `/admin/<tabla>/<fila_id>/editar`, `/admin/<tabla>/<fila_id>/desactivar`, `/admin/cobertura`, `/admin/dificultades` (GET y POST), `/admin/intentos-activos` y `/admin/estadisticas`. Todas salvo el login exigen sesión. Las rutas estáticas se resuelven antes que `/admin/<tabla>`. El panel muestra cards de las 12 tablas, el estado del juego y accesos a cobertura, dificultades, intentos activos y estadísticas.
 48. **Edición del contenido:** las tablas históricas (`equipo`, `intento`, `intento_estacion`, `intento_envio`, `intento_pregunta`, `respuesta_elegida`, `incorrecta`) son de solo lectura: sus rutas de alta, edición y baja devuelven `404`. En el contenido, la baja es lógica. Una pregunta nueva se guarda inactiva y solo se activa con al menos 2 respuestas activas y exactamente 1 correcta. Marcar una respuesta como correcta desmarca las demás de esa pregunta.
 49. **Bloqueos por intentos activos:** con un intento `fecha_fin IS NULL` no se crean estaciones, no se cambia su `orden` ni su `activo`, no se editan los parámetros del juego y no se agregan respuestas ni se cambia `correcta`/`activo` de respuestas de preguntas seleccionadas en ese intento. Tampoco se mueve contenido ya usado entre `pregunta.tema_id`, `tema.estacion_id` o `respuesta.pregunta_id`.
@@ -337,6 +337,8 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 54. **Toggles de dificultad:** `POST /admin/dificultades` valida en el servidor aunque el cliente mande el formulario directamente. Los cambios se aplican en una transacción con `FOR UPDATE` y solo sobre transiciones reales. Con un intento activo (`fecha_fin IS NULL`) se bloquean todos los cambios, tanto habilitar como deshabilitar. Habilitar exige cobertura completa del nivel; deshabilitar no exige cobertura. `inicial` y claves desconocidas se rechazan; se persiste `'1'` o `'0'` en `configuracion`. Ante un error, el formulario se vuelve a mostrar con el estado persistido y los errores inline, con `400`.
 55. **Estadísticas del admin:** `GET /admin/estadisticas` calcula todo en `app/servicios/admin_estadisticas.py`, con filtros `desde`, `hasta` y `dificultad` sobre `intento.fecha_inicio` e `intento.dificultad`. Si `desde > hasta` se avisa y se muestra un rango vacío, sin intercambiar fechas. El tiempo promedio por estación usa solo `intento_estacion.completada = 1` con `fecha_fin` no nula. La utilización de preguntas incluye las activas con 0 usos y las inactivas que ya se usaron, marcadas como inactivas; se calcula sobre los intentos filtrados. El gráfico de intentos incluye **En curso** y los finalizados se muestran en un KPI aparte. Las barras son CSS generadas en el servidor, sin Chart.js ni CDN.
 56. **Intentos activos y navegación:** `GET /admin/intentos-activos` lista equipo, intento, dificultad, estación actual, tiempo transcurrido y última actividad, y muestra el motivo del bloqueo de los toggles. El panel y `admin/_nav.html` enlazan a cobertura, dificultades, intentos activos y estadísticas. Las cuatro rutas nuevas exigen login y no se enlazan desde páginas públicas.
+57. **CSRF propio, sin dependencias:** `app/csrf.py` genera un token estable por sesión con `secrets.token_urlsafe(32)` y lo valida con `hmac.compare_digest`. Un `before_request` rechaza con `400` y la plantilla `400.html` cualquier POST sin token o con uno inválido. La validación corre antes de `login_requerido`, así un POST al login sin token también devuelve `400`. Todos los formularios POST incluyen `_csrf_campo.html`; el token se rota al iniciar y al cerrar la sesión de administración. `GET /juego/estado` queda excluido porque el polling no envía formularios, aunque pueda cerrar el intento por tiempo.
+58. **Suite de pruebas:** `pytest.ini` fija `testpaths = tests` y `pythonpath = .`. `tests/conftest.py` elimina y recrea la base de test al inicio de la sesión, exige que el nombre termine en `_test` y sea distinto de `MYSQL_DB`, carga `bd/schema.sql` y el seed, y antes y después de cada test limpia las tablas en orden inverso a las claves foráneas y vuelve a sembrar. La base real nunca se toca. Las credenciales de admin y `SECRET_KEY` de test se generan en runtime. `tests/helpers.py` centraliza el token CSRF, los POST, los datos de juego y el reenvío del seed.
 
 ## Convenciones de código
 
@@ -355,9 +357,7 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 - Código simple, nombres descriptivos y comentarios solo donde aporten.
 - Diseño limpio y responsive; cualquier pantalla nueva debe verse bien en el móvil.
 
-## Comandos previstos
-
-El esquema y el seed ya existen y se pueden ejecutar. El resto de los comandos se completa cuando se cree el scaffold; documentar los reales en `README.md`.
+## Comandos
 
 ```bash
 mysql -u <usuario> -p < bd/schema.sql
@@ -368,8 +368,11 @@ source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
 flask --app app run --debug
-pytest
+pytest -q
+pytest -q
 ```
+
+`pytest` usa la base `escape_room_7b2026_test` (o `TEST_MYSQL_DB`) y la recrea al iniciar la sesión. El usuario de MySQL necesita permisos `CREATE` y `DROP`. Ver `README.md` para el detalle.
 
 No inventar comandos de arranque ni dependencias que no estén implementadas.
 

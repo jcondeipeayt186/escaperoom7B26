@@ -143,6 +143,7 @@
                   class="d-inline"
                   data-confirmar="¿Desactivar este registro? No se borra: queda inactivo y el historial se conserva."
                 >
+                  {% include "_csrf_campo.html" %}
                   <button type="submit" class="btn btn-sm btn-outline-danger" data-deshabilitar-al-enviar>Desactivar</button>
                 </form>
               {% endif %}

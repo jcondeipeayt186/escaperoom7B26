@@ -17,6 +17,7 @@
         {% endif %}
 
         <form method="post" action="{{ url_for('admin.autenticar') }}">
+          {% include "_csrf_campo.html" %}
           <div class="mb-3">
             <label for="usuario" class="form-label">Usuario</label>
             <input
