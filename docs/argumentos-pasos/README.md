@@ -110,6 +110,7 @@ Regla de sincronización:
 | `paso11b-ranking-por-nivel.md` | feat | Pedido 11b | paso11 | `feat: ranking por nivel` | hecho |
 | `paso11c-contenido-intermedio.md` | feat | Pedido 11c | paso11b | `feat: contenido de nivel intermedio` | pendiente |
 | `paso12-congelar-y-puesta-en-marcha.md` | infra | Pedido 12 | paso11c | `docs: puesta en marcha y respaldo` | pendiente |
+| `paso13-docker-taller-post-feria.md` | infra | Pedido 13 | paso12 | `build: docker compose para taller post-feria` | pendiente |
 
 Estados posibles: `pendiente`, `en curso`, `hecho`.
 
@@ -132,9 +133,10 @@ llegar al **MVP jugable** (`paso06`) y recién después seguir.
 | E | 07 | Prueba manual con dos o tres personas. |
 | F | 08, 09, 10 | Ranking público, estadísticas y admin. |
 | G | 11, 11b, 11c, 12 | Tests, ranking por nivel, contenido intermedio, backup y puesta en marcha. |
+| H | 13 | Docker educativo, posterior a la feria. |
 
 El paso 13 (Docker) es opcional y posterior a la feria. No reemplaza el camino
-de waitress/systemd del paso 12.
+de waitress/systemd del paso 12 y no debe ejecutarse antes del 16/11.
 
 Si el día no alcanza, cortar después del bloque D o E. No dejar el MVP a
 medio hacer para empezar el admin.

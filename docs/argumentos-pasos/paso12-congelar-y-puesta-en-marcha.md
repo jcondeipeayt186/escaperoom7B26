@@ -8,8 +8,8 @@
 > **Antes de empezar:** leé `AGENTS.md` ("Checklist para el día de la feria"),
 > `docs/instalacion-y-puesta-en-funcionamiento.md` y `MEMORY.md`.
 >
-> **Docker:** es una alternativa opcional posterior a la feria. Se trata en un
-> paso 13 aparte y **no** reemplaza waitress/systemd.
+> **Docker:** es una alternativa opcional posterior a la feria. Se trata en
+> `paso13-docker-taller-post-feria.md` y **no** reemplaza waitress/systemd.
 
 ## Contexto
 

@@ -341,6 +341,7 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 57. **CSRF propio, sin dependencias:** `app/csrf.py` genera un token estable por sesión con `secrets.token_urlsafe(32)` y lo valida con `hmac.compare_digest`. Un `before_request` rechaza con `400` y la plantilla `400.html` cualquier POST sin token o con uno inválido. La validación corre antes de `login_requerido`, así un POST al login sin token también devuelve `400`. Todos los formularios POST incluyen `_csrf_campo.html`; el token se rota al iniciar y al cerrar la sesión de administración. `GET /juego/estado` queda excluido porque el polling no envía formularios, aunque pueda cerrar el intento por tiempo.
 58. **Suite de pruebas:** `pytest.ini` fija `testpaths = tests` y `pythonpath = .`. `tests/conftest.py` elimina y recrea la base de test al inicio de la sesión, exige que el nombre termine en `_test` y sea distinto de `MYSQL_DB`, carga `bd/schema.sql` y el seed, y antes y después de cada test limpia las tablas en orden inverso a las claves foráneas y vuelve a sembrar. La base real nunca se toca. Las credenciales de admin y `SECRET_KEY` de test se generan en runtime. `tests/helpers.py` centraliza el token CSRF, los POST, los datos de juego y el reenvío del seed.
 59. **Ranking por nivel:** `posicion` es la posición general y `posicion_nivel` la del nivel del intento, calculada con `PARTITION BY dificultad`. Ambas usan el mismo orden (tiempo, incorrectas, ayudas, `fecha_inicio`, `id`). La pantalla final muestra la posición de nivel como principal, el top 10 del nivel y el ranking completo con columna **Nivel** y filtro por nivel. La vista pública muestra una tabla por nivel: `inicial` siempre, y los demás si están habilitados en `configuracion` o si ya tienen intentos completados. Los niveles sin filas muestran su mensaje de vacío. Esta decisión amplía las 39, 41 y 42 sin reemplazarlas.
+60. **Docker post-feria:** queda como taller educativo opcional en el `paso13`, después del 16/11. No reemplaza waitress/systemd del `paso12`, no se agrega a `requirements.txt` ni se usa en la feria. La base del taller es independiente de la base real y los seeds se cargan solo al crear el volumen. Cualquier cambio de alcance requiere consultar.
 
 ## Convenciones de código
 
@@ -451,7 +452,7 @@ Verificación manual antes de entregar:
 - No habilitar un nivel sin cobertura completa en todas las estaciones.
 - No deshabilitar una dificultad mientras haya equipos jugando.
 - No mostrar nombres de equipos, detalle por pregunta ni respuestas correctas en la página pública de estadísticas.
-- No introducir React/Vue, ORM pesado, Docker u otra infraestructura sin necesidad y sin consultar.
+- No introducir React/Vue, ORM pesado ni otra infraestructura sin necesidad y sin consultar. Docker queda fuera del camino de la feria: el taller post-feria está documentado en el `paso13` y requiere consultar antes de implementarlo.
 - No usar CDN para Bootstrap, gráficos ni audio.
 - No hardcodear preguntas, respuestas, credenciales ni tiempos en múltiples lugares.
 - No commitear `.env`, volcados de base de datos ni archivos generados.
