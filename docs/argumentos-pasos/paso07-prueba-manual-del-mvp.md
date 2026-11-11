@@ -31,7 +31,7 @@ rompe la experiencia.
 
 ## Preparación
 
-- Base con el seed cargado y `duracion_estacion_segundos = 240`.
+- Base con los tres seeds cargados y `duracion_estacion_segundos = 240`.
 - App levantada en la red local.
 - Dos o tres personas que no hayan visto el código.
 - Una persona observa y anota, sin ayudar.

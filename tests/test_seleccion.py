@@ -34,12 +34,17 @@ def _temas_de_preguntas(db, pregunta_ids):
     }
 
 
-def test_cada_estacion_recibe_cuatro_preguntas_y_una_por_tema(app, db):
-    _, intento_id = crear_equipo(db, "Equipo Selección")
+@pytest.mark.parametrize("nivel", ["inicial", "intermedio", "avanzado"])
+def test_cada_estacion_recibe_cuatro_preguntas_y_una_por_tema(
+    app, db, nivel
+):
+    _, intento_id = crear_equipo(
+        db, f"Equipo Selección {nivel}", dificultad=nivel
+    )
 
     for estacion in filas(db, "SELECT id FROM estacion ORDER BY orden"):
         estacion_id = estacion["id"]
-        elegidas = _preparar(app, intento_id, estacion_id)
+        elegidas = _preparar(app, intento_id, estacion_id, nivel)
         ids = [registro["pregunta_id"] for registro in elegidas]
 
         assert len(ids) == 4
@@ -66,7 +71,7 @@ def test_cada_estacion_recibe_cuatro_preguntas_y_una_por_tema(app, db):
                 tuple(ids),
             )
         }
-        assert dificultades == {"inicial"}
+        assert dificultades == {nivel}
 
 
 def test_el_html_de_la_estacion_no_revela_la_correcta(cliente, db):
@@ -118,6 +123,12 @@ def test_seleccion_es_estable_al_repetir_y_recargar(app, db, cliente):
 def test_sin_cobertura_del_nivel_no_guarda_seleccion_parcial(app, db, cliente):
     equipo_id, intento_id = crear_equipo(db, "Equipo Sin Nivel")
     estacion_id = fila(db, "SELECT id FROM estacion WHERE orden = 1")["id"]
+    # El seed cubre intermedio, así que se fuerza un tema sin preguntas.
+    ejecutar(
+        db,
+        "UPDATE pregunta SET activo = 0 "
+        "WHERE dificultad = 'intermedio' AND tema_id = 1",
+    )
 
     with pytest.raises(seleccion.ErrorSeleccion):
         _preparar(app, intento_id, estacion_id, "intermedio")

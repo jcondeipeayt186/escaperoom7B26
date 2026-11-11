@@ -45,6 +45,8 @@ chmod 600 .env
 
 sudo mysql < bd/schema.sql
 sudo mysql < bd/seeds/001_contenido_inicial.sql
+sudo mysql < bd/seeds/002_contenido_intermedio.sql
+sudo mysql < bd/seeds/003_contenido_avanzado.sql
 # Crear el usuario de la app (ver sección 7.2)
 
 flask --app app run --debug
@@ -299,14 +301,16 @@ resuelva el nombre MySQL.
 
 > Si se cambia `TEST_MYSQL_DB`, otorgar los mismos permisos sobre esa base.
 
-### 7.3 Cargar el contenido inicial
+### 7.3 Cargar el contenido
 
-El seed carga las 5 estaciones, 14 temas, 20 preguntas, 60 respuestas y la
-configuración del juego. Es **idempotente**: se puede ejecutar más de una vez
-sin duplicar filas.
+Los tres seeds cargan las 5 estaciones, 14 temas, 80 preguntas (20 `inicial`,
+30 `intermedio` y 30 `avanzado`), 240 respuestas y la configuración del juego.
+Son **idempotentes**: se pueden ejecutar más de una vez sin duplicar filas.
 
 ```bash
 mysql -u escaperoom -p < bd/seeds/001_contenido_inicial.sql
+mysql -u escaperoom -p < bd/seeds/002_contenido_intermedio.sql
+mysql -u escaperoom -p < bd/seeds/003_contenido_avanzado.sql
 ```
 
 Cuando pida la clave, ingresar la misma de `MYSQL_PASSWORD`.
@@ -330,8 +334,8 @@ Resultado esperado:
 | ----------------- | ------- |
 | `estacion`      | 5     |
 | `tema`          | 14    |
-| `pregunta`      | 20    |
-| `respuesta`     | 60    |
+| `pregunta`      | 80    |
+| `respuesta`     | 240   |
 | `configuracion` | 9     |
 
 Si los conteos no coinciden, revisar que el seed se haya ejecutado completo y

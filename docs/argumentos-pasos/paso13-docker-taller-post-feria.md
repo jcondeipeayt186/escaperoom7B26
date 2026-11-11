@@ -100,6 +100,8 @@ services:
       - datos_mysql:/var/lib/mysql
       - ./bd/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
       - ./bd/seeds/001_contenido_inicial.sql:/docker-entrypoint-initdb.d/02_contenido_inicial.sql:ro
+      - ./bd/seeds/002_contenido_intermedio.sql:/docker-entrypoint-initdb.d/03_contenido_intermedio.sql:ro
+      - ./bd/seeds/003_contenido_avanzado.sql:/docker-entrypoint-initdb.d/04_contenido_avanzado.sql:ro
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
@@ -138,8 +140,8 @@ la imagen.
 - `GET /salud` responde `200` con `{"estado":"ok","base":"ok"}`.
 - El login de `/admin` funciona con el hash del `.env`.
 - Se puede completar una partida y el ranking muestra el intento.
-- Los conteos del seed coinciden con la instalación local
-  (`5` estaciones, `14` temas, `20` preguntas, `60` respuestas, `9` filas de
+- Los conteos de los seeds coinciden con la instalación local
+  (`5` estaciones, `14` temas, `80` preguntas, `240` respuestas, `9` filas de
   configuración).
 - `docker compose down` detiene los contenedores sin borrar el volumen.
 - `docker compose down -v` elimina el volumen y, al volver a levantar, los
@@ -176,7 +178,7 @@ Verificar a mano:
 - `/` muestra la bienvenida.
 - `/admin` pide login y acepta el usuario del `.env`.
 - Una partida completa de `inicial` termina y aparece en `/ranking`.
-- Al bajar el volumen y volver a levantar, la base queda con el seed inicial.
+- Al bajar el volumen y volver a levantar, la base queda con los seeds.
 
 ## Ojo con
 
@@ -184,7 +186,7 @@ Verificar a mano:
   no a la base. Usar `db`.
 - No copiar `.env` en el `Dockerfile`.
 - Los seeds solo corren al crear el volumen; no se reejecutan solos.
-- El `schema.sql` y el seed crean y usan `escape_room_7b2026`; si se cambia
+- El `schema.sql` y los seeds crean y usan `escape_room_7b2026`; si se cambia
   `MYSQL_DB`, hay que revisar los scripts o mantener ese nombre.
 - Si más adelante existe `bd/seeds/002_contenido_intermedio.sql`, agregarlo al
   volumen como `03_contenido_intermedio.sql` para que el taller tenga la misma

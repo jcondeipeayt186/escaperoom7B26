@@ -19,7 +19,7 @@ Lo que ya existe:
 
 - La documentación funcional y los prototipos visuales en `docs/`.
 - El esquema de la base: `bd/schema.sql` (MySQL 8).
-- El contenido inicial: `bd/seeds/001_contenido_inicial.sql` (5 estaciones, 14 temas, 20 preguntas, 60 respuestas y configuración).
+- El contenido: `bd/seeds/001_contenido_inicial.sql`, `bd/seeds/002_contenido_intermedio.sql` y `bd/seeds/003_contenido_avanzado.sql` (5 estaciones, 14 temas, 80 preguntas, 240 respuestas y configuración).
 - La decisión de usar la regla **1 pregunta por tema + 4 por estación** y de **no cargar pistas en la app**.
 
 Lo que falta:
@@ -32,7 +32,7 @@ Lo que falta:
 - Los tests automatizados.
 - Los archivos de arranque y el despliegue para el aula.
 
-> Importante: el contenido actual es solo de nivel `inicial`. Las dificultades `intermedio` y `avanzado` quedan deshabilitadas hasta que el admin cargue cobertura completa.
+> Importante: el contenido actual cubre los tres niveles. `inicial` tiene 20 preguntas (4 por estación); `intermedio` y `avanzado` tienen 30 cada uno (6 por estación). Los niveles se habilitan desde `/admin/dificultades` cuando la cobertura está completa.
 
 ---
 
@@ -65,9 +65,9 @@ Tareas:
 - Crear `.env.example` con `FLASK_SECRET_KEY`, `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DB`, `ADMIN_USER` y `ADMIN_PASSWORD_HASH`.
 - Crear `.gitignore` para `.venv/`, `.env`, `__pycache__/`, `*.pyc` y volcados de base.
 - Documentar en `README.md` los comandos reales.
-- Ejecutar `bd/schema.sql` y `bd/seeds/001_contenido_inicial.sql` en una base limpia.
+- Ejecutar `bd/schema.sql` y los tres seeds de contenido en una base limpia.
 
-**Terminado cuando:** `python -c "import flask, pymysql"` funciona y el seed deja 5 estaciones, 14 temas, 20 preguntas y 60 respuestas.
+**Terminado cuando:** `python -c "import flask, pymysql"` funciona y los seeds dejan 5 estaciones, 14 temas, 80 preguntas y 240 respuestas.
 
 ---
 
@@ -430,8 +430,8 @@ Criterio de aceptación:
 - flask --app app run --debug levanta.
 - /salud responde 200 y confirma la base.
 - Un 404 muestra una página amigable.
-- Ejecutar bd/schema.sql y bd/seeds/001_contenido_inicial.sql deja
-  5 estaciones, 14 temas, 20 preguntas y 60 respuestas.
+- Ejecutar bd/schema.sql y los tres seeds deja
+  5 estaciones, 14 temas, 80 preguntas y 240 respuestas.
 
 No hagas todavía: bienvenida, estaciones, admin.
 

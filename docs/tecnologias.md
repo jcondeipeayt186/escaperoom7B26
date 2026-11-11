@@ -679,7 +679,7 @@ ORDER BY segundos ASC,
          i.id ASC;
 ```
 
-El esquema está en `bd/schema.sql` y el contenido inicial en `bd/seeds/001_contenido_inicial.sql`.
+El esquema está en `bd/schema.sql` y el contenido en los seeds `bd/seeds/001_contenido_inicial.sql`, `002_contenido_intermedio.sql` y `003_contenido_avanzado.sql`.
 
 **Qué evitar:**
 
@@ -723,7 +723,7 @@ COMMIT;
 
 **Qué es:** un script de carga inicial de datos que se puede ejecutar varias veces sin duplicar filas.
 
-**Para qué se usa acá:** para cargar las 5 estaciones, 14 temas, 20 preguntas, 60 respuestas y la configuración sin miedo a romper la base si se corre dos veces.
+**Para qué se usa acá:** para cargar las 5 estaciones, 14 temas, 80 preguntas (20 inicial, 30 intermedio y 30 avanzado), 240 respuestas y la configuración sin miedo a romper la base si se corre dos veces.
 
 ```sql
 INSERT INTO estacion (id, nombre, descripcion, orden, activo) VALUES
@@ -739,6 +739,8 @@ La configuración usa `INSERT IGNORE` para no pisar los valores que el admin hay
 ```bash
 mysql -u <usuario> -p < bd/schema.sql
 mysql -u <usuario> -p < bd/seeds/001_contenido_inicial.sql
+mysql -u <usuario> -p < bd/seeds/002_contenido_intermedio.sql
+mysql -u <usuario> -p < bd/seeds/003_contenido_avanzado.sql
 ```
 
 **Qué evitar:**

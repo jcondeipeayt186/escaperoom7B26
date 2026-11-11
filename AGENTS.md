@@ -5,10 +5,11 @@ Guía para agentes de IA que trabajen en el proyecto **Escape Room 7°B 2026** d
 ## Fuente de verdad
 
 1. `docs/escape-room.md` — requisitos funcionales y modelo de datos. **Tiene prioridad ante cualquier otro documento o prototipo.**
-2. `docs/ESCAPE ROOM.pdf` — preguntas para cargar como contenido y pistas para leer en papel.
-3. `docs/src/index.html` — boceto visual y de flujo de las estaciones.
-4. `docs/src/ranking-puntajes/ranking-puntajes.html` — boceto visual de la pantalla final y del ranking.
-5. `docs/ideas-escape-room.md` — ideas para el stand (redes sociales, banner, ping pong). **No son requisitos de la aplicación.**
+2. `docs/ESCAPE ROOM.pdf` — preguntas para cargar como contenido y pistas para leer en papel. Su transcripción revisada está en `docs/pistas-del-juego.md`.
+3. `docs/banco-preguntas-intermedio-avanzado.md` — 60 preguntas nuevas de `intermedio` y `avanzado`, con opciones y pistas, aprobadas antes de generar los seeds.
+4. `docs/src/index.html` — boceto visual y de flujo de las estaciones.
+5. `docs/src/ranking-puntajes/ranking-puntajes.html` — boceto visual de la pantalla final y del ranking.
+6. `docs/ideas-escape-room.md` — ideas para el stand (redes sociales, banner, ping pong). **No son requisitos de la aplicación.**
 
 Si este archivo contradice a `docs/escape-room.md`, ver el apartado de este archivo de decisiones registradas, y preguntame para darte el ok y hay que actualizar este archivo resolviendo las dudas dejandolas en esa misma sección de decisiones registradas.
 
@@ -63,7 +64,7 @@ Reglas de contenido:
 - Cada estación debe tener **al menos 4 preguntas del nivel** en total.
 - `inicial` siempre está habilitada y debe tener cobertura completa.
 - `intermedio` y `avanzado` solo se habilitan si **todas** las estaciones tienen cobertura de ese nivel.
-- El contenido actual (`docs/ESCAPE ROOM.pdf`) tiene 4 preguntas por estación y un solo nivel, así que solo `inicial` puede habilitarse hasta que se carguen las otras dificultades.
+- El contenido cargado tiene 80 preguntas: 20 `inicial` (4 por estación), 30 `intermedio` y 30 `avanzado` (6 por estación en esos niveles). Con esa cobertura los tres niveles pueden habilitarse desde `/admin/dificultades`.
 - La selección se congela por intento: recargar la página no cambia las preguntas.
 
 ## Stack y arquitectura
@@ -126,7 +127,9 @@ tests/
 bd/
   schema.sql           # estructura de la base (MySQL 8)
   seeds/
-    001_contenido_inicial.sql  # contenido inicial idempotente y configuración
+    001_contenido_inicial.sql   # inicial: 20 preguntas y configuración
+    002_contenido_intermedio.sql # intermedio: 30 preguntas
+    003_contenido_avanzado.sql  # avanzado: 30 preguntas
 requirements.txt
 .env.example
 README.md
@@ -187,7 +190,7 @@ configuracion(clave, valor)                                          # dificulta
 - `intento_pregunta` garantiza que al recargar se muestren las mismas 4 preguntas y que el resultado sea reproducible.
 - `configuracion` guarda, por ejemplo, `dificultad_intermedia_habilitada` y `dificultad_avanzada_habilitada`, además de los parámetros del juego (`duracion_estacion_segundos`, `max_ayudas_estacion`, `max_envios_estacion`, `max_respuestas_incorrectas`, `max_integrantes_equipo`, `max_temas_por_estacion`, `preguntas_por_estacion`). La dificultad `inicial` queda siempre habilitada.
 - Un nivel solo puede habilitarse si todas las estaciones tienen al menos 1 pregunta activa de ese nivel por tema y 4 en total.
-- **No existe tabla `pista`.** Las pistas están en `docs/ESCAPE ROOM.pdf`, las leen los estudiantes, y la app solo registra 1 o 2 ayudas por estación en `intento_estacion.ayudas` y en `intento.cantidad_ayudas`.
+- **No existe tabla `pista`.** Las pistas están en `docs/ESCAPE ROOM.pdf` y en su transcripción `docs/pistas-del-juego.md`, las leen los estudiantes, y la app solo registra 1 o 2 ayudas por estación en `intento_estacion.ayudas` y en `intento.cantidad_ayudas`.
 - Cualquier tabla extra debe documentarse en `README.md` y en este archivo.
 
 ## Flujo de pantallas
@@ -295,8 +298,8 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 11. **Estadísticas públicas:** agregados sin nombres de equipos, sin detalle por pregunta y sin respuestas correctas.
 12. **Dificultad del intento:** queda guardada en `intento.dificultad` y no cambia durante el intento.
 13. **Máximo de temas:** 4 por estación.
-14. **Regla de contenido:** se usa "al menos 1 pregunta por tema activo y 4 por estación", no la lectura literal de "mínimo 4 preguntas por tema" de `docs/escape-room.md`. El contenido inicial (14 temas, 20 preguntas) cumple esta regla.
-15. **Ayudas:** la app **no muestra pistas**. Por estación y por intento se pueden registrar hasta 2 ayudas con los botones **Ayuda 1** y **Ayuda 2**; cada una suma en `intento_estacion.ayudas` y en `intento.cantidad_ayudas`. Al llegar a 2 se deshabilitan. Las pistas las leen los estudiantes desde `docs/ESCAPE ROOM.pdf`.
+14. **Regla de contenido:** se usa "al menos 1 pregunta por tema activo y 4 por estación", no la lectura literal de "mínimo 4 preguntas por tema" de `docs/escape-room.md`. El contenido actual cumple esta regla con 14 temas y 80 preguntas: 20 `inicial` (4 por estación) y 30 `intermedio` y 30 `avanzado` (6 por estación en esos niveles).
+15. **Ayudas:** la app **no muestra pistas**. Por estación y por intento se pueden registrar hasta 2 ayudas con los botones **Ayuda 1** y **Ayuda 2**; cada una suma en `intento_estacion.ayudas` y en `intento.cantidad_ayudas`. Al llegar a 2 se deshabilitan. Las pistas las leen los estudiantes desde `docs/ESCAPE ROOM.pdf` o desde `docs/pistas-del-juego.md`.
 16. **Identidad del equipo:** `equipo.nombre` es único. Si el nombre ya existe, la bienvenida pide el ID del equipo y no crea uno nuevo. El ID se muestra siempre. Cada reingreso crea un intento nuevo, salvo que el equipo tenga un intento activo (`fecha_fin IS NULL`), en cuyo caso se reanuda. Si dos equipos distintos quieren el mismo nombre, deben usar un sufijo.
 17. **Datos al reingresar:** cuando un equipo existente vuelve a ingresar, `equipo.cantidad_personas` **no se actualiza**: se conserva el valor original. La cantidad del formulario solo se usa al crear el equipo. Los datos pendientes de identificación (nombre normalizado, cantidad y dificultad) se guardan temporalmente en la sesión hasta confirmar el ID; la sesión de juego guarda solo `equipo_id` e `intento_id` y el servidor vuelve a leer la base en cada request. Un ID incorrecto se rechaza sin revelar el nombre ni otros datos del equipo.
 18. **Intento activo y dificultad:** si el equipo tiene un intento activo, se reanuda con la dificultad de ese intento y se ignora la elegida en el formulario. Si no lo tiene, el nuevo intento usa la dificultad pendiente y se revalida que siga habilitada antes de crearlo. `GET /` con un intento activo en la sesión muestra el formulario y un aviso con **Continuar**, sin redirección automática. Los POST inválidos vuelven a mostrar el formulario con estado `400` y errores inline, sin crear ni modificar datos.
@@ -339,7 +342,7 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 55. **Estadísticas del admin:** `GET /admin/estadisticas` calcula todo en `app/servicios/admin_estadisticas.py`, con filtros `desde`, `hasta` y `dificultad` sobre `intento.fecha_inicio` e `intento.dificultad`. Si `desde > hasta` se avisa y se muestra un rango vacío, sin intercambiar fechas. El tiempo promedio por estación usa solo `intento_estacion.completada = 1` con `fecha_fin` no nula. La utilización de preguntas incluye las activas con 0 usos y las inactivas que ya se usaron, marcadas como inactivas; se calcula sobre los intentos filtrados. El gráfico de intentos incluye **En curso** y los finalizados se muestran en un KPI aparte. Las barras son CSS generadas en el servidor, sin Chart.js ni CDN.
 56. **Intentos activos y navegación:** `GET /admin/intentos-activos` lista equipo, intento, dificultad, estación actual, tiempo transcurrido y última actividad, y muestra el motivo del bloqueo de los toggles. El panel y `admin/_nav.html` enlazan a cobertura, dificultades, intentos activos y estadísticas. Las cuatro rutas nuevas exigen login y no se enlazan desde páginas públicas.
 57. **CSRF propio, sin dependencias:** `app/csrf.py` genera un token estable por sesión con `secrets.token_urlsafe(32)` y lo valida con `hmac.compare_digest`. Un `before_request` rechaza con `400` y la plantilla `400.html` cualquier POST sin token o con uno inválido. La validación corre antes de `login_requerido`, así un POST al login sin token también devuelve `400`. Todos los formularios POST incluyen `_csrf_campo.html`; el token se rota al iniciar y al cerrar la sesión de administración. `GET /juego/estado` queda excluido porque el polling no envía formularios, aunque pueda cerrar el intento por tiempo.
-58. **Suite de pruebas:** `pytest.ini` fija `testpaths = tests` y `pythonpath = .`. `tests/conftest.py` elimina y recrea la base de test al inicio de la sesión, exige que el nombre termine en `_test` y sea distinto de `MYSQL_DB`, carga `bd/schema.sql` y el seed, y antes y después de cada test limpia las tablas en orden inverso a las claves foráneas y vuelve a sembrar. La base real nunca se toca. Las credenciales de admin y `SECRET_KEY` de test se generan en runtime. `tests/helpers.py` centraliza el token CSRF, los POST, los datos de juego y el reenvío del seed.
+58. **Suite de pruebas:** `pytest.ini` fija `testpaths = tests` y `pythonpath = .`. `tests/conftest.py` elimina y recrea la base de test al inicio de la sesión, exige que el nombre termine en `_test` y sea distinto de `MYSQL_DB`, carga `bd/schema.sql` y los tres seeds, y antes y después de cada test limpia las tablas en orden inverso a las claves foráneas y vuelve a sembrar. La base real nunca se toca. Las credenciales de admin y `SECRET_KEY` de test se generan en runtime. `tests/helpers.py` centraliza el token CSRF, los POST, los datos de juego y el reenvío de los seeds.
 59. **Ranking por nivel:** `posicion` es la posición general y `posicion_nivel` la del nivel del intento, calculada con `PARTITION BY dificultad`. Ambas usan el mismo orden (tiempo, incorrectas, ayudas, `fecha_inicio`, `id`). La pantalla final muestra la posición de nivel como principal, el top 10 del nivel y el ranking completo con columna **Nivel** y filtro por nivel. La vista pública muestra una tabla por nivel: `inicial` siempre, y los demás si están habilitados en `configuracion` o si ya tienen intentos completados. Los niveles sin filas muestran su mensaje de vacío. Esta decisión amplía las 39, 41 y 42 sin reemplazarlas.
 60. **Docker post-feria:** queda como taller educativo opcional en el `paso13`, después del 16/11. No reemplaza waitress/systemd del `paso12`, no se agrega a `requirements.txt` ni se usa en la feria. La base del taller es independiente de la base real y los seeds se cargan solo al crear el volumen. Cualquier cambio de alcance requiere consultar.
 
@@ -352,8 +355,8 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 - Transacciones para registrar un intento, envíos, respuestas y ayudas.
 - Configuración por variables de entorno; incluir `.env.example` y nunca commitear credenciales.
 - Bootstrap y JS local en `static/`; no depender de CDN para el funcionamiento en el aula.
-- Preguntas, opciones y respuestas correctas deben vivir en la base de datos y cargarse con un seed idempotente (`bd/seeds/001_contenido_inicial.sql`). No duplicarlas en plantillas ni en varios archivos JS. Las pistas no se guardan en la base: están en el PDF y las leen los estudiantes.
-- Las preguntas del prototipo y de `docs/ESCAPE ROOM.pdf` son la fuente de contenido; unificar diferencias antes de cargarlas.
+- Preguntas, opciones y respuestas correctas deben vivir en la base de datos y cargarse con seeds idempotentes (`bd/seeds/001_contenido_inicial.sql`, `002_contenido_intermedio.sql` y `003_contenido_avanzado.sql`). No duplicarlas en plantillas ni en varios archivos JS. Las pistas no se guardan en la base: están en `docs/pistas-del-juego.md` y en el PDF, y las leen los estudiantes.
+- Las preguntas del prototipo, de `docs/ESCAPE ROOM.pdf` y de `docs/banco-preguntas-intermedio-avanzado.md` son la fuente de contenido; unificar diferencias antes de cargarlas.
 - No agregar autenticación de participantes ni registro público. El único login es el de administración.
 - La regla de **máximo 3 equipos simultáneos** y el ingreso de un nuevo equipo cuando otro llega a la estación 3 es operativa. No imponerla en el software sin confirmación.
 - La página de estadísticas pública es de solo lectura; no expone respuestas correctas ni datos personales.
@@ -365,6 +368,8 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 ```bash
 mysql -u <usuario> -p < bd/schema.sql
 mysql -u <usuario> -p < bd/seeds/001_contenido_inicial.sql
+mysql -u <usuario> -p < bd/seeds/002_contenido_intermedio.sql
+mysql -u <usuario> -p < bd/seeds/003_contenido_avanzado.sql
 
 python3 -m venv .venv
 source .venv/bin/activate

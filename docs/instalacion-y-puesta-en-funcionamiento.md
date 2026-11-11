@@ -323,13 +323,15 @@ Usar la misma clave que `MYSQL_PASSWORD` en `.env`. Si la clave tiene espacios, 
 
 > Si PyMySQL no puede autenticarse con `caching_sha2_password`, se puede crear el usuario con `IDENTIFIED WITH mysql_native_password BY '...'`. Ese plugin está deprecado y no existe en MySQL 8.4 o superior, así que la opción recomendada es instalar `PyMySQL[rsa]`.
 
-### 5.3 Cargar el contenido inicial
+### 5.3 Cargar el contenido
 
 ```bash
 mysql -u escaperoom -p < bd/seeds/001_contenido_inicial.sql
+mysql -u escaperoom -p < bd/seeds/002_contenido_intermedio.sql
+mysql -u escaperoom -p < bd/seeds/003_contenido_avanzado.sql
 ```
 
-El seed es **idempotente**: se puede ejecutar dos veces sin duplicar filas.
+Los seeds son **idempotentes**: se pueden ejecutar dos veces sin duplicar filas.
 
 ### 5.4 Verificar
 
@@ -349,8 +351,8 @@ Resultado esperado:
 | --- | --- |
 | `estacion` | 5 |
 | `tema` | 14 |
-| `pregunta` | 20 |
-| `respuesta` | 60 |
+| `pregunta` | 80 |
+| `respuesta` | 240 |
 | `configuracion` | 9 |
 
 ---
@@ -632,10 +634,12 @@ Si el código se copia a mano, reemplazar los archivos y volver a ajustar permis
 sudo chown -R escaperoom:escaperoom /opt/escape-room-7b2026
 ```
 
-Si cambió el contenido, volver a ejecutar el seed (es idempotente):
+Si cambió el contenido, volver a ejecutar los seeds (son idempotentes):
 
 ```bash
 mysql -u escaperoom -p < bd/seeds/001_contenido_inicial.sql
+mysql -u escaperoom -p < bd/seeds/002_contenido_intermedio.sql
+mysql -u escaperoom -p < bd/seeds/003_contenido_avanzado.sql
 ```
 
 ### 10.3 Backup de la base

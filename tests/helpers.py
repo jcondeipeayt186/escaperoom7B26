@@ -5,7 +5,11 @@ from pathlib import Path
 TOKEN_PRUEBA = "token-de-pruebas-estable"
 
 RAIZ = Path(__file__).resolve().parents[1]
-SEED = RAIZ / "bd" / "seeds" / "001_contenido_inicial.sql"
+SEEDS = (
+    RAIZ / "bd" / "seeds" / "001_contenido_inicial.sql",
+    RAIZ / "bd" / "seeds" / "002_contenido_intermedio.sql",
+    RAIZ / "bd" / "seeds" / "003_contenido_avanzado.sql",
+)
 
 
 def _sentencias(texto):
@@ -25,14 +29,15 @@ def _sentencias(texto):
 
 
 def aplicar_seed(db, base):
-    """Reejecuta el seed sobre ``base`` usando la conexión ya abierta."""
+    """Reejecuta todos los seeds sobre ``base`` con la conexión ya abierta."""
 
-    texto = SEED.read_text(encoding="utf-8").replace(
-        "escape_room_7b2026", base
-    )
     with db.cursor() as cursor:
-        for sentencia in _sentencias(texto):
-            cursor.execute(sentencia)
+        for seed in SEEDS:
+            texto = seed.read_text(encoding="utf-8").replace(
+                "escape_room_7b2026", base
+            )
+            for sentencia in _sentencias(texto):
+                cursor.execute(sentencia)
 
 
 def token_csrf(cliente):

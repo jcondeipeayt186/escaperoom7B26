@@ -99,43 +99,6 @@ def _datos_pregunta(db, pregunta_id):
     )
 
 
-def _cubrir_intermedio(db):
-    """Agrega 4 preguntas de intermedio por estación, una por tema activo."""
-
-    for estacion in filas(db, "SELECT id FROM estacion WHERE activo = 1 ORDER BY orden"):
-        temas = filas(
-            db,
-            "SELECT id FROM tema WHERE estacion_id = %s AND activo = 1 ORDER BY id",
-            (estacion["id"],),
-        )
-        for indice in range(4):
-            tema_id = temas[indice % len(temas)]["id"]
-            pregunta_id = ejecutar(
-                db,
-                "INSERT INTO pregunta "
-                "(titulo, tema_id, dificultad, activo) "
-                "VALUES (%s, %s, 'intermedio', 1)",
-                (
-                    f"Intermedio estación {estacion['id']} pregunta {indice}",
-                    tema_id,
-                ),
-            )
-            ejecutar(
-                db,
-                "INSERT INTO respuesta "
-                "(contenido, correcta, pregunta_id, activo) "
-                "VALUES (%s, 1, %s, 1)",
-                ("Correcta", pregunta_id),
-            )
-            ejecutar(
-                db,
-                "INSERT INTO respuesta "
-                "(contenido, correcta, pregunta_id, activo) "
-                "VALUES (%s, 0, %s, 1)",
-                ("Incorrecta", pregunta_id),
-            )
-
-
 def _crear_intento(db, nombre, dificultad, inicio, fin, finalizado):
     equipo_id = ejecutar(
         db,
@@ -382,7 +345,7 @@ def test_baja_logica_de_una_estacion(cliente, db, credenciales_admin):
 # ---------------------------------------------------------------------------
 
 
-def test_cobertura_muestra_inicial_habilitada_y_faltantes(
+def test_cobertura_muestra_todos_los_niveles_completos(
     cliente, credenciales_admin
 ):
     _con_sesion(cliente, credenciales_admin)
@@ -390,14 +353,36 @@ def test_cobertura_muestra_inicial_habilitada_y_faltantes(
     html = cliente.get("/admin/cobertura").get_data(as_text=True)
     assert "Cobertura de niveles" in html
     assert "Inicial" in html
-    assert "Siempre habilitada" in html
+    assert "Intermedio" in html
     assert "Avanzado" in html
+    assert "Siempre habilitada" in html
+    assert "Cobertura completa" in html
+    assert "Falta cobertura" not in html
+
+
+def test_cobertura_marca_falta_si_un_tema_no_tiene_preguntas(
+    cliente, db, credenciales_admin
+):
+    ejecutar(
+        db,
+        "UPDATE pregunta SET activo = 0 "
+        "WHERE dificultad = 'intermedio' AND tema_id = 1",
+    )
+    _con_sesion(cliente, credenciales_admin)
+
+    html = cliente.get("/admin/cobertura").get_data(as_text=True)
     assert "Falta cobertura" in html
+    assert "Incompleta" in html
 
 
 def test_toggle_sin_cobertura_es_rechazado(
     cliente, db, credenciales_admin
 ):
+    ejecutar(
+        db,
+        "UPDATE pregunta SET activo = 0 "
+        "WHERE dificultad = 'intermedio' AND tema_id = 1",
+    )
     _con_sesion(cliente, credenciales_admin)
 
     respuesta = post(
@@ -438,7 +423,6 @@ def test_toggle_bloqueado_con_intento_activo(
 
 
 def test_toggle_falla_si_falta_una_estacion(cliente, db, credenciales_admin):
-    _cubrir_intermedio(db)
     ejecutar(
         db,
         "UPDATE pregunta SET activo = 0 "
@@ -461,7 +445,6 @@ def test_toggle_falla_si_falta_una_estacion(cliente, db, credenciales_admin):
 
 
 def test_toggle_con_cobertura_completa(cliente, db, credenciales_admin):
-    _cubrir_intermedio(db)
     _con_sesion(cliente, credenciales_admin)
 
     habilitar = post(

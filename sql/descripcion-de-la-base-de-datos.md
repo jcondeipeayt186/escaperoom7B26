@@ -2,7 +2,7 @@
 
 Documentación de la base **`escape_room_7b2026`** (MySQL 8, InnoDB, `utf8mb4` / `utf8mb4_unicode_ci`).
 
-El esquema ejecutable está en `bd/schema.sql` y el contenido inicial en `bd/seeds/001_contenido_inicial.sql`. Este documento explica el modelo para que se pueda dibujar el diagrama entidad-relación y entender cada tabla.
+El esquema ejecutable está en `bd/schema.sql` y el contenido en los seeds `bd/seeds/001_contenido_inicial.sql`, `002_contenido_intermedio.sql` y `003_contenido_avanzado.sql`. Este documento explica el modelo para que se pueda dibujar el diagrama entidad-relación y entender cada tabla.
 
 ---
 

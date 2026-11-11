@@ -1,6 +1,6 @@
 Estado actual (verificado recién)
 MySQL está activo en 127.0.0.1:3306.
-La base tiene el seed completo: 5 estaciones, 14 temas, 20 preguntas, 60 respuestas, 9 filas de configuración.
+La base tiene los tres seeds completos: 5 estaciones, 14 temas, 80 preguntas (20 inicial, 30 intermedio y 30 avanzado), 240 respuestas, 9 filas de configuración.
 Configuración: duracion_estacion_segundos = 240, max_respuestas_incorrectas = 2, max_envios_estacion = 2, max_ayudas_estacion = 2, intermedio y avanzado deshabilitados.
 0 intentos cargados: base limpia para empezar la prueba.
 .venv y .env existen y están listos.
@@ -31,17 +31,17 @@ Averiguá la IP del servidor:
 hostname -I
 Y desde la otra máquina entrá a http://IP-DEL-SERVIDOR:5000.
 
-Ojo: /ranking todavía no existe. El ranking que se ve hoy es el de /juego/final. La vista de TV con polling es el paso08.
+Ojo: /ranking ya existe y es la vista de TV con polling; /juego/final sigue mostrando el ranking del intento.
 
 3. Antes de empezar el guion
    2 o 3 personas que no hayan visto el código; una sola observa y anota, sin ayudar.
-   Cronómetro real y las pistas impresas de docs/ESCAPE ROOM.pdf.
+   Cronómetro real y las pistas impresas de docs/pistas-del-juego.md.
    Una sesión de navegador por equipo. La sesión de Flask guarda equipo_id e intento_id: si abrís dos equipos en la misma ventana, se pisan. Usá ventanas de incógnito separadas o perfiles/navegadores distintos.
    Anotá el ID del equipo que aparece en el HUD: lo van a necesitar para el punto de identidad.
 4. Guion de prueba (resumen operativo)
    El detalle está en docs/argumentos-pasos/paso07-prueba-manual-del-mvp.md. Lo importante a mirar:
 
-Bienvenida: nombre nuevo, integrantes y dificultad. Solo debe ofrecer inicial. Probá cantidad 0 y 5: deben rechazarse con error inline (estado 400, sin crear nada).
+Bienvenida: nombre nuevo, integrantes y dificultad. Solo debe ofrecer los niveles habilitados (por defecto, inicial). Probá cantidad 0 y 5: deben rechazarse con error inline (estado 400, sin crear nada).
 Identidad: salí y volvé a entrar con el mismo nombre → debe pedir el ID. Probá un ID incorrecto (debe rechazarse) y el correcto (debe reanudar el intento activo, no crear otro).
 Estación 1:
 HUD completo: equipo, ID, estación, contador general subiendo, contador de estación bajando, ayudas, incorrectas, envíos.

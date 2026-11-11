@@ -13,18 +13,29 @@ Aplicación web para la Feria de Producciones del IPEATyM 186 Castagnari (16/11/
 - `docs/instalacion-y-puesta-en-funcionamiento.md` — instalación en Ubuntu y uso desde las notebooks.
 - `docs/dejar-funcionando-proyecto-luego-clone.md` — pasos para dejar el proyecto funcionando después de clonarlo: MySQL, base de datos, entorno virtual, `.env` y pruebas.
 - `sql/descripcion-de-la-base-de-datos.md` — modelo de datos, tablas y consultas.
+- `docs/banco-preguntas-intermedio-avanzado.md` — 60 preguntas de `intermedio` y `avanzado` con sus opciones y pistas.
+- `docs/contenido-para-responder-nivel-intermedio.md` — guía de estudio del nivel intermedio.
+- `docs/contenido-para-responder-nivel-avanzado.md` — guía de estudio del nivel avanzado.
+- `docs/pistas-del-juego.md` — las 160 pistas de las preguntas cargadas, más un anexo con las pistas de las preguntas en reserva.
 - `AGENTS.md` — decisiones registradas, modelo de datos y convenciones.
 
 ## Base de datos
 
-El esquema y el contenido inicial ya están disponibles:
+El esquema y los tres seeds de contenido ya están disponibles:
 
 ```bash
 mysql -u <usuario> -p < bd/schema.sql
 mysql -u <usuario> -p < bd/seeds/001_contenido_inicial.sql
+mysql -u <usuario> -p < bd/seeds/002_contenido_intermedio.sql
+mysql -u <usuario> -p < bd/seeds/003_contenido_avanzado.sql
 ```
 
-El seed es idempotente: se puede volver a ejecutar sin duplicar filas.
+El contenido queda en 5 estaciones, 14 temas y 80 preguntas (20 `inicial`,
+30 `intermedio` y 30 `avanzado`) con 3 opciones cada una. Los seeds son
+idempotentes: se pueden volver a ejecutar sin duplicar filas y no reactivan
+contenido desactivado desde `/admin`. Tampoco habilitan los niveles ni tocan
+`configuracion`: `intermedio` y `avanzado` se habilitan desde
+`/admin/dificultades` cuando la cobertura está completa.
 
 ## Puesta en marcha (desarrollo)
 
@@ -195,11 +206,11 @@ validar la base en cada request.
 
 La suite usa una base MySQL independiente. Al iniciar la sesión de pytest se
 elimina y se vuelve a crear `escape_room_7b2026_test` (o la que indique
-`TEST_MYSQL_DB`), se carga `bd/schema.sql` y el seed, y antes y después de
-cada test se limpian las tablas y se vuelve a ejecutar el seed. La base de
-desarrollo nunca se toca: el nombre debe terminar en `_test` y ser distinto de
-`MYSQL_DB`. El usuario de MySQL necesita permisos `CREATE` y `DROP` sobre esa
-base.
+`TEST_MYSQL_DB`), se carga `bd/schema.sql` y los tres seeds de contenido, y
+antes y después de cada test se limpian las tablas y se vuelven a ejecutar los
+seeds. La base de desarrollo nunca se toca: el nombre debe terminar en `_test`
+y ser distinto de `MYSQL_DB`. El usuario de MySQL necesita permisos `CREATE` y
+`DROP` sobre esa base.
 
 ```bash
 source .venv/bin/activate
@@ -208,7 +219,7 @@ pytest -q
 ```
 
 La configuración está en `pytest.ini` (`testpaths = tests` y
-`pythonpath = .`). Al terminar, la base de test queda creada y con el seed.
+`pythonpath = .`). Al terminar, la base de test queda creada y con los seeds.
 
 > Para la feria se usa waitress, no el servidor de desarrollo. El
 > procedimiento de producción está en

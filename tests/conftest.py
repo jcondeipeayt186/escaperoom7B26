@@ -18,7 +18,11 @@ from app import create_app
 
 RAIZ = Path(__file__).resolve().parents[1]
 ESQUEMA = RAIZ / "bd" / "schema.sql"
-SEED = RAIZ / "bd" / "seeds" / "001_contenido_inicial.sql"
+SEEDS = (
+    RAIZ / "bd" / "seeds" / "001_contenido_inicial.sql",
+    RAIZ / "bd" / "seeds" / "002_contenido_intermedio.sql",
+    RAIZ / "bd" / "seeds" / "003_contenido_avanzado.sql",
+)
 
 TABLAS_LIMPIABLES = (
     "incorrecta",
@@ -82,7 +86,8 @@ def _limpiar_y_sembrar(conexion, base):
     with conexion.cursor() as cursor:
         for tabla in TABLAS_LIMPIABLES:
             cursor.execute(f"DELETE FROM {tabla}")
-    _ejecutar_script(conexion, SEED, base)
+    for seed in SEEDS:
+        _ejecutar_script(conexion, seed, base)
 
 
 @pytest.fixture(scope="session")
@@ -122,7 +127,8 @@ def base_de_datos():
 
     conexion = _conectar(entorno, base)
     _ejecutar_script(conexion, ESQUEMA, base)
-    _ejecutar_script(conexion, SEED, base)
+    for seed in SEEDS:
+        _ejecutar_script(conexion, seed, base)
     conexion.close()
 
     configuracion = dict(entorno)
