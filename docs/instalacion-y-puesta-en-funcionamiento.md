@@ -1,8 +1,15 @@
 # Instalación y puesta en funcionamiento
 
-Guía para dejar la aplicación del **Escape Room 7.º B 2026** funcionando en un servidor **Ubuntu** y usarla desde las notebooks conectadas a la misma red.
+Guía para dejar la aplicación del **Escape Room 7.º B 2026** funcionando en un
+servidor **Ubuntu** y usarla desde las notebooks conectadas a la misma red.
 
-> Estado: la aplicación Flask **ya está implementada**. Esta guía queda para la puesta en marcha del servidor (paso 12) y se puede seguir completa.
+> Estado: la aplicación Flask **ya está implementada**. Esta guía queda para la
+> puesta en marcha del servidor (paso 12) y se puede seguir completa.
+>
+> **Alcance:** cubre el **escenario A**, con Flask, waitress y MySQL en la misma
+> notebook Ubuntu. Para el servidor Linux de la escuela y para la variante con
+> la base remota, ver `docs/instalacion-servidor-escuela.md` y el resumen de
+> escenarios del `paso12`.
 
 ## Contenido
 
@@ -43,6 +50,17 @@ Ideas clave:
 - **El servidor es la autoridad.** Guarda el estado, valida las respuestas y calcula los tiempos.
 - **MySQL no se expone a la red.** La app lo consulta desde el mismo servidor.
 - **Todo funciona sin Internet.** Solo hace falta la red local del aula.
+
+### Elegir escenario
+
+| Escenario | Dónde corre la app | Dónde corre MySQL | Guía |
+| --- | --- | --- | --- |
+| **A** | Notebook Ubuntu | Notebook Ubuntu | Este documento |
+| **B** | Servidor de la escuela | Servidor de la escuela | `docs/instalacion-servidor-escuela.md` |
+| **C** | Notebook Ubuntu | Servidor de la escuela | `docs/instalacion-servidor-escuela.md` |
+
+La recomendación es **A como principal** y **B como respaldo**. El escenario C
+solo se usa si se ensayó antes: depende de la red entre la app y la base.
 
 ---
 
@@ -145,6 +163,11 @@ Después:
 ```bash
 sudo systemctl restart mysql
 ```
+
+> **Escenario C:** si MySQL va a quedar en el servidor de la escuela y la app en
+> la notebook, `bind-address` debe escuchar en la LAN y hay que crear un
+> usuario para la IP de la notebook. No seguir esa variante sin leer
+> `docs/instalacion-servidor-escuela.md`, sección 5.
 
 ### 3.4 Desactivar la suspensión del servidor
 
@@ -310,6 +333,18 @@ GRANT ALL PRIVILEGES ON escape_room_7b2026.*
 GRANT ALL PRIVILEGES ON escape_room_7b2026.*
   TO 'escaperoom'@'127.0.0.1';
 
+-- Permisos para la base de los tests automatizados.
+GRANT ALL PRIVILEGES ON escape_room_7b2026_test.*
+  TO 'escaperoom'@'localhost';
+GRANT ALL PRIVILEGES ON escape_room_7b2026_test.*
+  TO 'escaperoom'@'127.0.0.1';
+
+-- Permisos para las bases temporales que crea scripts/restaurar.sh.
+GRANT ALL PRIVILEGES ON `escape\_room\_7b2026\_restore\_%`.*
+  TO 'escaperoom'@'localhost';
+GRANT ALL PRIVILEGES ON `escape\_room\_7b2026\_restore\_%`.*
+  TO 'escaperoom'@'127.0.0.1';
+
 FLUSH PRIVILEGES;
 
 SHOW GRANTS FOR 'escaperoom'@'localhost';
@@ -318,6 +353,10 @@ EXIT;
 ```
 
 Se crean **dos cuentas con la misma clave**: `'escaperoom'@'localhost'` para el cliente `mysql` por socket y `'escaperoom'@'127.0.0.1'` para la app, que se conecta por TCP. Si solo se crea la de `localhost`, la conexión puede fallar según cómo resuelva el nombre el servidor MySQL.
+
+Los permisos sobre `escape_room_7b2026_test` y `escape_room_7b2026_restore_%`
+son solo para `pytest` y `scripts/restaurar.sh`; no cambian el acceso del
+juego. La base real sigue siendo `escape_room_7b2026`.
 
 Usar la misma clave que `MYSQL_PASSWORD` en `.env`. Si la clave tiene espacios, `#`, `$`, comillas o barras, escribirla entre comillas simples en el SQL y entre comillas dobles en `.env` (ver 4.4).
 
@@ -524,7 +563,10 @@ Reemplazar `192.168.1.0/24` por la red del aula. Se puede ver con:
 ip -4 addr show
 ```
 
-No abrir el puerto `3306`: MySQL solo se usa desde el servidor.
+No abrir el puerto `3306`: MySQL solo se usa desde el servidor. La única
+excepción es el escenario C (base en el servidor de la escuela y app en la
+notebook), y en ese caso se abre **solo para la IP de la notebook**, nunca para
+toda la red. Ver `docs/instalacion-servidor-escuela.md`, sección 5.
 
 ### 8.4 Probar desde una notebook
 
@@ -655,7 +697,15 @@ mysql -u escaperoom -p < bd/seeds/003_contenido_avanzado.sql
 
 ### 10.3 Backup de la base
 
-Guardar los respaldos **fuera de `/opt/escape-room-7b2026`**, por ejemplo en el home del usuario que administra el servidor. Así no se mezclan con el código ni se pierden si se reemplaza el proyecto.
+El proyecto incluye `scripts/backup.sh`, que hace lo mismo que los comandos de
+esta sección y funciona igual en los escenarios A, B y C:
+
+```bash
+cd /opt/escape-room-7b2026
+./scripts/backup.sh "$HOME/backups-escaperoom"
+```
+
+Para hacerlo a mano, guardar los respaldos **fuera de `/opt/escape-room-7b2026`**, por ejemplo en el home del usuario que administra el servidor. Así no se mezclan con el código ni se pierden si se reemplaza el proyecto.
 
 ```bash
 mkdir -p "$HOME/backups-escaperoom"
@@ -677,7 +727,15 @@ Guardar una copia fuera del servidor: pendrive y, si hay Internet, almacenamient
 
 ### 10.4 Probar la restauración
 
-No alcanza con generar el backup: hay que probar que se restaura.
+No alcanza con generar el backup: hay que probar que se restaura. El script lo
+hace sobre una base temporal y muestra los conteos:
+
+```bash
+cd /opt/escape-room-7b2026
+./scripts/restaurar.sh "$HOME/backups-escaperoom/respaldo-AAAAMMDD-HHMM.sql"
+```
+
+También se puede hacer a mano:
 
 ```bash
 sudo mysql -e "
@@ -716,8 +774,10 @@ sudo mysql -e "DROP DATABASE escape_room_7b2026_restore;"
 
 ## 11. Seguridad mínima
 
-- MySQL escucha solo en `127.0.0.1`.
-- El puerto `3306` no se abre en el firewall.
+- MySQL escucha solo en `127.0.0.1`. La única excepción es el escenario C, con
+  `3306` abierto solo para la IP de la notebook.
+- El puerto `3306` no se abre en el firewall, salvo la excepción restringida
+  del escenario C.
 - La app corre como `escaperoom`, no como `root`.
 - `.env` tiene permisos `600` y no se versiona.
 - La clave de admin es larga y se guarda como hash, nunca en texto plano.
@@ -918,6 +978,7 @@ Una notebook personal es un **punto único de falla**: si se rompe, se pierde, s
 - El `.venv` **no es portable** entre máquinas: en la notebook de repuesto se recrea con `python3 -m venv .venv` y `pip install -r requirements.txt`.
 - Probar la restauración (sección 10.4) antes de la feria, no el mismo día.
 - Si es posible, tener otra notebook con Ubuntu ya preparada y el mismo procedimiento probado. No hace falta que esté encendida: alcanza con que pueda reemplazar a la principal en pocos minutos.
+- Si el servidor de la escuela quedó preparado, usarlo como **plan B**: el procedimiento del escenario B está en `docs/instalacion-servidor-escuela.md`. Probar ese escenario antes de la feria, no el mismo día.
 - Un UPS chico para el router ayuda a que un corte breve no saque a todos de la red.
 
 ### 13.8 Si la notebook tiene Windows
@@ -950,9 +1011,9 @@ Esta guía asume **Ubuntu**. Si la notebook del docente tiene Windows, las opcio
 
 - [ ] Ubuntu actualizado y con zona horaria `America/Argentina/Buenos_Aires`.
 - [ ] `python3`, `python3-venv`, `python3-pip`, `mysql-server`, `git` y `ufw` instalados.
-- [ ] MySQL corriendo y escuchando solo en `127.0.0.1:3306`.
+- [ ] MySQL corriendo y escuchando solo en `127.0.0.1:3306` (escenario A).
 - [ ] Base `escape_room_7b2026` creada con `bd/schema.sql`.
-- [ ] Usuario `escaperoom` con permisos solo sobre esa base, en `'localhost'` y en `'127.0.0.1'`.
+- [ ] Usuario `escaperoom` con permisos sobre la base real, la de test y las temporales de restauración, en `'localhost'` y en `'127.0.0.1'`.
 - [ ] Seeds `001`, `002` y `003` ejecutados y conteos verificados (5/14/80/240/9).
 - [ ] Dificultades habilitadas revisadas en `/admin/dificultades`.
 - [ ] Proyecto copiado en `/opt/escape-room-7b2026`.

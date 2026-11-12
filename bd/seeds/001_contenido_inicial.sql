@@ -21,7 +21,8 @@
 -- El contenido que se agregue desde /admin toma ids mayores por AUTO_INCREMENT.
 --
 -- Contenido basado en docs/ESCAPE ROOM.pdf, con tildes y tipeo corregidos.
--- Solo nivel `inicial`: no hay preguntas de intermedio ni avanzado todavía.
+-- Solo nivel `inicial`. Los niveles `intermedio` y `avanzado` se cargan con
+-- los seeds 002 y 003.
 -- ============================================================================
 
 USE escape_room_7b2026;

@@ -2,7 +2,9 @@
 
 Mapa de pantallas, elementos y objetivos de la app del **Escape Room 7.º B 2026**.
 
-> Estado: la aplicación Flask todavía no está implementada. Este documento describe la navegación **esperada** y sirve como especificación para construirla. Las rutas son una propuesta; si el scaffold adopta otras, mantener la misma separación de pantallas y actualizar este archivo.
+> Estado: la aplicación Flask **ya está implementada**. Este documento describe
+> la navegación real y sirve como mapa de pantallas y rutas. Si el código
+> adopta otra ruta, actualizar este archivo junto con el cambio.
 
 Fuentes de verdad:
 

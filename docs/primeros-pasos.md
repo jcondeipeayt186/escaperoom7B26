@@ -330,7 +330,7 @@ El admin y las estadísticas pueden quedar para después del MVP, pero antes del
 | 8/11 | Pedido 9: login, panel y CRUD del admin. |
 | 9/11 | Pedido 10: cobertura, dificultades y gráficos. |
 | 10/11 | Pedido 11: pruebas automatizadas y endurecimiento. |
-| 11/11 | Pedido 12: congelar contenido, backup y puesta en marcha. |
+| 11/11 | Pedido 12: congelar contenido, backup y puesta en marcha en notebook y servidor de la escuela. |
 | 12/11 | Ensayo general en el aula. |
 | 16/11 | Feria. |
 
@@ -923,38 +923,57 @@ Al terminar: resumí archivos, comandos, resultado de pytest y dejá el commit
 **Pedido:**
 
 ```text
-Contexto: la app y los tests están listos.
+Contexto: la app y los tests están listos. Hay dos equipos candidatos para
+oficiar de servidor: la notebook Ubuntu 22.04 y el servidor Linux de la
+escuela (MySQL 8, sudo completo, distribución a confirmar).
 
-Objetivo: dejarla lista para el aula, sin cambios de último momento.
+Objetivo: dejarla lista para el aula, sin cambios de último momento, y que
+pueda usarse en cualquiera de los dos equipos.
 
 Alcance:
-- Revisar y congelar el contenido.
+- Revisar y congelar el contenido de los tres niveles (80 preguntas).
 - Generar un volcado de la base y probar la restauración.
 - Documentar el arranque con waitress en 0.0.0.0.
 - Configurar ADMIN_PASSWORD_HASH y FLASK_SECRET_KEY reales.
-- Probar desde 3 notebooks y el televisor.
+- Dejar scripts de backup y restauración que funcionen con MySQL local o
+  remoto.
+- Documentar tres escenarios:
+  A) todo en la notebook;
+  B) todo en el servidor de la escuela;
+  C) base en la escuela y app en la notebook.
+- Probar desde 3 notebooks y el televisor en A y en B.
 - Verificar el funcionamiento sin Internet.
-- Dejar un script de reinicio y backup.
 
 Reglas:
+- La notebook Ubuntu 22.04 es el escenario principal; el servidor de la
+  escuela es el respaldo.
+- No improvisar el escenario C el día de la feria: solo si se ensayó antes.
 - No cargar contenido nuevo después de este pedido.
 - No cambiar el esquema.
 - El backup se prueba, no solo se genera.
 
 Criterio de aceptación:
 - La app levanta desde cero con los comandos del README.
-- El backup se restaura en una base limpia.
-- 3 notebooks juegan a la vez sin errores.
+- El backup se restaura en una base limpia con conteos 5/14/80/240/9.
+- 3 notebooks juegan a la vez sin errores en A y en B.
 - El televisor muestra /ranking actualizándose.
 - Sin Internet, todo sigue funcionando.
+- Los scripts funcionan con MySQL local y remoto.
 
-Al terminar: resumí el procedimiento, los comandos y dejá el commit
-"docs: puesta en marcha y respaldo".
+Al terminar: resumí el procedimiento, los comandos, el escenario probado y dejá
+el commit "docs: puesta en marcha y respaldo".
 ```
 
-**Verificación:** simular un aula: 3 equipos, un televisor, sin Internet. Cronometrar el arranque.
+**Verificación:** simular un aula: 3 equipos, un televisor, sin Internet.
+Repetir en la notebook y en el servidor de la escuela. Cronometrar el arranque
+desde cero y probar la restauración de un backup.
 
-**Ojo con:** no hacer cambios de código el día de la feria; tener el backup en un pendrive y en la nube.
+Los escenarios B y C se detallan en `docs/instalacion-servidor-escuela.md`.
+El escenario A sigue en `docs/instalacion-y-puesta-en-funcionamiento.md`.
+
+**Ojo con:** no hacer cambios de código el día de la feria; tener el backup en
+un pendrive y en la nube; verificar Python 3.10+ y MySQL 8.0+ en el servidor;
+no abrir `3306` salvo en el escenario C y solo para la IP de la notebook.
 
 ---
 

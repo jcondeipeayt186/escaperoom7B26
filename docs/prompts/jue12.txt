@@ -1,0 +1,6 @@
+Puedes generar capturas tamaño del móvil (samsung Salaxy A55 de 300 x 800) de cada página de la app, para ello deberás acceder con varios intentos.
+
+
+Crea un documento que guie a los estudiantes que estudiar.
+Explica que ver en cada archivo .md
+
