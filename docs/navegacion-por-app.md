@@ -137,7 +137,9 @@ Elementos:
 - HUD completo.
 - Título de la estación y número (`Estación 3 de 5 · Internet`).
 - Texto breve de la estación (`estacion.descripcion`).
-- Las **4 preguntas** en tarjetas, cada una con sus 3 opciones como radios.
+- Las **4 preguntas** en tarjetas, cada una con su descripción breve
+  (`pregunta.descripcion`) debajo del enunciado cuando el nivel la tiene, y
+  sus 3 opciones como radios.
 - Botón **Comprobar respuestas**.
 - Botones **Ayuda 1** y **Ayuda 2** con confirmación; se deshabilitan al llegar a 2.
 - Botón **Abandonar** con confirmación.

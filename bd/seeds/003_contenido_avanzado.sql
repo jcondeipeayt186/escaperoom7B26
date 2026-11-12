@@ -10,6 +10,8 @@
 --   * Preguntas y respuestas usan ids fijos.
 --     Al reejecutar se actualizan los textos, pero NO se cambia `activo`:
 --     si el admin desactivó algo, sigue desactivado.
+--   * Las descripciones no llevan punto y coma: el cargador de seeds de las
+--     pruebas separa las sentencias con ese signo.
 --   * No toca `configuracion` ni habilita el nivel.
 --
 -- Basado en docs/elaboradoChicos/ESCAPEROOM-avanzado.odt y completado con redacción propia.
@@ -25,36 +27,36 @@ START TRANSACTION;
 -- Preguntas (30 en total, 6 por estación)
 -- ----------------------------------------------------------------------------
 INSERT INTO pregunta (id, titulo, descripcion, tema_id, dificultad, activo) VALUES
-  (3001, '¿Qué protocolo permite asignar automáticamente direcciones IP a los dispositivos de una red?', NULL, 2, 'avanzado', 1),
-  (3002, '¿Qué dispositivo trabaja principalmente en la capa 3 del modelo OSI?', NULL, 2, 'avanzado', 1),
-  (3003, '¿Qué función cumple el protocolo ARP en una red IPv4?', NULL, 1, 'avanzado', 1),
-  (3004, '¿Cuál es la diferencia principal entre TCP y UDP?', NULL, 3, 'avanzado', 1),
-  (3005, '¿Qué hace NAT en una red?', NULL, 2, 'avanzado', 1),
-  (3006, '¿Qué mejora WPA3 respecto de WPA2?', NULL, 4, 'avanzado', 1),
-  (3007, '¿Qué componente del procesador almacena datos e instrucciones de acceso frecuente para acelerar su funcionamiento?', NULL, 5, 'avanzado', 1),
-  (3008, '¿Qué diferencia principal existe entre la memoria SRAM y la DRAM?', NULL, 7, 'avanzado', 1),
-  (3009, '¿Qué tecnología utilizan los SSD para distribuir el desgaste entre sus celdas de memoria?', NULL, 6, 'avanzado', 1),
-  (3010, '¿Qué característica de PCI Express permite aumentar la velocidad de transferencia de datos?', NULL, 5, 'avanzado', 1),
-  (3011, '¿Qué diferencia principal hay entre un HDD y un SSD?', NULL, 6, 'avanzado', 1),
-  (3012, '¿Qué es la memoria virtual?', NULL, 7, 'avanzado', 1),
-  (3013, '¿Qué función cumple el sistema DNS?', NULL, 10, 'avanzado', 1),
-  (3014, '¿Qué significa el código de estado HTTP 403?', NULL, 10, 'avanzado', 1),
-  (3015, '¿Qué diferencia principal existe entre HTTP y HTTPS?', NULL, 10, 'avanzado', 1),
-  (3016, '¿Qué significa el código de estado HTTP 404?', NULL, 10, 'avanzado', 1),
-  (3017, '¿Qué es la caché del navegador?', NULL, 8, 'avanzado', 1),
-  (3018, 'En una dirección como https://tienda.com/productos?categoria=ofertas, ¿qué indica la parte que comienza con el signo de interrogación?', NULL, 9, 'avanzado', 1),
-  (3019, '¿Qué es un ataque de fuerza bruta?', NULL, 11, 'avanzado', 1),
-  (3020, '¿Qué es un ataque Man-in-the-Middle (MitM)?', NULL, 12, 'avanzado', 1),
-  (3021, '¿Qué caracteriza a una vulnerabilidad Zero-Day?', NULL, 12, 'avanzado', 1),
-  (3022, '¿Qué propiedad de la seguridad informática garantiza que los datos no sean modificados sin autorización?', NULL, 12, 'avanzado', 1),
-  (3023, '¿Qué es el ransomware?', NULL, 12, 'avanzado', 1),
-  (3024, '¿Qué es la ingeniería social?', NULL, 12, 'avanzado', 1),
-  (3025, '¿Qué función cumple el kernel de un sistema operativo?', NULL, 13, 'avanzado', 1),
-  (3026, '¿Qué es un proceso zombie en Linux?', NULL, 13, 'avanzado', 1),
-  (3027, '¿Qué algoritmo de planificación asigna un intervalo de tiempo a cada proceso?', NULL, 13, 'avanzado', 1),
-  (3028, '¿Qué ocurre cuando se produce un Deadlock o interbloqueo?', NULL, 13, 'avanzado', 1),
-  (3029, '¿Qué diferencia hay entre un proceso y un hilo?', NULL, 13, 'avanzado', 1),
-  (3030, '¿Por qué es riesgoso instalar aplicaciones fuera de la tienda oficial?', NULL, 14, 'avanzado', 1)
+  (3001, '¿Qué protocolo permite asignar automáticamente direcciones IP a los dispositivos de una red?', 'Cuando un equipo se conecta a la red, puede pedir su configuración automáticamente en lugar de escribirla a mano.', 2, 'avanzado', 1),
+  (3002, '¿Qué dispositivo trabaja principalmente en la capa 3 del modelo OSI?', 'El modelo OSI tiene siete capas y cada dispositivo trabaja principalmente en una de ellas.', 2, 'avanzado', 1),
+  (3003, '¿Qué función cumple el protocolo ARP en una red IPv4?', 'En IPv4, para enviar datos dentro de la red local hay que conocer la dirección física (MAC) del destinatario.', 1, 'avanzado', 1),
+  (3004, '¿Cuál es la diferencia principal entre TCP y UDP?', 'TCP y UDP son dos formas de transportar datos: una prioriza la confiabilidad y la otra la velocidad.', 3, 'avanzado', 1),
+  (3005, '¿Qué hace NAT en una red?', 'Las redes domésticas usan direcciones privadas que no existen en Internet, y algo tiene que traducirlas al salir.', 2, 'avanzado', 1),
+  (3006, '¿Qué mejora WPA3 respecto de WPA2?', 'Las versiones de WPA se suceden para corregir debilidades de las anteriores.', 4, 'avanzado', 1),
+  (3007, '¿Qué componente del procesador almacena datos e instrucciones de acceso frecuente para acelerar su funcionamiento?', 'Dentro del procesador hay memorias muy pequeñas y rápidas que guardan lo que se usa más seguido.', 5, 'avanzado', 1),
+  (3008, '¿Qué diferencia principal existe entre la memoria SRAM y la DRAM?', 'SRAM y DRAM son dos tipos de memoria que se diferencian por cómo conservan la información y por su costo.', 7, 'avanzado', 1),
+  (3009, '¿Qué tecnología utilizan los SSD para distribuir el desgaste entre sus celdas de memoria?', 'La memoria flash se desgasta con las escrituras, por eso los SSD aplican técnicas de administración interna.', 6, 'avanzado', 1),
+  (3010, '¿Qué característica de PCI Express permite aumentar la velocidad de transferencia de datos?', 'PCI Express conecta placas y periféricos con varios carriles que pueden trabajar en paralelo.', 5, 'avanzado', 1),
+  (3011, '¿Qué diferencia principal hay entre un HDD y un SSD?', 'Un HDD y un SSD guardan datos, pero usan tecnologías de almacenamiento distintas.', 6, 'avanzado', 1),
+  (3012, '¿Qué es la memoria virtual?', 'El sistema operativo administra la memoria disponible y puede apoyarse en el almacenamiento cuando hace falta.', 7, 'avanzado', 1),
+  (3013, '¿Qué función cumple el sistema DNS?', 'Los equipos se comunican con números, pero las personas recuerdan mejor los nombres.', 10, 'avanzado', 1),
+  (3014, '¿Qué significa el código de estado HTTP 403?', 'Los códigos HTTP empiezan con 4 cuando el problema está del lado del cliente o de sus permisos.', 10, 'avanzado', 1),
+  (3015, '¿Qué diferencia principal existe entre HTTP y HTTPS?', 'HTTP y HTTPS se parecen en la dirección, pero no en cómo viaja la información.', 10, 'avanzado', 1),
+  (3016, '¿Qué significa el código de estado HTTP 404?', 'Los códigos 4xx indican que el pedido no pudo completarse, y el número exacto identifica el motivo.', 10, 'avanzado', 1),
+  (3017, '¿Qué es la caché del navegador?', 'El navegador guarda copias de imágenes, estilos y scripts para no descargarlos de nuevo en cada visita.', 8, 'avanzado', 1),
+  (3018, 'En una dirección como https://tienda.com/productos?categoria=ofertas, ¿qué indica la parte que comienza con el signo de interrogación?', 'En una URL, después del signo de interrogación se envían datos adicionales al servidor.', 9, 'avanzado', 1),
+  (3019, '¿Qué es un ataque de fuerza bruta?', 'Consiste en probar combinaciones una tras otra, muchas veces con programas automáticos.', 11, 'avanzado', 1),
+  (3020, '¿Qué es un ataque Man-in-the-Middle (MitM)?', 'En este ataque hay tres partes: la víctima, el destino y alguien que se coloca en el medio.', 12, 'avanzado', 1),
+  (3021, '¿Qué caracteriza a una vulnerabilidad Zero-Day?', 'Las vulnerabilidades se descubren y se corrigen, pero algunas aparecen antes de que exista una solución.', 12, 'avanzado', 1),
+  (3022, '¿Qué propiedad de la seguridad informática garantiza que los datos no sean modificados sin autorización?', 'Además de evitar filtraciones, la seguridad busca que la información no se altere y que esté disponible cuando se la necesita.', 12, 'avanzado', 1),
+  (3023, '¿Qué es el ransomware?', 'Existen malware que buscan un beneficio económico directo y otros que solo causan daño.', 12, 'avanzado', 1),
+  (3024, '¿Qué es la ingeniería social?', 'El eslabón más débil suele ser la persona: se la puede manipular con confianza, miedo o urgencia.', 12, 'avanzado', 1),
+  (3025, '¿Qué función cumple el kernel de un sistema operativo?', 'El sistema operativo tiene una parte central con permisos especiales sobre el hardware.', 13, 'avanzado', 1),
+  (3026, '¿Qué es un proceso zombie en Linux?', 'En Linux, la tabla de procesos también registra estados de procesos que ya no se están ejecutando.', 13, 'avanzado', 1),
+  (3027, '¿Qué algoritmo de planificación asigna un intervalo de tiempo a cada proceso?', 'Los sistemas operativos reparten el procesador entre los procesos, y algunos algoritmos usan turnos.', 13, 'avanzado', 1),
+  (3028, '¿Qué ocurre cuando se produce un Deadlock o interbloqueo?', 'Cuando varios procesos comparten recursos, una mala coordinación puede dejar a todos esperando.', 13, 'avanzado', 1),
+  (3029, '¿Qué diferencia hay entre un proceso y un hilo?', 'Dentro de un programa puede haber varias tareas a la vez, y conviene distinguir cómo se agrupan.', 13, 'avanzado', 1),
+  (3030, '¿Por qué es riesgoso instalar aplicaciones fuera de la tienda oficial?', 'Instalar desde fuera de la tienda oficial saltea la revisión de la empresa que fabrica el sistema.', 14, 'avanzado', 1)
 ON DUPLICATE KEY UPDATE
   titulo = VALUES(titulo),
   descripcion = VALUES(descripcion),

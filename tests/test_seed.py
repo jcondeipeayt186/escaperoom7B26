@@ -52,6 +52,28 @@ def test_distribucion_de_preguntas_por_nivel_y_estacion(db):
         )
 
 
+def test_solo_intermedio_y_avanzado_traen_descripcion(db):
+    for dificultad in ("intermedio", "avanzado"):
+        assert (
+            conteo(
+                db,
+                "pregunta",
+                "WHERE dificultad = %s AND activo = 1 "
+                "AND descripcion IS NOT NULL AND descripcion <> ''",
+                (dificultad,),
+            )
+            == 30
+        )
+    assert (
+        conteo(
+            db,
+            "pregunta",
+            "WHERE dificultad = 'inicial' AND descripcion IS NOT NULL",
+        )
+        == 0
+    )
+
+
 def test_cada_pregunta_tiene_tres_opciones_y_una_correcta(db):
     incompletas = filas(
         db,
@@ -87,6 +109,11 @@ def test_el_seed_restaura_los_textos(db, base_de_datos):
         db,
         "UPDATE respuesta SET contenido = 'Avanzada cambiada' WHERE id = 4001",
     )
+    ejecutar(
+        db,
+        "UPDATE pregunta SET descripcion = 'Descripción cambiada' "
+        "WHERE id IN (1001, 3001)",
+    )
 
     aplicar_seed(db, base_de_datos["MYSQL_DB"])
 
@@ -105,6 +132,18 @@ def test_el_seed_restaura_los_textos(db, base_de_datos):
     assert fila(db, "SELECT contenido FROM respuesta WHERE id = 4001")[
         "contenido"
     ] == "DNS"
+    assert fila(db, "SELECT descripcion FROM pregunta WHERE id = 1001")[
+        "descripcion"
+    ] == (
+        "El loopback es una dirección reservada para que el equipo se "
+        "hable a sí mismo y pruebe su configuración de red."
+    )
+    assert fila(db, "SELECT descripcion FROM pregunta WHERE id = 3001")[
+        "descripcion"
+    ] == (
+        "Cuando un equipo se conecta a la red, puede pedir su "
+        "configuración automáticamente en lugar de escribirla a mano."
+    )
 
 
 def test_los_seeds_no_reactivan_contenido_desactivado(db, base_de_datos):

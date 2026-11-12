@@ -325,3 +325,29 @@ def test_final_de_intermedio_usa_el_ranking_de_su_nivel(cliente, db):
     top = html.split("Ranking completo", 1)[0]
     assert "Rival Intermedio" in top
     assert "Inicial Rápido" not in top
+
+
+def test_estacion_muestra_la_descripcion_segun_el_nivel(cliente, db):
+    equipo_id, intento_id = crear_equipo(
+        db, "Equipo Con Descripción", dificultad="intermedio"
+    )
+    iniciar_sesion(cliente, equipo_id, intento_id)
+    _, preguntas = preparar_por_url(cliente, db, intento_id, 1)
+    html = cliente.get("/juego/estacion/1").get_data(as_text=True)
+
+    for pregunta in preguntas:
+        descripcion = fila(
+            db,
+            "SELECT descripcion FROM pregunta WHERE id = %s",
+            (pregunta["id"],),
+        )["descripcion"]
+        assert descripcion
+        assert descripcion in html
+
+    equipo_inicial, intento_inicial = crear_equipo(
+        db, "Equipo Sin Descripción", dificultad="inicial"
+    )
+    iniciar_sesion(cliente, equipo_inicial, intento_inicial)
+    preparar_por_url(cliente, db, intento_inicial, 1)
+    html = cliente.get("/juego/estacion/1").get_data(as_text=True)
+    assert '<p class="text-body-secondary">' not in html

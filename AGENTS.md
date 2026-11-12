@@ -345,6 +345,7 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 58. **Suite de pruebas:** `pytest.ini` fija `testpaths = tests` y `pythonpath = .`. `tests/conftest.py` elimina y recrea la base de test al inicio de la sesión, exige que el nombre termine en `_test` y sea distinto de `MYSQL_DB`, carga `bd/schema.sql` y los tres seeds, y antes y después de cada test limpia las tablas en orden inverso a las claves foráneas y vuelve a sembrar. La base real nunca se toca. Las credenciales de admin y `SECRET_KEY` de test se generan en runtime. `tests/helpers.py` centraliza el token CSRF, los POST, los datos de juego y el reenvío de los seeds.
 59. **Ranking por nivel:** `posicion` es la posición general y `posicion_nivel` la del nivel del intento, calculada con `PARTITION BY dificultad`. Ambas usan el mismo orden (tiempo, incorrectas, ayudas, `fecha_inicio`, `id`). La pantalla final muestra la posición de nivel como principal, el top 10 del nivel y el ranking completo con columna **Nivel** y filtro por nivel. La vista pública muestra una tabla por nivel: `inicial` siempre, y los demás si están habilitados en `configuracion` o si ya tienen intentos completados. Los niveles sin filas muestran su mensaje de vacío. Esta decisión amplía las 39, 41 y 42 sin reemplazarlas.
 60. **Docker post-feria:** queda como taller educativo opcional en el `paso13`, después del 16/11. No reemplaza waitress/systemd del `paso12`, no se agrega a `requirements.txt` ni se usa en la feria. La base del taller es independiente de la base real y los seeds se cargan solo al crear el volumen. Cualquier cambio de alcance requiere consultar.
+61. **Descripciones de preguntas:** `pregunta.descripcion` es una mini ayuda de contexto que se muestra debajo del enunciado en `app/templates/estacion.html`. Se completa en los niveles `intermedio` y `avanzado`; las 20 preguntas de `inicial` quedan en `NULL` para que ese nivel se juegue sin ayuda extra. No es una pista y no debe nombrar ni parafrasear la respuesta correcta. Los textos viven en los seeds `002` y `003`, no llevan punto y coma porque el cargador de seeds de las pruebas separa las sentencias con ese signo, y reejecutar los seeds pisa lo editado desde `/admin`, igual que el título.
 
 ## Convenciones de código
 
@@ -400,6 +401,7 @@ Priorizar pruebas automatizadas para:
 - Top 10 del final limitado al nivel del intento.
 - Niveles visibles en `/ranking`: `inicial` siempre; los demás si están habilitados o tienen intentos completados; un nivel sin filas muestra su mensaje.
 - Filtrado de preguntas por dificultad y por tema.
+- Descripciones: 30 de `intermedio` y 30 de `avanzado` visibles en la estación; las 20 de `inicial` sin descripción.
 - Bienvenida con cantidad de integrantes entre 1 y 4.
 - Reingreso con un nombre de equipo existente: pide el ID y no duplica el equipo.
 - Ayudas: máximo 2 por estación e intento, con contador visible y botones deshabilitados al llegar a 2.

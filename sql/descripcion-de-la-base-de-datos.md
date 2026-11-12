@@ -152,7 +152,7 @@ Contiene las preguntas de cada tema, con su nivel de dificultad.
 | --- | --- | --- | --- | --- | --- |
 | `id` | `INT UNSIGNED` | No | `AUTO_INCREMENT` | PK | Identificador de la pregunta. |
 | `titulo` | `VARCHAR(255)` | No | — | — | Texto de la pregunta. |
-| `descripcion` | `TEXT` | Sí | `NULL` | — | Aclaración opcional. En el contenido inicial está vacía. |
+| `descripcion` | `TEXT` | Sí | `NULL` | — | Mini ayuda de contexto que se muestra debajo del enunciado. Está cargada en `intermedio` y `avanzado`; las preguntas de `inicial` quedan en `NULL`. |
 | `tema_id` | `INT UNSIGNED` | No | — | FK → `tema.id` | Tema al que pertenece. |
 | `dificultad` | `ENUM('inicial','intermedio','avanzado')` | No | — | — | Nivel de la pregunta. |
 | `activo` | `TINYINT(1)` | No | `1` | — | Borrado lógico. |

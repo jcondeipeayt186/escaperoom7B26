@@ -10,6 +10,8 @@
 --   * Preguntas y respuestas usan ids fijos.
 --     Al reejecutar se actualizan los textos, pero NO se cambia `activo`:
 --     si el admin desactivó algo, sigue desactivado.
+--   * Las descripciones no llevan punto y coma: el cargador de seeds de las
+--     pruebas separa las sentencias con ese signo.
 --   * No toca `configuracion` ni habilita el nivel.
 --
 -- Basado en docs/elaboradoChicos/ESCAPEROOM-intermedio.odt y completado con redacción propia.
@@ -25,36 +27,36 @@ START TRANSACTION;
 -- Preguntas (30 en total, 6 por estación)
 -- ----------------------------------------------------------------------------
 INSERT INTO pregunta (id, titulo, descripcion, tema_id, dificultad, activo) VALUES
-  (1001, '¿Qué dirección IPv4 es una dirección de loopback?', NULL, 1, 'intermedio', 1),
-  (1002, '¿Cuál es la función principal de una máscara de subred?', NULL, 1, 'intermedio', 1),
-  (1003, '¿Qué protocolo asigna direcciones IP automáticamente a los dispositivos de una red?', NULL, 2, 'intermedio', 1),
-  (1004, '¿Cuál es la función principal de un switch en una red LAN?', NULL, 3, 'intermedio', 1),
-  (1005, '¿Qué función cumple un punto de acceso inalámbrico (Access Point)?', NULL, 4, 'intermedio', 1),
-  (1006, '¿Qué protocolo traduce nombres de dominio como ejemplo.com a direcciones IP?', NULL, 3, 'intermedio', 1),
-  (1007, '¿Qué función cumple la tecnología SMART en las unidades de almacenamiento?', NULL, 6, 'intermedio', 1),
-  (1008, '¿Qué puede indicar una pantalla azul recurrente en Windows?', NULL, 5, 'intermedio', 1),
-  (1009, '¿Cuál es la finalidad de realizar una copia de seguridad?', NULL, 6, 'intermedio', 1),
-  (1010, '¿Qué es la pasta térmica?', NULL, 5, 'intermedio', 1),
-  (1011, '¿Qué tipo de mantenimiento busca evitar fallas futuras?', NULL, 5, 'intermedio', 1),
-  (1012, '¿Qué significa que la memoria RAM sea volátil?', NULL, 7, 'intermedio', 1),
-  (1013, '¿Para qué sirven las cookies de un navegador?', NULL, 8, 'intermedio', 1),
-  (1014, '¿Qué hace el modo incógnito de un navegador?', NULL, 8, 'intermedio', 1),
-  (1015, 'En la dirección https://www.escuela.edu.ar/aula/notas, ¿qué parte indica el protocolo?', NULL, 9, 'intermedio', 1),
-  (1016, '¿Qué indica el dominio en una dirección web?', NULL, 9, 'intermedio', 1),
-  (1017, '¿Qué es el ancho de banda?', NULL, 10, 'intermedio', 1),
-  (1018, '¿Qué significa tener una latencia alta?', NULL, 10, 'intermedio', 1),
-  (1019, '¿Qué es la autenticación de dos factores (2FA)?', NULL, 11, 'intermedio', 1),
-  (1020, '¿Para qué sirve un gestor de contraseñas?', NULL, 11, 'intermedio', 1),
-  (1021, '¿Por qué no conviene usar la misma contraseña en varios sitios?', NULL, 11, 'intermedio', 1),
-  (1022, '¿Qué es el smishing?', NULL, 12, 'intermedio', 1),
-  (1023, '¿Qué es el vishing?', NULL, 12, 'intermedio', 1),
-  (1024, 'Recibís un correo urgente con un enlace que pide tus datos. ¿Qué conviene hacer?', NULL, 12, 'intermedio', 1),
-  (1025, '¿Qué es un proceso?', NULL, 13, 'intermedio', 1),
-  (1026, '¿Qué hace el sistema de archivos?', NULL, 13, 'intermedio', 1),
-  (1027, '¿Para qué sirven los permisos de usuario?', NULL, 13, 'intermedio', 1),
-  (1028, '¿Por qué conviene instalar las actualizaciones del sistema?', NULL, 13, 'intermedio', 1),
-  (1029, '¿Qué son los permisos de una aplicación móvil?', NULL, 14, 'intermedio', 1),
-  (1030, '¿Cuál es la diferencia principal entre Android e iOS?', NULL, 14, 'intermedio', 1)
+  (1001, '¿Qué dirección IPv4 es una dirección de loopback?', 'El loopback es una dirección reservada para que el equipo se hable a sí mismo y pruebe su configuración de red.', 1, 'intermedio', 1),
+  (1002, '¿Cuál es la función principal de una máscara de subred?', 'Junto con la dirección IP se indica la máscara de subred, que define el tamaño de la red.', 1, 'intermedio', 1),
+  (1003, '¿Qué protocolo asigna direcciones IP automáticamente a los dispositivos de una red?', 'Cuando un dispositivo se conecta a una red, puede recibir su configuración automáticamente en lugar de cargarla a mano.', 2, 'intermedio', 1),
+  (1004, '¿Cuál es la función principal de un switch en una red LAN?', 'Dentro de una red local hay equipos que concentran las conexiones y deciden por dónde sale cada trama.', 3, 'intermedio', 1),
+  (1005, '¿Qué función cumple un punto de acceso inalámbrico (Access Point)?', 'Los dispositivos inalámbricos necesitan un equipo que reciba su señal y la conecte con el resto de la red.', 4, 'intermedio', 1),
+  (1006, '¿Qué protocolo traduce nombres de dominio como ejemplo.com a direcciones IP?', 'Escribir un nombre es más fácil que recordar números y algún servicio tiene que hacer la traducción.', 3, 'intermedio', 1),
+  (1007, '¿Qué función cumple la tecnología SMART en las unidades de almacenamiento?', 'Los discos modernos registran datos internos sobre su estado y su salud a lo largo del tiempo.', 6, 'intermedio', 1),
+  (1008, '¿Qué puede indicar una pantalla azul recurrente en Windows?', 'Windows muestra una pantalla azul cuando no puede continuar funcionando por un problema serio.', 5, 'intermedio', 1),
+  (1009, '¿Cuál es la finalidad de realizar una copia de seguridad?', 'Los datos pueden perderse por fallas, robos o errores. Una copia permite volver atrás.', 6, 'intermedio', 1),
+  (1010, '¿Qué es la pasta térmica?', 'Entre el procesador y el disipador no deben quedar bolsas de aire: por eso se usa un compuesto especial.', 5, 'intermedio', 1),
+  (1011, '¿Qué tipo de mantenimiento busca evitar fallas futuras?', 'El mantenimiento puede hacerse antes de que aparezca la falla, después, o para mejorar el rendimiento.', 5, 'intermedio', 1),
+  (1012, '¿Qué significa que la memoria RAM sea volátil?', 'La RAM es rápida y se usa como espacio de trabajo, pero no está pensada para conservar datos a largo plazo.', 7, 'intermedio', 1),
+  (1013, '¿Para qué sirven las cookies de un navegador?', 'Los sitios necesitan recordar quién sos y qué preferís entre una página y otra. Para eso usan pequeños archivos.', 8, 'intermedio', 1),
+  (1014, '¿Qué hace el modo incógnito de un navegador?', 'El modo incógnito cambia lo que el navegador guarda en el dispositivo, no lo que ve la red ni el proveedor.', 8, 'intermedio', 1),
+  (1015, 'En la dirección https://www.escuela.edu.ar/aula/notas, ¿qué parte indica el protocolo?', 'Una URL tiene varias partes: el protocolo, el dominio, la ruta y, a veces, parámetros.', 9, 'intermedio', 1),
+  (1016, '¿Qué indica el dominio en una dirección web?', 'El dominio es la parte de la URL que se registra y se escribe en el navegador para llegar a un sitio.', 9, 'intermedio', 1),
+  (1017, '¿Qué es el ancho de banda?', 'No es lo mismo tener más velocidad que más capacidad: el ancho de banda habla de cuánto puede pasar a la vez.', 10, 'intermedio', 1),
+  (1018, '¿Qué significa tener una latencia alta?', 'La latencia no mide cuántos datos pasan, sino cuánto tardan en llegar. Se nota en videollamadas y juegos en línea.', 10, 'intermedio', 1),
+  (1019, '¿Qué es la autenticación de dos factores (2FA)?', 'Además de la contraseña, algunos servicios piden una segunda prueba para confirmar tu identidad.', 11, 'intermedio', 1),
+  (1020, '¿Para qué sirve un gestor de contraseñas?', 'Recordar decenas de claves distintas es difícil, por eso existen herramientas que las administran por vos.', 11, 'intermedio', 1),
+  (1021, '¿Por qué no conviene usar la misma contraseña en varios sitios?', 'Si una base de datos filtrada contiene tu clave, los atacantes la prueban en otros servicios.', 11, 'intermedio', 1),
+  (1022, '¿Qué es el smishing?', 'El prefijo sms- da una pista: el engaño usa mensajes de texto o de aplicaciones de mensajería.', 12, 'intermedio', 1),
+  (1023, '¿Qué es el vishing?', 'El prefijo vishing viene de voz: el contacto se hace por teléfono.', 12, 'intermedio', 1),
+  (1024, 'Recibís un correo urgente con un enlace que pide tus datos. ¿Qué conviene hacer?', 'Los pedidos urgentes por correo suelen buscar que actúes sin pensar. Ante la duda, frená y verificá.', 12, 'intermedio', 1),
+  (1025, '¿Qué es un proceso?', 'Un programa guardado en el disco no hace nada hasta que el sistema lo carga y lo pone a ejecutar.', 13, 'intermedio', 1),
+  (1026, '¿Qué hace el sistema de archivos?', 'El sistema operativo necesita una forma de ordenar los datos en el disco y de encontrarlos después.', 13, 'intermedio', 1),
+  (1027, '¿Para qué sirven los permisos de usuario?', 'En un equipo pueden trabajar varias personas: el sistema decide quién puede hacer qué con cada archivo.', 13, 'intermedio', 1),
+  (1028, '¿Por qué conviene instalar las actualizaciones del sistema?', 'El software cambia y aparecen fallas nuevas. Los fabricantes publican correcciones periódicamente.', 13, 'intermedio', 1),
+  (1029, '¿Qué son los permisos de una aplicación móvil?', 'Las aplicaciones móviles piden acceso a funciones del teléfono y a datos personales.', 14, 'intermedio', 1),
+  (1030, '¿Cuál es la diferencia principal entre Android e iOS?', 'Android e iOS tienen interfaces, tiendas y formas de actualización diferentes.', 14, 'intermedio', 1)
 ON DUPLICATE KEY UPDATE
   titulo = VALUES(titulo),
   descripcion = VALUES(descripcion),
