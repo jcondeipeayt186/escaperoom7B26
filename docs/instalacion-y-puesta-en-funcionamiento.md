@@ -331,6 +331,16 @@ mysql -u escaperoom -p < bd/seeds/002_contenido_intermedio.sql
 mysql -u escaperoom -p < bd/seeds/003_contenido_avanzado.sql
 ```
 
+Para cargar **estructura y contenido de una sola vez**:
+
+```bash
+mysql -u escaperoom -p < bd/escape_room_7b2026_completa.sql
+```
+
+Ese archivo crea las tablas, carga el contenido, habilita los tres niveles y no
+trae historial de partidas. **Elimina y vuelve a crear las 12 tablas**, así que
+no usarlo sobre una base con partidas sin backup.
+
 Los seeds son **idempotentes**: se pueden ejecutar dos veces sin duplicar filas. Al reejecutarlos se actualizan los textos de preguntas, opciones y descripciones, así que pisan lo que se haya editado desde `/admin`.
 
 ### 5.4 Verificar

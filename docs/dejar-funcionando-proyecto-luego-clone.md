@@ -313,6 +313,17 @@ mysql -u escaperoom -p < bd/seeds/002_contenido_intermedio.sql
 mysql -u escaperoom -p < bd/seeds/003_contenido_avanzado.sql
 ```
 
+Para cargar todo de una sola vez, con estructura, contenido y los tres niveles
+habilitados:
+
+```bash
+mysql -u escaperoom -p < bd/escape_room_7b2026_completa.sql
+```
+
+Ese archivo elimina y vuelve a crear las 12 tablas, así que borra equipos e
+intentos si la base ya se usó. Es una instantánea generada desde `bd/schema.sql`
+y los seeds: si cambia el contenido, hay que regenerarla.
+
 Cuando pida la clave, ingresar la misma de `MYSQL_PASSWORD`.
 
 ### 7.4 Verificar

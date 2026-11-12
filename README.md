@@ -7,7 +7,7 @@ Aplicación web para la Feria de Producciones del IPEATyM 186 Castagnari (16/11/
 - `docs/proyectoEscapeRoom-7B.md` — título y reseña breve del proyecto.
 - `docs/escape-room.md` — requisitos funcionales y contenido inicial.
 - `docs/primeros-pasos.md` — hoja de ruta y guion de pedidos, paso a paso.
-- `docs/argumentos-pasos/` — un archivo por paso (`paso00` a `paso12`, más `paso11b`, `paso11c` y el `paso13` opcional de Docker post-feria), listo para usar con `/feature`. Incluye el índice y los criterios de aceptación.
+- `docs/argumentos-pasos/` — un archivo por paso (`paso00` a `paso12`, más `paso11b`, `paso11c`, `paso11d` y el `paso13` opcional de Docker post-feria), listo para usar con `/feature`. Incluye el índice y los criterios de aceptación.
 - `docs/navegacion-por-app.md` — pantallas, rutas, elementos y objetivos.
 - `docs/tecnologias.md` — stack explicado: frontend, backend, base de datos y herramientas.
 - `docs/instalacion-y-puesta-en-funcionamiento.md` — instalación en Ubuntu y uso desde las notebooks.
@@ -36,6 +36,19 @@ idempotentes: se pueden volver a ejecutar sin duplicar filas y no reactivan
 contenido desactivado desde `/admin`. Tampoco habilitan los niveles ni tocan
 `configuracion`: `intermedio` y `avanzado` se habilitan desde
 `/admin/dificultades` cuando la cobertura está completa.
+
+Para cargar **estructura y contenido de una sola vez**:
+
+```bash
+mysql -u <usuario> -p < bd/escape_room_7b2026_completa.sql
+```
+
+Ese archivo es una instantánea generada desde `bd/schema.sql` y los tres
+seeds. Deja las 5 estaciones, 14 temas, 80 preguntas, 240 respuestas y las tres
+dificultades habilitadas, sin equipos ni intentos. **Elimina y vuelve a crear
+las 12 tablas**, así que hay que hacer backup antes de usarlo sobre una base
+con partidas. La fuente de verdad sigue siendo `bd/schema.sql` más los seeds:
+si cambia el contenido, hay que regenerar el archivo completo.
 
 ## Puesta en marcha (desarrollo)
 

@@ -6,6 +6,8 @@
 --
 -- Este archivo crea la base y las tablas. No carga contenido: para eso usar
 --   mysql -u <usuario> -p < bd/seeds/001_contenido_inicial.sql
+-- o, para cargar estructura y contenido de una sola vez:
+--   mysql -u <usuario> -p < bd/escape_room_7b2026_completa.sql
 --
 -- Convenciones:
 --   * snake_case para tablas y columnas.

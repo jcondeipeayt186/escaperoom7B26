@@ -372,6 +372,10 @@ mysql -u <usuario> -p < bd/seeds/001_contenido_inicial.sql
 mysql -u <usuario> -p < bd/seeds/002_contenido_intermedio.sql
 mysql -u <usuario> -p < bd/seeds/003_contenido_avanzado.sql
 
+# Alternativa: estructura y contenido de una sola vez.
+# Elimina y vuelve a crear las 12 tablas: hacer backup si la base ya se usó.
+mysql -u <usuario> -p < bd/escape_room_7b2026_completa.sql
+
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
