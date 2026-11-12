@@ -2,7 +2,7 @@
 
 Guía para dejar la aplicación del **Escape Room 7.º B 2026** funcionando en un servidor **Ubuntu** y usarla desde las notebooks conectadas a la misma red.
 
-> Estado: la aplicación Flask **todavía no está implementada**. Esta guía se puede seguir cuando exista el scaffold (Pedido 1 de `docs/primeros-pasos.md`) y el archivo `requirements.txt`. Los pasos de Ubuntu, MySQL y red se pueden probar desde ahora.
+> Estado: la aplicación Flask **ya está implementada**. Esta guía queda para la puesta en marcha del servidor (paso 12) y se puede seguir completa.
 
 ## Contenido
 
@@ -331,7 +331,7 @@ mysql -u escaperoom -p < bd/seeds/002_contenido_intermedio.sql
 mysql -u escaperoom -p < bd/seeds/003_contenido_avanzado.sql
 ```
 
-Los seeds son **idempotentes**: se pueden ejecutar dos veces sin duplicar filas.
+Los seeds son **idempotentes**: se pueden ejecutar dos veces sin duplicar filas. Al reejecutarlos se actualizan los textos de preguntas, opciones y descripciones, así que pisan lo que se haya editado desde `/admin`.
 
 ### 5.4 Verificar
 
@@ -549,6 +549,7 @@ Recomendaciones:
 - Desactivar el protector de pantalla y la suspensión.
 - Zoom al 125 % o 150 % si no se lee a distancia.
 - No cerrar la pestaña durante la feria.
+- La vista muestra una tabla por nivel y se actualiza sola cada 8 segundos.
 
 Opcional, si el televisor tiene Chromium:
 
@@ -578,7 +579,7 @@ Reglas prácticas:
 - **No borrar las cookies** durante la feria: la sesión mantiene el intento.
 - Si se cierra el navegador, volver a entrar con el **mismo nombre** y el **ID del equipo**.
 - Si el equipo ya tenía un intento activo, la app lo reanuda.
-- El audio de los 30 segundos se desbloquea con el primer clic en **Iniciar misión**.
+- El audio de los 30 segundos se desbloquea con la primera interacción (clic o tecla) dentro de la estación. Si el navegador lo bloquea, el aviso visual funciona igual.
 - No recargar justo después de enviar: esperar la transición.
 - El ranking del televisor se actualiza solo; no hay que refrescarlo a mano.
 
@@ -694,7 +695,9 @@ sudo mysql -e "DROP DATABASE escape_room_7b2026_restore;"
 ### 10.5 Congelar el contenido antes de la feria
 
 - Revisar preguntas, opciones y respuestas correctas.
-- Confirmar que solo está habilitada la dificultad `inicial`.
+- Revisar también las descripciones de `intermedio` y `avanzado`.
+- Confirmar en `/admin/dificultades` qué niveles están habilitados y que la bienvenida los muestre. Al 12/11/2026 están habilitados `inicial`, `intermedio` y `avanzado`.
+- Jugar una partida completa de `intermedio` y otra de `avanzado` para confirmar que entran al ranking de su nivel.
 - Hacer un backup.
 - No cargar contenido nuevo el día de la feria.
 - No ejecutar `apt upgrade` el mismo día.
@@ -731,7 +734,7 @@ Esta puesta en marcha no incluye HTTPS porque la red es local. Si más adelante 
 | `Table 'escape_room_7b2026.estacion' doesn't exist` | No se ejecutó `schema.sql`. | Cargar el esquema y el seed. |
 | `Address already in use` | Otro proceso usa el puerto 8000. | `sudo ss -tlnp \| grep 8000`, detener el proceso. |
 | El tiempo no coincide | Zona horaria distinta. | `timedatectl`, reiniciar MySQL y la app. |
-| El audio no suena | El navegador bloqueó el audio. | Tocar **Iniciar misión** antes; el aviso visual igual funciona. |
+| El audio no suena | El navegador bloqueó el audio. | Tocar o presionar una tecla dentro de la estación antes del aviso; el aviso visual igual funciona. |
 | El ranking no se actualiza | Error de JavaScript o `/ranking/datos`. | Abrir la consola del navegador y revisar la ruta. |
 | `502` o la app no responde | MySQL caído o credenciales mal. | `systemctl status mysql`, `journalctl -u escape-room`. |
 | El seed duplica datos | Se modificó el seed o los ids fijos. | Usar el seed original idempotente. |
@@ -940,7 +943,8 @@ Esta guía asume **Ubuntu**. Si la notebook del docente tiene Windows, las opcio
 - [ ] MySQL corriendo y escuchando solo en `127.0.0.1:3306`.
 - [ ] Base `escape_room_7b2026` creada con `bd/schema.sql`.
 - [ ] Usuario `escaperoom` con permisos solo sobre esa base, en `'localhost'` y en `'127.0.0.1'`.
-- [ ] Seed ejecutado y conteos verificados (5/14/20/60/9).
+- [ ] Seeds `001`, `002` y `003` ejecutados y conteos verificados (5/14/80/240/9).
+- [ ] Dificultades habilitadas revisadas en `/admin/dificultades`.
 - [ ] Proyecto copiado en `/opt/escape-room-7b2026`.
 - [ ] `.venv` creado y `requirements.txt` instalado.
 - [ ] `.env` con clave de Flask, clave de MySQL y hash del admin.
