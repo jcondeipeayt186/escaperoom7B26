@@ -40,9 +40,9 @@ avanzar hay que responder las 4 correctamente. Dos respuestas incorrectas en
 una estación, quedarse sin tiempo o abandonar eliminan al equipo. Al completar
 las cinco estaciones el intento entra al ranking de su nivel.
 
-La aplicación está pensada para funcionar **sin Internet**: Bootstrap, el audio
-y los gráficos son locales. Solo necesita la red del aula para que las
-notebooks y el televisor lleguen al servidor.
+La aplicación está pensada para funcionar **sin Internet**: Bootstrap, el audio,
+las imágenes institucionales y los gráficos son locales. Solo necesita la red
+del aula para que las notebooks y el televisor lleguen al servidor.
 
 ## 2. Cómo se juega
 
@@ -130,7 +130,13 @@ escaperoom7B26/
 │   │                                 # dificultades, intentos activos, estadísticas, login
 │   ├── static/
 │   │   ├── css/publico.css           # Estilos de las pantallas públicas
+│   │   ├── css/institucional.css     # Logo y foto institucional compartidos
 │   │   ├── css/temporizadores.css    # Contadores y aviso de 30 segundos
+│   │   ├── img/logo-casta.png        # Logo para encabezados y pie (256 px)
+│   │   ├── img/favicon-32.png        # Ícono de la pestaña
+│   │   ├── img/favicon.ico           # Ícono de la pestaña (16, 32 y 48 px)
+│   │   ├── img/apple-touch-icon.png  # Ícono para la pantalla de inicio de iOS
+│   │   ├── img/frente-cole.jpg       # Foto de portada de la bienvenida (1600 px)
 │   │   ├── js/juego.js               # Confirmaciones y envío
 │   │   ├── js/temporizadores.js      # Cuenta local y sincronización con /juego/estado
 │   │   ├── js/ranking.js             # Polling de /ranking/datos cada 8 segundos
@@ -501,6 +507,7 @@ La configuración está en `pytest.ini` (`testpaths = tests` y
 
 | Área | Qué está implementado |
 | --- | --- |
+| Imágenes institucionales | Logo de la escuela en la bienvenida, el ranking y el pie; foto del frente en la portada; favicon e ícono de iOS. Todos los derivados viven en `app/static/img/` (menos de 200 KB), se sirven localmente y no dependen de Internet. |
 | Bienvenida e identidad | Formulario con nombre, integrantes (1–4) y dificultades habilitadas. Nombre único; si existe, pide el ID del equipo y no lo duplica. Reanuda el intento activo o crea uno nuevo. |
 | Selección de preguntas | 4 preguntas del nivel, al menos una por tema activo, sorteadas y congeladas en `intento_pregunta`. Con más de 4 temas se eligen 4 temas al azar. Recargar no cambia nada. |
 | Estaciones y envíos | 5 estaciones en orden, sin saltos por URL. Cada envío exige una opción por pregunta y guarda las 4 respuestas en `respuesta_elegida` y las falladas en `incorrecta`. |

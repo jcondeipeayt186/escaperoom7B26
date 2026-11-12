@@ -16,7 +16,17 @@
   data-intervalo="{{ intervalo_ms }}"
 >
   <header class="ranking__cabecera">
-    <h1 class="ranking__titulo">Ranking Escape Room 7.º B</h1>
+    <div class="ranking__marca">
+      <img
+        src="{{ url_for('static', filename='img/logo-casta.png') }}"
+        alt=""
+        width="96"
+        height="95"
+        class="ranking__logo"
+        decoding="async"
+      >
+      <h1 class="ranking__titulo">Ranking Escape Room 7.º B</h1>
+    </div>
     <p class="ranking__actualizacion" aria-live="polite">
       Última actualización:
       <span id="ranking-hora">{{ actualizado }}</span>

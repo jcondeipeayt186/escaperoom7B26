@@ -62,7 +62,7 @@ Todas las pantallas usan una plantilla base (`templates/base.html`) con:
 - Bootstrap local desde `static/vendor/` (sin CDN).
 - Tipografía grande y botones amplios, pensados para usarse de pie y a distancia.
 - Un bloque de mensajes flash para errores y confirmaciones.
-- Un pie discreto con la versión y el enlace a `/estadisticas` (nunca a `/admin`).
+- Un pie discreto con el logo de la escuela, el nombre institucional y sin enlaces de administración.
 
 ### HUD del intento
 
@@ -90,7 +90,9 @@ El HUD se alimenta del servidor. El JavaScript solo dibuja la cuenta regresiva e
 
 Elementos:
 
+- Logo del IPEATyM 186 Castagnari arriba del título.
 - Título y bajada de la feria.
+- Foto del frente del edificio entre el encabezado y el formulario.
 - Campo **Nombre del equipo** (obligatorio, máximo 120 caracteres).
 - Selector **Cantidad de integrantes** (1 a 4, obligatorio).
 - Selector **Dificultad** con solo las opciones habilitadas en `configuracion`. `inicial` siempre está; `intermedio` y `avanzado` aparecen solo si están habilitadas.
@@ -232,7 +234,7 @@ Comportamiento:
 
 Elementos:
 
-- Título **"Ranking Escape Room 7.º B"**.
+- Logo de la escuela a la izquierda del título **"Ranking Escape Room 7.º B"**.
 - Una sección y una tabla por nivel, con el nombre del nivel como encabezado: posición, equipo, número de intento, tiempo total, incorrectas, ayudas y fecha de fin.
 - Indicador de última actualización.
 - Aviso general si todavía no hay intentos completados y aviso por nivel si ese nivel todavía no tiene equipos.

@@ -1,0 +1,22 @@
+/* Imágenes institucionales compartidas por todas las pantallas. */
+
+.footer-logo {
+  height: 2rem;
+  width: auto;
+}
+
+.bienvenida__logo {
+  height: clamp(5rem, 14vw, 8rem);
+  width: auto;
+}
+
+.bienvenida__frente {
+  max-width: 42rem;
+  margin-inline: auto;
+}
+
+.bienvenida__frente img {
+  display: block;
+  width: 100%;
+  height: auto;
+}

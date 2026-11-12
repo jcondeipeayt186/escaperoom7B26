@@ -204,3 +204,31 @@ def test_estadisticas_publicas_solo_agregados(cliente, db):
     assert "equipo_id" not in html
     assert "respuesta_id" not in html
     assert "correcta" not in html.lower()
+
+
+def test_imagenes_institucionales_locales(cliente):
+    inicio = cliente.get("/").get_data(as_text=True)
+    assert "img/logo-casta.png" in inicio
+    assert "img/frente-cole.jpg" in inicio
+    assert "docs/img" not in inicio
+
+    ranking = cliente.get("/ranking").get_data(as_text=True)
+    assert "img/logo-casta.png" in ranking
+    assert "docs/img" not in ranking
+
+    for ruta in (
+        "/static/img/logo-casta.png",
+        "/static/img/favicon.ico",
+        "/static/img/favicon-32.png",
+        "/static/img/apple-touch-icon.png",
+        "/static/img/frente-cole.jpg",
+    ):
+        respuesta = cliente.get(ruta)
+        assert respuesta.status_code == 200
+        assert respuesta.mimetype.startswith("image/")
+
+
+def test_pie_con_logo_en_todas_las_pantallas(cliente):
+    for ruta in ("/", "/ranking", "/estadisticas", "/admin", "/no-existe"):
+        html = cliente.get(ruta).get_data(as_text=True)
+        assert "footer-logo" in html

@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titulo %}Escape Room 7.º B 2026{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/bootstrap.min.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32"
+        href="{{ url_for('static', filename='img/favicon-32.png') }}">
+  <link rel="apple-touch-icon" sizes="180x180"
+        href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/institucional.css') }}">
   {% block estilos %}{% endblock %}
 </head>
 <body class="d-flex flex-column min-vh-100">
@@ -20,8 +26,19 @@
     {% block contenido %}{% endblock %}
   </main>
 
-  <footer class="container py-3 text-center text-body-secondary small">
-    Escape Room 7.º B 2026 · IPEATyM 186 Castagnari
+  <footer class="container py-3 text-body-secondary small">
+    <div class="d-flex flex-wrap align-items-center justify-content-center gap-2 text-center">
+      <img
+        src="{{ url_for('static', filename='img/logo-casta.png') }}"
+        alt=""
+        width="32"
+        height="32"
+        class="footer-logo"
+        loading="lazy"
+        decoding="async"
+      >
+      <span>Escape Room 7.º B 2026 · IPEATyM 186 Castagnari</span>
+    </div>
   </footer>
 
   <script src="{{ url_for('static', filename='vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>

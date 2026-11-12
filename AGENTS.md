@@ -116,7 +116,14 @@ app/
     admin/
   static/
     css/
+      institucional.css
       temporizadores.css
+    img/
+      logo-casta.png
+      favicon-32.png
+      favicon.ico
+      apple-touch-icon.png
+      frente-cole.jpg
     js/
       juego.js
       temporizadores.js
@@ -346,6 +353,7 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 59. **Ranking por nivel:** `posicion` es la posición general y `posicion_nivel` la del nivel del intento, calculada con `PARTITION BY dificultad`. Ambas usan el mismo orden (tiempo, incorrectas, ayudas, `fecha_inicio`, `id`). La pantalla final muestra la posición de nivel como principal, el top 10 del nivel y el ranking completo con columna **Nivel** y filtro por nivel. La vista pública muestra una tabla por nivel: `inicial` siempre, y los demás si están habilitados en `configuracion` o si ya tienen intentos completados. Los niveles sin filas muestran su mensaje de vacío. Esta decisión amplía las 39, 41 y 42 sin reemplazarlas.
 60. **Docker post-feria:** queda como taller educativo opcional en el `paso13`, después del 16/11. No reemplaza waitress/systemd del `paso12`, no se agrega a `requirements.txt` ni se usa en la feria. La base del taller es independiente de la base real y los seeds se cargan solo al crear el volumen. Cualquier cambio de alcance requiere consultar.
 61. **Descripciones de preguntas:** `pregunta.descripcion` es una mini ayuda de contexto que se muestra debajo del enunciado en `app/templates/estacion.html`. Se completa en los niveles `intermedio` y `avanzado`; las 20 preguntas de `inicial` quedan en `NULL` para que ese nivel se juegue sin ayuda extra. No es una pista y no debe nombrar ni parafrasear la respuesta correcta. Los textos viven en los seeds `002` y `003`, no llevan punto y coma porque el cargador de seeds de las pruebas separa las sentencias con ese signo, y reejecutar los seeds pisa lo editado desde `/admin`, igual que el título.
+62. **Imágenes institucionales:** los derivados optimizados (`logo-casta.png`, `favicon-32.png`, `favicon.ico`, `apple-touch-icon.png` y `frente-cole.jpg`) viven en `app/static/img/` y se referencian con `url_for('static', ...)`. Los originales quedan intactos en `docs/img/`, nunca se usan como `src` y no se copian completos. El total de los derivados no supera los 200 KB y la app sigue funcionando sin Internet. Se generan con Pillow como herramienta de preparación, nunca como dependencia de la aplicación. El logo es decorativo (`alt=""`) cuando el texto de al lado ya nombra a la escuela y lleva `alt` descriptivo cuando es la única identificación. El pie de `base.html` incluye el logo en todas las pantallas.
 
 ## Convenciones de código
 
@@ -356,6 +364,7 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 - Transacciones para registrar un intento, envíos, respuestas y ayudas.
 - Configuración por variables de entorno; incluir `.env.example` y nunca commitear credenciales.
 - Bootstrap y JS local en `static/`; no depender de CDN para el funcionamiento en el aula.
+- Las imágenes institucionales se sirven desde `app/static/img/` con `url_for`; los originales de `docs/img/` no se editan, no se mueven y no se usan como `src`.
 - Preguntas, opciones y respuestas correctas deben vivir en la base de datos y cargarse con seeds idempotentes (`bd/seeds/001_contenido_inicial.sql`, `002_contenido_intermedio.sql` y `003_contenido_avanzado.sql`). No duplicarlas en plantillas ni en varios archivos JS. Las pistas no se guardan en la base: están en `docs/pistas-del-juego.md` y en el PDF, y las leen los estudiantes.
 - Las preguntas del prototipo, de `docs/ESCAPE ROOM.pdf` y de `docs/banco-preguntas-intermedio-avanzado.md` son la fuente de contenido; unificar diferencias antes de cargarlas.
 - No agregar autenticación de participantes ni registro público. El único login es el de administración.
@@ -420,6 +429,7 @@ Priorizar pruebas automatizadas para:
 - Panel `/admin` sin Chart.js ni referencias a CDN.
 - Borrado lógico de contenido sin romper intentos históricos.
 - Estadísticas públicas sin nombres de equipos ni respuestas correctas.
+- Las cinco imágenes institucionales responden `200` desde `/static/img/`, la bienvenida y el ranking las referencian y el pie con logo aparece en todas las pantallas. El HTML público no contiene rutas `docs/img`.
 - `/ranking/datos` devuelve solo intentos completados, agrupados por nivel, en el orden del ranking y sin `equipo_id`.
 - `/estadisticas` no expone nombres de equipos, `respuesta_id`, `equipo_id` ni la palabra “correcta”.
 - La tabla de `/ranking` se conserva y muestra **Reconectando…** cuando falla el polling.
@@ -468,6 +478,7 @@ Verificación manual antes de entregar:
 - No hardcodear preguntas, respuestas, credenciales ni tiempos en múltiples lugares.
 - No commitear `.env`, volcados de base de datos ni archivos generados.
 - No mostrar ni cargar pistas en la aplicación: solo se registran las ayudas.
+- No usar `docs/img/...` como `src` ni copiar los originales completos a `app/static/`; los derivados van en `app/static/img/`.
 - No permitir dos equipos con el mismo nombre ni crear un equipo nuevo cuando la bienvenida pide el ID.
 
 ## Forma de trabajar

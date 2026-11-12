@@ -110,7 +110,7 @@ Regla de sincronización:
 | `paso11b-ranking-por-nivel.md` | feat | Pedido 11b | paso11 | `feat: ranking por nivel` | hecho |
 | `paso11c-contenido-intermedio.md` | feat | Pedido 11c | paso11b | `feat: contenido intermedio y avanzado` | hecho |
 | `paso11-d-agregando-descripcion.md` | feat | Pedido 11d | paso11c | `feat: descripciones de preguntas` | hecho |
-| `paso11e-agregarimagenes.md` | feat | Pedido 11e | paso11d | `feat: imágenes institucionales en la interfaz` | pendiente |
+| `paso11e-agregarimagenes.md` | feat | Pedido 11e | paso11d | `feat: imágenes institucionales en la interfaz` | hecho |
 | `paso12-congelar-y-puesta-en-marcha.md` | infra | Pedido 12 | paso11e | `docs: puesta en marcha y respaldo` | pendiente |
 | `paso13-docker-taller-post-feria.md` | infra | Pedido 13 | paso12 | `build: docker compose para taller post-feria` | pendiente |
 

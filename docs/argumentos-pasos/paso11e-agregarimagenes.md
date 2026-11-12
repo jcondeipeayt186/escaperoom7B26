@@ -11,7 +11,11 @@
 
 ## Estado
 
-Pendiente.
+Implementado y verificado el 12/11/2026. Los cinco derivados se generaron con
+Pillow en `app/static/img/` y suman unos 164 KB. La bienvenida muestra el logo
+y la foto del frente, el ranking el logo junto al título y el pie de
+`base.html` el logo en todas las pantallas. `pytest -q` pasa dos veces
+seguidas con 92 tests. Los originales de `docs/img/` quedaron intactos.
 
 ## Contexto
 
