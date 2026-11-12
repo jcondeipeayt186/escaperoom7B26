@@ -111,7 +111,8 @@ Regla de sincronización:
 | `paso11c-contenido-intermedio.md` | feat | Pedido 11c | paso11b | `feat: contenido intermedio y avanzado` | hecho |
 | `paso11-d-agregando-descripcion.md` | feat | Pedido 11d | paso11c | `feat: descripciones de preguntas` | hecho |
 | `paso11e-agregarimagenes.md` | feat | Pedido 11e | paso11d | `feat: imágenes institucionales en la interfaz` | hecho |
-| `paso12-congelar-y-puesta-en-marcha.md` | infra | Pedido 12 | paso11e | `docs: puesta en marcha y respaldo` | pendiente |
+| `paso11f-capturas-navegacion.md` | infra | Pedido 11f | paso11e | `docs: capturas de navegación en tamaño móvil` | pendiente |
+| `paso12-congelar-y-puesta-en-marcha.md` | infra | Pedido 12 | paso11f | `docs: puesta en marcha y respaldo` | pendiente |
 | `paso13-docker-taller-post-feria.md` | infra | Pedido 13 | paso12 | `build: docker compose para taller post-feria` | pendiente |
 
 Estados posibles: `pendiente`, `en curso`, `hecho`.
@@ -134,7 +135,7 @@ llegar al **MVP jugable** (`paso06`) y recién después seguir.
 | D | 06 | Recorrido completo. **Corte: MVP jugable.** |
 | E | 07 | Prueba manual con dos o tres personas. |
 | F | 08, 09, 10 | Ranking público, estadísticas y admin. |
-| G | 11, 11b, 11c, 11d, 11e, 12 | Tests, ranking por nivel, contenido intermedio y avanzado, descripciones breves, imágenes institucionales, backup y puesta en marcha. |
+| G | 11, 11b, 11c, 11d, 11e, 11f, 12 | Tests, ranking por nivel, contenido intermedio y avanzado, descripciones breves, imágenes institucionales, capturas de navegación, backup y puesta en marcha. |
 | H | 13 | Docker educativo, posterior a la feria. |
 
 El paso 13 (Docker) es opcional y posterior a la feria. No reemplaza el camino
