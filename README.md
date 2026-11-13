@@ -520,15 +520,18 @@ La configuración está en `pytest.ini` (`testpaths = tests` y
 | Administración | Login, panel con 12 tablas, CRUD con filtros y baja lógica, cobertura estación × nivel, toggles de dificultad, intentos activos y estadísticas con filtros. |
 | Seguridad | Respuestas correctas solo en el servidor, CSRF en todos los POST, sesión de admin separada, `.env` fuera de Git y sin credenciales en el HTML. |
 
-Para el detalle pantalla por pantalla, ver `docs/navegacion-por-app.md`.
+Para el detalle pantalla por pantalla, ver `docs/navegacion-por-app.md`. El
+recorrido con capturas en tamaño móvil, incluidos intentos completos y no
+completados, está en `docs/navegacion-capturas.md`.
 
 ## 13. Documentación
 
 - `docs/proyectoEscapeRoom-7B.md` — título y reseña breve del proyecto.
 - `docs/escape-room.md` — requisitos funcionales y contenido inicial.
 - `docs/primeros-pasos.md` — hoja de ruta y guion de pedidos, paso a paso.
-- `docs/argumentos-pasos/` — un archivo por paso (`paso00` a `paso12`, más `paso11b`, `paso11c`, `paso11d` y el `paso13` opcional de Docker post-feria), listo para usar con `/feature`. Incluye el índice y los criterios de aceptación.
+- `docs/argumentos-pasos/` — un archivo por paso (`paso00` a `paso12`, más `paso11b`, `paso11c`, `paso11d`, `paso11e`, `paso11f` y el `paso13` opcional de Docker post-feria), listo para usar con `/feature`. Incluye el índice y los criterios de aceptación.
 - `docs/navegacion-por-app.md` — pantallas, rutas, elementos y objetivos.
+- `docs/navegacion-capturas.md` — recorrido con capturas en tamaño móvil, con intentos completos y no completados.
 - `docs/tecnologias.md` — stack explicado: frontend, backend, base de datos y herramientas.
 - `docs/instalacion-y-puesta-en-funcionamiento.md` — instalación en Ubuntu y uso desde las notebooks (escenario A).
 - `docs/instalacion-servidor-escuela.md` — servidor Linux de la escuela (escenario B) y base remota con la app en la notebook (escenario C).

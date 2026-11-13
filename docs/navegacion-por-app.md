@@ -12,6 +12,10 @@ Fuentes de verdad:
 - `AGENTS.md` — decisiones registradas y reglas del juego.
 - `sql/descripcion-de-la-base-de-datos.md` — modelo de datos.
 
+Complemento visual: `docs/navegacion-capturas.md` recorre estas mismas
+pantallas con capturas en tamaño móvil, incluyendo intentos completos y no
+completados.
+
 ---
 
 ## 1. Mapa de rutas

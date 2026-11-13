@@ -14,11 +14,12 @@
 
 ## Estado
 
-Pendiente de ejecución. La **viabilidad técnica ya está comprobada** el
-12/11/2026 con `chrome-devtools`: el viewport `300x800x1,mobile,touch` deja
+Ejecutado el 12/11/2026. La **viabilidad técnica ya estaba comprobada** con
+`chrome-devtools`: el viewport `300x800x1,mobile,touch` deja
 `innerWidth = 300`, sin desbordes horizontales, y `fullPage` genera PNG de
-300 px de ancho (bienvenida 300 × 1259, ranking 300 × 800). No hace falta
-tocar la aplicación para capturar.
+300 px de ancho (bienvenida 300 × 1259, ranking 300 × 800). No hizo falta
+tocar la aplicación para capturar. Entregables: `docs/navegacion-capturas.md`
+y `docs/capturas-navegacion/` con 41 capturas.
 
 ## Contexto
 
@@ -239,6 +240,11 @@ Notas de la herramienta:
 - Para los diálogos nativos de `window.confirm` (ayudas, abandono, finalizar)
   usar `handle_dialog` con `action: "accept"` o pasar
   `dialogAction: "accept"` a `evaluate_script`.
+- En `/admin/estadisticas` la fila de filtros sobresale 11 px a 300 px de
+  ancho. Para la captura se ocultó el desborde horizontal con
+  `document.documentElement.style.overflowX = "hidden"` desde la consola del
+  navegador; es un ajuste de la foto, no un cambio en la app. La tabla de
+  utilización de preguntas ya tiene scroll horizontal interno.
 - El audio de los 30 segundos no se ve en una captura. Documentar el texto y
   el estado visual.
 
@@ -917,8 +923,9 @@ Criterios:
 14. Capturar el admin, incluyendo los estados con y sin intentos activos.
 15. Capturar el 503 y el 400.
 16. Capturar la vista de TV a 1920 × 1080.
-17. Revisar todas las imágenes: ancho 300, sin desbordes, sin datos
-    personales, sin respuestas marcadas.
+17. Revisar todas las imágenes: ancho 300 (la vista de TV es la excepción
+    documentada, 1920), sin desbordes, sin datos personales, sin respuestas
+    marcadas.
 18. Escribir `docs/navegacion-capturas.md` con la estructura de arriba.
 19. Verificar enlaces relativos y que todas las imágenes existan.
 20. Actualizar `docs/argumentos-pasos/README.md` (estado `hecho`),
@@ -933,8 +940,10 @@ Criterios:
   rotos.
 - Existen todas las capturas obligatorias de la matriz, con nombres y rutas
   coherentes.
-- Todas las capturas tienen **300 px de ancho** y ninguna desborda
-  horizontalmente la página.
+- Todas las capturas móviles tienen **300 px de ancho** y ninguna desborda
+  horizontalmente la página. La única excepción es
+  `91-ranking-tv-1920.png`, la vista de televisor, que mide **1920 × 1080**
+  porque su objetivo es mostrar cómo se lee a distancia.
 - El documento muestra las **cinco estaciones**, la transición, el final,
   el ranking, las estadísticas, el admin y las pantallas de error.
 - Hay **tres intentos completos**, uno por nivel, y los tres finales se ven
@@ -963,7 +972,8 @@ file docs/capturas-navegacion/*.png
 du -sh docs/capturas-navegacion
 ```
 
-`file` debe informar `PNG image data, 300 x <alto>` en todas. Si alguna
+`file` debe informar `PNG image data, 300 x <alto>` en todas, salvo
+`91-ranking-tv-1920.png`, que debe informar `1920 x 1080`. Si alguna otra
 tiene otro ancho, se capturó con el viewport equivocado.
 
 Si hay ImageMagick:

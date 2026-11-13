@@ -111,7 +111,7 @@ Regla de sincronización:
 | `paso11c-contenido-intermedio.md` | feat | Pedido 11c | paso11b | `feat: contenido intermedio y avanzado` | hecho |
 | `paso11-d-agregando-descripcion.md` | feat | Pedido 11d | paso11c | `feat: descripciones de preguntas` | hecho |
 | `paso11e-agregarimagenes.md` | feat | Pedido 11e | paso11d | `feat: imágenes institucionales en la interfaz` | hecho |
-| `paso11f-capturas-navegacion.md` | infra | Pedido 11f | paso11e | `docs: capturas de navegación en tamaño móvil` | pendiente |
+| `paso11f-capturas-navegacion.md` | infra | Pedido 11f | paso11e | `docs: capturas de navegación en tamaño móvil` | hecho |
 | `paso12-congelar-y-puesta-en-marcha.md` | infra | Pedido 12 | paso11f | `docs: puesta en marcha y respaldo` | pendiente |
 | `paso13-docker-taller-post-feria.md` | infra | Pedido 13 | paso12 | `build: docker compose para taller post-feria` | pendiente |
 
