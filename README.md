@@ -527,6 +527,7 @@ completados, está en `docs/navegacion-capturas.md`.
 ## 13. Documentación
 
 - `docs/proyectoEscapeRoom-7B.md` — título y reseña breve del proyecto.
+- `docs/guia-de-estudio-para-estudiantes.md` — qué estudiar para jugar o atender el stand y qué contiene cada archivo `.md`.
 - `docs/escape-room.md` — requisitos funcionales y contenido inicial.
 - `docs/primeros-pasos.md` — hoja de ruta y guion de pedidos, paso a paso.
 - `docs/argumentos-pasos/` — un archivo por paso (`paso00` a `paso12`, más `paso11b`, `paso11c`, `paso11d`, `paso11e`, `paso11f` y el `paso13` opcional de Docker post-feria), listo para usar con `/feature`. Incluye el índice y los criterios de aceptación.
