@@ -354,6 +354,7 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 60. **Docker post-feria:** queda como taller educativo opcional en el `paso13`, después del 16/11. No reemplaza waitress/systemd del `paso12`, no se agrega a `requirements.txt` ni se usa en la feria. La base del taller es independiente de la base real y los seeds se cargan solo al crear el volumen. Cualquier cambio de alcance requiere consultar.
 61. **Descripciones de preguntas:** `pregunta.descripcion` es una mini ayuda de contexto que se muestra debajo del enunciado en `app/templates/estacion.html`. Se completa en los niveles `intermedio` y `avanzado`; las 20 preguntas de `inicial` quedan en `NULL` para que ese nivel se juegue sin ayuda extra. No es una pista y no debe nombrar ni parafrasear la respuesta correcta. Los textos viven en los seeds `002` y `003`, no llevan punto y coma porque el cargador de seeds de las pruebas separa las sentencias con ese signo, y reejecutar los seeds pisa lo editado desde `/admin`, igual que el título.
 62. **Imágenes institucionales:** los derivados optimizados (`logo-casta.png`, `favicon-32.png`, `favicon.ico`, `apple-touch-icon.png` y `frente-cole.jpg`) viven en `app/static/img/` y se referencian con `url_for('static', ...)`. Los originales quedan intactos en `docs/img/`, nunca se usan como `src` y no se copian completos. El total de los derivados no supera los 200 KB y la app sigue funcionando sin Internet. Se generan con Pillow como herramienta de preparación, nunca como dependencia de la aplicación. El logo es decorativo (`alt=""`) cuando el texto de al lado ya nombra a la escuela y lleva `alt` descriptivo cuando es la única identificación. El pie de `base.html` incluye el logo en todas las pantallas.
+63. **Guía para estudiantes:** `docs/guia-de-estudio-para-estudiantes.md` es el documento de entrada para los equipos y para 7.º B. Explica qué estudiar según el nivel, el scaffolding del proyecto, el orden de lectura del código, el mapa de archivos `.md` y una instalación básica resumida para Ubuntu/Debian y Windows. No contiene respuestas correctas ni el texto de las pistas. El detalle de instalación sigue en `dejar-funcionando-proyecto-luego-clone.md`, `instalacion-y-puesta-en-funcionamiento.md` e `instalacion-servidor-escuela.md`. Se actualiza cuando cambian las rutas, la estructura o la puesta en marcha.
 
 ## Convenciones de código
 
@@ -460,7 +461,7 @@ Verificación manual antes de entregar:
 
 ## Qué no hacer
 
-- No modificar ni eliminar `docs/`, sus PDF ni los prototipos.
+- No modificar ni eliminar los PDF de `docs/`, los prototipos de `docs/src/` ni las imágenes originales de `docs/img/`. Los archivos `.md` de `docs/` sí se mantienen sincronizados con el proyecto.
 - No presentar `docs/src/index.html` como la aplicación final ni copiar su lógica de respuestas en el cliente.
 - No reutilizar `basededatos.py`, `basededatos_contador.db` ni `contador.php`; el stack es Flask + MySQL.
 - No ordenar el ranking por puntos como en el prototipo de ranking.
@@ -485,6 +486,7 @@ Verificación manual antes de entregar:
 
 - Haz solo lo que se pide: no añadas funcionalidades por tu cuenta.
 - Cambios pequeños y enfocados; no reescribas lo que ya funciona.
+- Mantené `docs/guia-de-estudio-para-estudiantes.md` sincronizada cuando cambien las rutas, la estructura o la puesta en marcha.
 - Al terminar, resume qué has cambiado y cualquier decisión que deba revisar.
 
 ## Límites

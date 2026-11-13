@@ -74,7 +74,7 @@ La administración de la aplicación debe permitir habilitar o deshabilitar las 
 
 escape-room-7B2026
 
-Aplicación para Feria de Producciones - 13 de noviembre de 2026
+Aplicación para Feria de Producciones - 16 de noviembre de 2026
 
 ---
 

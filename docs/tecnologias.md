@@ -20,7 +20,7 @@ Introducción al stack con el que se construye la aplicación de **Escape Room 7
   - [4.3 JavaScript](#43-javascript)
   - [4.4 Jinja2](#44-jinja2)
   - [4.5 Bootstrap](#45-bootstrap)
-  - [4.6 Chart.js](#46-chartjs)
+  - [4.6 Barras CSS](#46-barras-css)
 - [5. Backend](#5-backend)
   - [5.1 Python 3](#51-python-3)
   - [5.2 Flask](#52-flask)
@@ -44,7 +44,7 @@ Introducción al stack con el que se construye la aplicación de **Escape Room 7
 
 Hay que distinguir dos cosas:
 
-- **El stack** es lo que la aplicación usa cuando está funcionando: Python, Flask, Jinja2, MySQL, PyMySQL, HTML, CSS, JavaScript, Bootstrap y Chart.js.
+- **El stack** es lo que la aplicación usa cuando está funcionando: Python, Flask, Jinja2, MySQL, PyMySQL, HTML, CSS, JavaScript, Bootstrap y barras CSS generadas en el servidor.
 - **Las herramientas** son lo que se usa para desarrollarla, probarla o administrarla: `venv`, `pip`, `pytest`, `waitress`, Git, MySQL Workbench, phpMyAdmin o el cliente `mysql`.
 
 Las herramientas no forman parte del código de la app. Se pueden cambiar sin tocar el juego.
@@ -69,7 +69,7 @@ Cada tecnología se explica con la misma estructura:
 | Estructura | HTML | Contenido y semántica de cada pantalla. | `templates/` |
 | Estilos | CSS + Bootstrap local | Presentación, componentes y diseño responsive. | `static/css/`, `static/vendor/` |
 | Interacción | JavaScript local | Temporizadores visuales, audio, polling y confirmaciones. | `static/js/` |
-| Gráficos | Chart.js local | Cards y gráficos del panel de administración. | `static/vendor/` |
+| Gráficos | Barras CSS generadas en el servidor | Cards y gráficos del panel de administración y de las estadísticas públicas. | `app/templates/admin/estadisticas.html`, `app/templates/estadisticas.html`, `app/static/css/publico.css` |
 | Base de datos | MySQL 8 (InnoDB, `utf8mb4_unicode_ci`) | Equipos, intentos, contenido, envíos y respuestas. | `bd/schema.sql` |
 | Driver | PyMySQL | Conexión a MySQL con SQL parametrizado y transacciones. | `app/db.py` |
 | Configuración | python-dotenv + `.env` | Credenciales y parámetros fuera del código. | `.env.example`, `app/__init__.py` |
@@ -462,31 +462,33 @@ actualizarRanking();
 
 ---
 
-### 4.6 Chart.js
+### 4.6 Barras CSS
 
-**Qué es:** una biblioteca de JavaScript para dibujar gráficos en un `<canvas>`.
+**Qué es:** una forma de dibujar gráficos con `<div>` y estilos, sin librerías de JavaScript.
 
 **Para qué se usa acá:** para los gráficos del panel de administración: equipos, intentos, tiempos promedio, uso de preguntas y aciertos.
 
 ```html
-<canvas id="grafico-intentos" height="120"></canvas>
-<script src="{{ url_for('static', filename='vendor/chart.umd.min.js') }}"></script>
-<script>
-  new Chart(document.getElementById("grafico-intentos"), {
-    type: "bar",
-    data: {
-      labels: ["Completos", "Abandonos", "Por tiempo", "Por incorrectas"],
-      datasets: [{ data: [12, 3, 2, 5] }]
-    }
-  });
-</script>
+<span class="fw-semibold">Completos</span>
+<div
+  class="progress"
+  role="img"
+  aria-label="Completos: 12 intentos"
+>
+  <div class="progress-bar bg-primary" style="width: {{ estado.ancho }}%"></div>
+</div>
 ```
+
+El servidor calcula el porcentaje y lo escribe en `style="width: ..."`. En el
+panel se usa el componente `progress` de Bootstrap y, en las estadísticas
+públicas, las clases `estadisticas__barra` de `app/static/css/publico.css`. Así
+el gráfico funciona sin Internet y sin dependencias externas.
 
 **Qué evitar:**
 
-- No depender de la CDN de Chart.js.
-- No cargar el gráfico con datos inventados: los números salen de MySQL.
-- Si no se quiere ninguna dependencia, se puede reemplazar por barras SVG/CSS generadas en el servidor.
+- No calcular los porcentajes en el navegador con datos inventados: salen de MySQL.
+- No usar una librería de gráficos si alcanza con barras CSS.
+- No depender de una CDN.
 
 ---
 
@@ -848,7 +850,7 @@ El servidor sigue siendo la autoridad: JavaScript muestra los segundos, pero qui
 
 - **React, Vue u otro framework frontend**: la app es server-rendered y no lo necesita.
 - **ORM pesado, Docker u otra infraestructura**: no aportan a un proyecto de este tamaño.
-- **CDN**: Bootstrap, Chart.js y el audio van locales.
+- **CDN**: Bootstrap y el audio van locales.
 - **SQLite y PHP de `docs/src/ranking-puntajes/`**: son restos de un prototipo (`basededatos.py`, `.db`, `contador.php`). Solo se toma ese HTML como referencia visual; el stack es Flask + MySQL.
 - **PHP como lenguaje de la app**: phpMyAdmin puede ser una herramienta externa, pero no se escribe PHP para el juego.
 - **Pistas en la aplicación**: los textos están en `docs/ESCAPE ROOM.pdf` y los leen los estudiantes; la app solo registra las ayudas.

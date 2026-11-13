@@ -1,5 +1,9 @@
 # Dejar funcionando el proyecto luego de clonarlo
 
+> ¿Buscás el resumen para estudiantes? La
+> [`guia-de-estudio-para-estudiantes.md`](guia-de-estudio-para-estudiantes.md)
+> explica el proyecto y la instalación básica en 6 pasos.
+
 Guía paso a paso para pasar de un repositorio recién clonado a la aplicación
 funcionando en el navegador, en una máquina con **Ubuntu/Debian**. Cubre
 MySQL, la base de datos, el entorno virtual de Python, el archivo `.env`, la

@@ -269,6 +269,10 @@ Resumen para una máquina con Ubuntu/Debian, Python 3.10+ y MySQL 8.0+. La guía
 paso a paso, desde el clonado hasta recorrer la app, está en
 `docs/dejar-funcionando-proyecto-luego-clone.md`.
 
+Si buscás una versión resumida para estudiantes, con la explicación del proyecto
+y la instalación básica para Ubuntu/Debian y Windows, empezá por
+`docs/guia-de-estudio-para-estudiantes.md`.
+
 ```bash
 git clone <URL-DEL-REPOSITORIO> escaperoom7B26
 cd escaperoom7B26
@@ -527,7 +531,7 @@ completados, está en `docs/navegacion-capturas.md`.
 ## 13. Documentación
 
 - `docs/proyectoEscapeRoom-7B.md` — título y reseña breve del proyecto.
-- `docs/guia-de-estudio-para-estudiantes.md` — qué estudiar para jugar o atender el stand y qué contiene cada archivo `.md`.
+- `docs/guia-de-estudio-para-estudiantes.md` — qué estudiar, cómo está armado el proyecto, cómo leer el código, qué contiene cada archivo `.md` y una instalación básica para Ubuntu/Debian y Windows.
 - `docs/escape-room.md` — requisitos funcionales y contenido inicial.
 - `docs/primeros-pasos.md` — hoja de ruta y guion de pedidos, paso a paso.
 - `docs/argumentos-pasos/` — un archivo por paso (`paso00` a `paso12`, más `paso11b`, `paso11c`, `paso11d`, `paso11e`, `paso11f` y el `paso13` opcional de Docker post-feria), listo para usar con `/feature`. Incluye el índice y los criterios de aceptación.

@@ -398,7 +398,7 @@ Elementos:
 
 Elementos:
 
-- Gráficos con Chart.js local o barras SVG/CSS:
+- Gráficos con barras CSS generadas en el servidor:
   - equipos participantes,
   - intentos finalizados,
   - tiempo promedio por estación,
