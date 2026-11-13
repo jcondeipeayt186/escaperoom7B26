@@ -105,7 +105,12 @@
   <div class="col-12 col-lg-7">
     <div class="card shadow-sm h-100">
       <div class="card-body">
-        <h2 class="h4 mb-3">Intentos por estado</h2>
+        <div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-3">
+          <h2 class="h4 mb-0">Intentos por estado</h2>
+          <span class="text-body-secondary">
+            Intentos totales: <strong>{{ resumen.intentos_iniciados }}</strong>
+          </span>
+        </div>
 
         {% if resumen.intentos_iniciados %}
           <ul class="list-unstyled mb-0">
@@ -134,6 +139,79 @@
         {% else %}
           <div class="alert alert-info mb-0" role="alert">
             Todavía no hay intentos registrados.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mt-3">
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
+          <div>
+            <h2 class="h4 mb-1">Tiempo promedio por estación</h2>
+            <p class="text-body-secondary small mb-0">
+              Solo estaciones completadas. El filtro afecta únicamente a este cuadro.
+            </p>
+          </div>
+          <form
+            method="get"
+            action="{{ url_for('estadisticas.publico') }}"
+            class="d-flex flex-wrap align-items-end gap-2"
+          >
+            <div>
+              <label for="dificultad" class="form-label small mb-1">Nivel</label>
+              <select class="form-select form-select-sm" id="dificultad" name="dificultad">
+                <option value="">General</option>
+                {% for opcion in resumen.opciones_dificultad %}
+                  <option value="{{ opcion.valor }}" {% if resumen.dificultad == opcion.valor %}selected{% endif %}>{{ opcion.etiqueta }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <button type="submit" class="btn btn-sm btn-primary">Ver</button>
+            {% if resumen.dificultad %}
+              <a href="{{ url_for('estadisticas.publico') }}" class="btn btn-sm btn-outline-secondary">Ver general</a>
+            {% endif %}
+          </form>
+        </div>
+
+        {% if resumen.promedios_estacion %}
+          <ul class="list-unstyled mb-0">
+            {% for estacion in resumen.promedios_estacion %}
+              <li class="estadisticas__estado">
+                <div class="d-flex justify-content-between gap-2">
+                  <span class="fw-semibold">
+                    <span class="text-body-secondary">{{ estacion.orden }}.</span>
+                    {{ estacion.nombre }}
+                  </span>
+                  <span class="text-body-secondary">
+                    {% if estacion.muestras %}
+                      {{ estacion.promedio|hhmmss }}
+                      <span class="small">({{ estacion.muestras }})</span>
+                    {% else %}
+                      Sin datos
+                    {% endif %}
+                  </span>
+                </div>
+                <div
+                  class="estadisticas__barra"
+                  role="img"
+                  aria-label="{{ estacion.nombre }}: promedio {{ estacion.promedio|hhmmss }}"
+                >
+                  <div
+                    class="estadisticas__barra-relleno"
+                    style="width: {{ estacion.ancho }}%"
+                  ></div>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="alert alert-info mb-0" role="alert">
+            Todavía no hay estaciones completadas.
           </div>
         {% endif %}
       </div>

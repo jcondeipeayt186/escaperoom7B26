@@ -274,7 +274,7 @@ y la instalación básica para Ubuntu/Debian y Windows, empezá por
 `docs/guia-de-estudio-para-estudiantes.md`.
 
 ```bash
-git clone <URL-DEL-REPOSITORIO> escaperoom7B26
+git clone https://github.com/jcondeipeayt186/escaperoom7B26.git
 cd escaperoom7B26
 
 python3 -m venv .venv
@@ -520,7 +520,7 @@ La configuración está en `pytest.ini` (`testpaths = tests` y
 | Temporizadores | General ascendente y estación descendente desde 4:00, calculados con fechas de MySQL. Polling cada 10 segundos y al volver a la pestaña. Aviso visual y sonoro a los 30 segundos. |
 | Transición y final | Continuar prepara la siguiente estación y arranca su cronómetro. La quinta cierra el intento como `completo` con el tiempo congelado. El final muestra resultado, top 10 del nivel y ranking completo con filtros. |
 | Ranking público | Una tabla por nivel, actualizada cada 8 segundos por polling. Si falla la conexión conserva las tablas y muestra **Reconectando…**. Solo intentos completos. |
-| Estadísticas públicas | Agregados sin nombres de equipos ni respuestas correctas: equipos, integrantes, intentos, tiempo promedio y porcentaje de aciertos. |
+| Estadísticas públicas | Agregados sin nombres de equipos ni respuestas correctas: equipos, integrantes, intentos, tiempo promedio, porcentaje de aciertos y tiempo promedio por estación con filtro general o por nivel. El ancho de cada barra refleja el porcentaje real sobre el total. |
 | Administración | Login, panel con 12 tablas, CRUD con filtros y baja lógica, cobertura estación × nivel, toggles de dificultad, intentos activos y estadísticas con filtros. |
 | Seguridad | Respuestas correctas solo en el servidor, CSRF en todos los POST, sesión de admin separada, `.env` fuera de Git y sin credenciales en el HTML. |
 

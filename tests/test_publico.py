@@ -2,7 +2,7 @@
 
 from datetime import datetime, timedelta
 
-from helpers import ejecutar
+from helpers import ejecutar, fila
 
 
 def _crear_intento(
@@ -204,6 +204,129 @@ def test_estadisticas_publicas_solo_agregados(cliente, db):
     assert "equipo_id" not in html
     assert "respuesta_id" not in html
     assert "correcta" not in html.lower()
+
+
+def test_estadisticas_barras_por_porcentaje_real(app, cliente, db):
+    for indice in range(3):
+        _crear_intento(
+            db,
+            f"Equipo Completo {indice}",
+            datetime(2026, 1, 1, 10, indice, 0),
+            100,
+        )
+    for indice in range(2):
+        _crear_intento(
+            db,
+            f"Equipo Abandona {indice}",
+            datetime(2026, 1, 2, 10, indice, 0),
+            10,
+            finalizado="abandono",
+        )
+    for indice in range(2):
+        _crear_intento(
+            db,
+            f"Equipo En Curso {indice}",
+            datetime(2026, 1, 3, 10, indice, 0),
+            0,
+            finalizado=None,
+            con_fin=False,
+        )
+
+    with app.app_context():
+        from app.servicios import estadisticas
+
+        resumen = estadisticas.obtener_resumen()
+
+    assert resumen["intentos_iniciados"] == 7
+    completos = next(
+        estado for estado in resumen["estados"] if estado["clave"] == "completo"
+    )
+    assert completos["total"] == 3
+    assert completos["porcentaje_total"] == 42.9
+    # Antes la barra se escalaba al estado mayor y llegaba al 100 %.
+    assert completos["ancho"] == 42.9
+    assert completos["ancho"] < 100
+
+    html = cliente.get("/estadisticas").get_data(as_text=True)
+    assert "Intentos totales:" in html
+    assert "Intentos totales: <strong>7</strong>" in html
+    assert "width: 42.9%" in html
+    assert "width: 28.6%" in html
+
+
+def test_estadisticas_promedio_por_estacion_filtra_por_nivel(
+    app, cliente, db
+):
+    estacion = fila(
+        db,
+        "SELECT id, nombre FROM estacion WHERE activo = 1 "
+        "ORDER BY orden LIMIT 1",
+    )
+
+    inicio_inicial = datetime(2026, 1, 1, 10, 0, 0)
+    intento_inicial = _crear_intento(
+        db, "Equipo Promedio Inicial", inicio_inicial, 60
+    )
+    inicio_avanzado = datetime(2026, 1, 2, 10, 0, 0)
+    intento_avanzado = _crear_intento(
+        db,
+        "Equipo Promedio Avanzado",
+        inicio_avanzado,
+        240,
+        dificultad="avanzado",
+    )
+
+    for intento_id, inicio, segundos in (
+        (intento_inicial, inicio_inicial, 60),
+        (intento_avanzado, inicio_avanzado, 240),
+    ):
+        ejecutar(
+            db,
+            "INSERT INTO intento_estacion "
+            "(intento_id, estacion_id, fecha_inicio, fecha_fin, completada) "
+            "VALUES (%s, %s, %s, %s, 1)",
+            (
+                intento_id,
+                estacion["id"],
+                inicio,
+                inicio + timedelta(seconds=segundos),
+            ),
+        )
+
+    with app.app_context():
+        from app.servicios import estadisticas
+
+        general = estadisticas.obtener_resumen()
+        inicial = estadisticas.obtener_resumen("inicial")
+        avanzado = estadisticas.obtener_resumen("avanzado")
+        invalido = estadisticas.obtener_resumen("otro")
+
+    def promedio(resumen):
+        return next(
+            fila_estacion
+            for fila_estacion in resumen["promedios_estacion"]
+            if fila_estacion["id"] == estacion["id"]
+        )
+
+    assert promedio(general)["promedio"] == 150
+    assert promedio(general)["muestras"] == 2
+    assert promedio(inicial)["promedio"] == 60
+    assert promedio(inicial)["muestras"] == 1
+    assert promedio(avanzado)["promedio"] == 240
+    assert promedio(avanzado)["muestras"] == 1
+    # Un nivel desconocido cae al promedio general.
+    assert promedio(invalido)["promedio"] == 150
+
+    html = cliente.get("/estadisticas?dificultad=avanzado").get_data(
+        as_text=True
+    )
+    assert "Tiempo promedio por estación" in html
+    assert estacion["nombre"] in html
+    assert "00:04:00" in html
+    assert "Ver general" in html
+
+    general_html = cliente.get("/estadisticas").get_data(as_text=True)
+    assert "00:02:30" in general_html
 
 
 def test_imagenes_institucionales_locales(cliente):

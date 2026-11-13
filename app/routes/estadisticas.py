@@ -1,6 +1,6 @@
 """Estadísticas públicas, solo con datos agregados."""
 
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
 
 from ..servicios import estadisticas
 from ..servicios.tiempos import ahora_texto
@@ -14,6 +14,6 @@ def publico():
 
     return render_template(
         "estadisticas.html",
-        resumen=estadisticas.obtener_resumen(),
+        resumen=estadisticas.obtener_resumen(request.args.get("dificultad")),
         actualizado=ahora_texto(),
     )

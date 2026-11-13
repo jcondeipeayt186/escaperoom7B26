@@ -6,6 +6,7 @@ respuesta correcta de una pregunta no altera las estadísticas históricas.
 """
 
 from ..db import get_db
+from .configuracion import DIFICULTADES, ETIQUETAS_DIFICULTAD
 
 # Orden fijo de las barras. ``None`` representa los intentos en curso.
 _ESTADOS = (
@@ -17,8 +18,63 @@ _ESTADOS = (
 )
 
 
-def obtener_resumen():
-    """Devuelve los agregados de la feria listos para la plantilla."""
+def _promedios_por_estacion(cursor, dificultad):
+    """Promedio de segundos por estación, opcionalmente filtrado por nivel.
+
+    Solo cuentan las estaciones completadas con fecha de fin. El filtro se
+    aplica sobre el intento al que pertenece cada estación, no sobre el total
+    de la página.
+    """
+
+    condicion = " AND i.dificultad = %s" if dificultad else ""
+    parametros = (dificultad,) if dificultad else ()
+    filtro_intento = "SELECT i.id FROM intento i WHERE 1 = 1" + condicion
+
+    cursor.execute(
+        "SELECT e.id, e.nombre, e.orden, COUNT(ie.id) AS muestras, "
+        "       COALESCE(ROUND(AVG(TIMESTAMPDIFF("
+        "         SECOND, ie.fecha_inicio, ie.fecha_fin"
+        "       ))), 0) AS promedio "
+        "FROM estacion e "
+        "LEFT JOIN intento_estacion ie "
+        "  ON ie.estacion_id = e.id "
+        " AND ie.completada = 1 "
+        " AND ie.fecha_fin IS NOT NULL "
+        " AND ie.intento_id IN (" + filtro_intento + ") "
+        "GROUP BY e.id, e.nombre, e.orden "
+        "ORDER BY e.orden, e.id",
+        parametros,
+    )
+    estaciones = [
+        {
+            "id": fila["id"],
+            "nombre": fila["nombre"],
+            "orden": fila["orden"],
+            "muestras": int(fila["muestras"] or 0),
+            "promedio": int(fila["promedio"] or 0),
+        }
+        for fila in cursor.fetchall()
+    ]
+
+    maximo = max((estacion["promedio"] for estacion in estaciones), default=0)
+    for estacion in estaciones:
+        estacion["ancho"] = (
+            round(estacion["promedio"] * 100 / maximo) if maximo else 0
+        )
+
+    return estaciones
+
+
+def obtener_resumen(dificultad=""):
+    """Devuelve los agregados de la feria listos para la plantilla.
+
+    ``dificultad`` filtra únicamente el tiempo promedio por estación. Un valor
+    fuera de ``DIFICULTADES`` se trata como "general".
+    """
+
+    dificultad = (dificultad or "").strip()
+    if dificultad not in DIFICULTADES:
+        dificultad = ""
 
     with get_db().cursor() as cursor:
         cursor.execute(
@@ -49,6 +105,8 @@ def obtener_resumen():
             for fila_estado in cursor.fetchall()
         }
 
+        promedios_estacion = _promedios_por_estacion(cursor, dificultad)
+
     intentos_iniciados = int(fila["intentos_iniciados"])
     respuestas_realizadas = int(fila["respuestas_realizadas"])
     aciertos = int(fila["aciertos"])
@@ -67,16 +125,15 @@ def obtener_resumen():
         for finalizado, clave, etiqueta in _ESTADOS
     ]
 
-    maximo = max((estado["total"] for estado in estados), default=0)
     for estado in estados:
         estado["porcentaje_total"] = (
             round(estado["total"] * 100 / intentos_iniciados, 1)
             if intentos_iniciados
             else 0.0
         )
-        estado["ancho"] = (
-            round(estado["total"] * 100 / maximo) if maximo else 0
-        )
+        # El ancho de la barra es el porcentaje real sobre el total, no una
+        # escala relativa al estado más grande: así un 42,9 % no llena la barra.
+        estado["ancho"] = min(100, estado["porcentaje_total"])
 
     return {
         "equipos": int(fila["equipos"]),
@@ -88,4 +145,10 @@ def obtener_resumen():
         "aciertos": aciertos,
         "porcentaje_aciertos": porcentaje_aciertos,
         "estados": estados,
+        "dificultad": dificultad,
+        "opciones_dificultad": [
+            {"valor": valor, "etiqueta": ETIQUETAS_DIFICULTAD[valor]}
+            for valor in DIFICULTADES
+        ],
+        "promedios_estacion": promedios_estacion,
     }

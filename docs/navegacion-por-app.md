@@ -261,7 +261,8 @@ Elementos:
 
 - Cards con: equipos participantes, integrantes totales, intentos iniciados, intentos completados y tiempo promedio de los completados.
 - Respuestas realizadas y porcentaje de aciertos.
-- Gráfico simple de intentos por estado (completos, abandonos, por tiempo, por incorrectas).
+- Gráfico simple de intentos por estado (completos, abandonos, por tiempo, por incorrectas), con la cantidad total al lado del título y el ancho de cada barra según su porcentaje real.
+- Tiempo promedio por estación, con filtro general o por nivel (`inicial`, `intermedio`, `avanzado`). El filtro afecta solo a este cuadro.
 - Fecha de actualización.
 
 Restricciones:
