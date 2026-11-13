@@ -374,8 +374,10 @@ flask --app app run --debug
   `{"estado": "ok", "base": "ok"}`
 - Panel: <http://127.0.0.1:5000/admin> con `ADMIN_USER` y la clave elegida.
 
-`flask run --debug` es solo para desarrollo. Para la feria se usa waitress
-(sección 9).
+`flask run --debug` es para desarrollo. En la feria del 16/11/2026 se usa el
+mismo servidor de desarrollo con `--host=0.0.0.0` para que entren las otras
+notebooks y el televisor (sección 9). Waitress y systemd quedan para después de
+la feria.
 
 ## 8. Base de datos
 
@@ -418,11 +420,28 @@ Conteos esperados después de cargar el contenido:
 | `respuesta` | 240 |
 | `configuracion` | 9 |
 
-## 9. Servidor para la feria
+## 9. Servidor en la feria y puesta en producción
 
-Para que las notebooks y el televisor entren por la red, waitress debe escuchar
-en `0.0.0.0:8000` y el firewall debe permitir el puerto solo en la red del
-aula. Resumen del escenario principal (notebook Ubuntu):
+**Para la feria del 16/11/2026** se usa el servidor de desarrollo de Flask, que
+ya está probado:
+
+```bash
+source .venv/bin/activate
+flask --app app run --debug --host=0.0.0.0
+```
+
+Flask muestra la IP de la notebook (por ejemplo `http://192.168.1.23:5000`).
+Las demás notebooks y el televisor abren esa dirección desde la misma red, sin
+Internet. Dejá la terminal abierta y permití el puerto `5000` en el firewall si
+el sistema lo pregunta.
+
+**Waitress y systemd quedan para después de la feria**, cuando la app se use de
+forma permanente. El resto de esta sección describe esa puesta en producción.
+
+En la puesta en producción con waitress, para que las notebooks y el televisor
+entren por la red, waitress debe escuchar en `0.0.0.0:8000` y el firewall debe
+permitir el puerto solo en la red del aula. Resumen del escenario principal
+(notebook Ubuntu):
 
 ```bash
 sudo mkdir -p /opt/escape-room-7b2026

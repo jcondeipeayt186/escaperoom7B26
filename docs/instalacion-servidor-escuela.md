@@ -4,6 +4,10 @@ Anexo de `docs/argumentos-pasos/paso12-congelar-y-puesta-en-marcha.md` para
 dejar la aplicación funcionando en el **servidor Linux de la escuela**, que es
 el respaldo de la notebook Ubuntu 22.04.
 
+> **Para la feria del 16/11/2026** la notebook usa el servidor de desarrollo de
+> Flask con `--host=0.0.0.0`; waitress y systemd son la puesta en producción
+> posterior. Este anexo se conserva para ese momento y como respaldo.
+
 > **Escenario principal:** notebook Ubuntu 22.04 con todo instalado (A). Se
 > documenta en `docs/instalacion-y-puesta-en-funcionamiento.md`.
 >

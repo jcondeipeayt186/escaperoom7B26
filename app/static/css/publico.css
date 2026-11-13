@@ -1,5 +1,25 @@
 /* Vistas públicas: ranking del televisor y estadísticas de la feria. */
 
+.publico__nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 1rem;
+  margin-bottom: 0.9rem;
+  font-size: clamp(0.95rem, 1.1vw, 1.25rem);
+}
+
+.publico__nav a {
+  color: var(--bs-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.publico__nav a:hover,
+.publico__nav a:focus-visible {
+  text-decoration: underline;
+}
+
 .ranking__cabecera {
   display: flex;
   flex-wrap: wrap;

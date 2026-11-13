@@ -6,6 +6,12 @@ servidor **Ubuntu** y usarla desde las notebooks conectadas a la misma red.
 > Estado: la aplicación Flask **ya está implementada**. Esta guía queda para la
 > puesta en marcha del servidor (paso 12) y se puede seguir completa.
 >
+> **Para la feria del 16/11/2026** alcanza con el servidor de desarrollo de
+> Flask: `flask --app app run --debug --host=0.0.0.0` en la notebook, con la
+> terminal abierta y el puerto `5000` habilitado en la red del aula (ver
+> `docs/guia-de-estudio-para-estudiantes.md`, §9.5). **Esta guía describe la
+> puesta en producción con waitress y systemd, para después de la feria.**
+>
 > **Alcance:** cubre el **escenario A**, con Flask, waitress y MySQL en la misma
 > notebook Ubuntu. Para el servidor Linux de la escuela y para la variante con
 > la base remota, ver `docs/instalacion-servidor-escuela.md` y el resumen de
@@ -95,7 +101,7 @@ solo se usa si se ensayó antes: depende de la red entre la app y la base.
 | `python3`, `python3-venv`, `python3-pip` | Ejecutar la app y crear el entorno virtual. |
 | `mysql-server` | Base de datos. |
 | `git` | Traer o actualizar el código. |
-| `waitress` | Servidor de la app en la feria (se instala con `pip`). |
+| `waitress` | Servidor de la app en producción, después de la feria (se instala con `pip`). |
 | `ufw` | Firewall del servidor. |
 
 No hace falta PHP, Apache, Nginx, Docker ni Node.js.
@@ -430,7 +436,9 @@ http://IP-DEL-SERVIDOR:8000
 
 Para detener la prueba, `Ctrl+C`.
 
-> Para desarrollo se puede usar `flask --app app run --host=0.0.0.0 --debug`, pero **no** para la feria.
+> Para la feria se usa `flask --app app run --debug --host=0.0.0.0` en la
+> notebook, que ya está probado para ese uso. Waitress y systemd son para
+> **después de la feria**, cuando la app quede como servicio permanente.
 
 ---
 
@@ -1032,8 +1040,13 @@ Esta guía asume **Ubuntu**. Si la notebook del docente tiene Windows, las opcio
 
 ## 15. Checklist del día de la feria
 
+> Los ítems de `systemd` y del puerto `8000` corresponden a la puesta en
+> producción. Si la feria usa el servidor de desarrollo de Flask, comprobá en su
+> lugar que la app corra con `flask --app app run --debug --host=0.0.0.0` y que
+> el puerto `5000` esté accesible desde la red del aula.
+
 - [ ] Servidor encendido y conectado a la red.
-- [ ] `sudo systemctl status escape-room` activo.
+- [ ] `sudo systemctl status escape-room` activo (o Flask en primer plano).
 - [ ] `sudo systemctl status mysql` activo.
 - [ ] Notebooks y televisor en la misma red.
 - [ ] `/ranking` abierto en el televisor, en pantalla completa.

@@ -1,9 +1,5 @@
 Vamos a trabajar en las preguntas de nivel intermedio y avanzado. Utiliza como base para generar las preguntas los documentos odt que hay en docs/elaboradoChicos. Alli hay preguntas de nivel intermedio y del avanzado, de todos modos si puedes controlarlas y adaptarlas para una mejor compresión, mejor.
-
 Tomando el documento contenido-intermedio.odt la idea es generar un documento contenido-para-responder-nivel-intermedio.md y que en el haya explicaciones básicas que permitan a una persona que participe de la feria, leyendo estos contenidos pueda participar del nivel intermedio.
-
 No hay documento contenido-avanzado.odt, de todos modos puedes generar el documento contenido-para-responder-nivel-avanzado.md y que en el haya explicaciones básicas que permitan a una persona que participe de la feria, leyendo estos contenidos pueda participar del nivel avanzado.
-
 Los archivos pistas-inicial.odt, pistas-avanzado.odt y pistas-intermedio.odt puedes pasarlas a pistas-del-juego.md y juntar todas las pistas, ademas de adaptarlas para una mejor compresión, hasta puedes modificarlas si consideras oportuno.
-
 Por último, generar un script intermedio.sql y avanzado.sql que permitan agregar a la base de datos las preguntas con las respuestas. 

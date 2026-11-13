@@ -112,8 +112,10 @@ Regla de sincronización:
 | `paso11-d-agregando-descripcion.md` | feat | Pedido 11d | paso11c | `feat: descripciones de preguntas` | hecho |
 | `paso11e-agregarimagenes.md` | feat | Pedido 11e | paso11d | `feat: imágenes institucionales en la interfaz` | hecho |
 | `paso11f-capturas-navegacion.md` | infra | Pedido 11f | paso11e | `docs: capturas de navegación en tamaño móvil` | hecho |
-| `paso12-congelar-y-puesta-en-marcha.md` | infra | Pedido 12 | paso11f | `docs: puesta en marcha y respaldo` | pendiente |
-| `paso13-docker-taller-post-feria.md` | infra | Pedido 13 | paso12 | `build: docker compose para taller post-feria` | pendiente |
+| `paso11g-explicaciones-en-transicion.md` | feat | Pedido 11g | paso11f | `feat: explicaciones e introducciones en la transición` | pendiente |
+| `paso12-feria-con-flask.md` | infra | Pedido 12 | paso11g | `docs: feria con flask y respaldo` | pendiente |
+| `paso13-waitress-y-systemd-post-feria.md` | infra | Post-feria | paso12 | `docs: waitress y systemd post-feria` | pendiente |
+| `paso14-docker-taller-post-feria.md` | infra | Pedido 13 | paso13 | `build: docker compose para taller post-feria` | pendiente |
 
 Estados posibles: `pendiente`, `en curso`, `hecho`.
 
@@ -135,11 +137,13 @@ llegar al **MVP jugable** (`paso06`) y recién después seguir.
 | D | 06 | Recorrido completo. **Corte: MVP jugable.** |
 | E | 07 | Prueba manual con dos o tres personas. |
 | F | 08, 09, 10 | Ranking público, estadísticas y admin. |
-| G | 11, 11b, 11c, 11d, 11e, 11f, 12 | Tests, ranking por nivel, contenido intermedio y avanzado, descripciones breves, imágenes institucionales, capturas de navegación, backup y puesta en marcha. |
-| H | 13 | Docker educativo, posterior a la feria. |
+| G | 11, 11b, 11c, 11d, 11e, 11f, 11g, 12 | Tests, ranking por nivel, contenido intermedio y avanzado, descripciones breves, imágenes institucionales, capturas de navegación, explicaciones en la transición, contenido congelado, backup y feria con Flask. |
+| H | 13 | Waitress y systemd, opcional después de la feria. |
+| I | 14 | Docker educativo, opcional después de la feria. |
 
-El paso 13 (Docker) es opcional y posterior a la feria. No reemplaza el camino
-de waitress/systemd del paso 12 y no debe ejecutarse antes del 16/11.
+El paso 12 es el camino de la feria: servidor de Flask y `scripts/feria.sh`. El
+paso 13 (waitress y systemd) y el paso 14 (Docker) son opcionales y posteriores
+al 16/11. Ninguno se ejecuta antes de la feria.
 
 Si el día no alcanza, cortar después del bloque D o E. No dejar el MVP a
 medio hacer para empezar el admin.

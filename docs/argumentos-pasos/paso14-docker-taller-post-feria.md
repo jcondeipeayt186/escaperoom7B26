@@ -1,18 +1,19 @@
-# Paso 13 — Docker para un taller post-feria
+# Paso 14 — Docker para un taller post-feria
 
 > **Origen:** pedido posterior a la feria, para trabajar con los estudiantes.
 > **Tipo:** infra (educativo).
-> **Requiere:** `paso12` aprobado y la feria del 16/11 terminada.
+> **Requiere:** `paso13` aprobado y la feria del 16/11 terminada.
 > **Commit:** `build: docker compose para taller post-feria`.
 >
-> **Antes de empezar:** leé `AGENTS.md` (decisiones 60 y "Qué no hacer"),
+> **Antes de empezar:** leé `AGENTS.md` (decisión 60 y "Qué no hacer"),
 > `README.md` y `docs/instalacion-y-puesta-en-funcionamiento.md`.
 
 ## Importante
 
 Este paso **no forma parte del camino de la feria**. La feria se resuelve con
-waitress y systemd según el `paso12`. Docker es una actividad posterior para
-mostrar a los estudiantes cómo se empaqueta una aplicación real.
+el servidor de Flask y `scripts/feria.sh` del `paso12`. La puesta en producción
+con waitress y systemd se trata en el `paso13`. Docker es una actividad
+posterior para mostrar a los estudiantes cómo se empaqueta una aplicación real.
 
 No ejecutar este paso antes del 16/11 ni reemplazar con Docker la instalación
 que ya funciona en el aula.
@@ -81,7 +82,7 @@ cambiar el funcionamiento normal ni la instalación del aula.
 - Para reiniciar la base desde cero se usa `docker compose down -v`; hay que
   avisar que eso **borra** los datos del volumen.
 - El servicio `web` espera a que `db` esté saludable antes de arrancar.
-- La aplicación se sirve con waitress, igual que en el camino del `paso12`.
+- La aplicación se sirve con waitress, igual que en el camino del `paso13`.
 - Los seeds deben ser los mismos que se usan localmente; no duplicar contenido
   dentro del `Dockerfile`.
 
@@ -146,7 +147,7 @@ la imagen.
 - `docker compose down` detiene los contenedores sin borrar el volumen.
 - `docker compose down -v` elimina el volumen y, al volver a levantar, los
   seeds se ejecutan de nuevo.
-- La instalación del `paso12` sigue funcionando sin Docker.
+- La instalación del `paso13` sigue funcionando sin Docker.
 - No se agregaron CDN, credenciales ni dependencias nuevas a la aplicación.
 
 ## Verificación
@@ -188,8 +189,8 @@ Verificar a mano:
 - Los seeds solo corren al crear el volumen; no se reejecutan solos.
 - El `schema.sql` y los seeds crean y usan `escape_room_7b2026`; si se cambia
   `MYSQL_DB`, hay que revisar los scripts o mantener ese nombre.
-- Si más adelante existe `bd/seeds/002_contenido_intermedio.sql`, agregarlo al
-  volumen como `03_contenido_intermedio.sql` para que el taller tenga la misma
-  cobertura que la feria.
+- Los tres seeds de contenido ya están montados en el volumen, en orden. Si se
+  agrega un seed nuevo, sumarlo a `compose.yaml` para que el taller tenga la
+  misma cobertura que la feria.
 - No usar este paso para reemplazar waitress/systemd mientras la feria esté
   en curso.

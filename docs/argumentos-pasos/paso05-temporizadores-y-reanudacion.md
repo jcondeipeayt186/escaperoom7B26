@@ -29,7 +29,9 @@ recargar y que el tiempo agotado elimine al equipo.
 - `GET /juego/estado` (JSON, solo lectura) para resincronizar cada 10
   segundos. Es una ruta nueva respecto del mapa de
   `docs/navegacion-por-app.md`: anotarla en `MEMORY.md`.
-- Contador general ascendente en formato `HH:MM:SS`.
+- Contador general ascendente. En este paso se implementó en `HH:MM:SS`; un
+  ajuste posterior al `paso11f` lo unificó a `MM:SS`, igual que el contador de
+  estación.
 - Contador de estación descendente en formato `MM:SS`.
 - A los 30 segundos restantes: texto titilante y audio local.
 - Al llegar a 0: finalizar como `por_tiempo` y redirigir a eliminación.

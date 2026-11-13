@@ -76,7 +76,7 @@ Presente en **todas** las pantallas del juego (estación, transición, final y e
 | --- | --- | --- |
 | Equipo | `Equipo N.º <id> · <nombre>` | Visible siempre. |
 | Estación actual | `Estación 2 de 5 · Hardware` | Según `estacion.orden`. |
-| Tiempo general | `00:03:41` ascendente | Calculado desde `intento.fecha_inicio`. |
+| Tiempo general | `03:41` ascendente | Calculado desde `intento.fecha_inicio` y mostrado como `MM:SS`, igual que el de estación. |
 | Tiempo de estación | `02:19` descendente | Calculado desde `intento_estacion.fecha_inicio`. |
 | Ayudas | `Ayudas: 1 de 2` | Según `intento_estacion.ayudas`. |
 | Respuestas incorrectas | `Incorrectas: 1 de 2` | Según las filas de `incorrecta` de la estación. |
@@ -239,6 +239,7 @@ Comportamiento:
 Elementos:
 
 - Logo de la escuela a la izquierda del título **"Ranking Escape Room 7.º B"**.
+- Enlaces **Inicio** y **Estadísticas** en la parte superior.
 - Una sección y una tabla por nivel, con el nombre del nivel como encabezado: posición, equipo, número de intento, tiempo total, incorrectas, ayudas y fecha de fin.
 - Indicador de última actualización.
 - Aviso general si todavía no hay intentos completados y aviso por nivel si ese nivel todavía no tiene equipos.
@@ -259,10 +260,11 @@ Comportamiento:
 
 Elementos:
 
+- Enlaces **Inicio** y **Ranking** en la parte superior.
 - Cards con: equipos participantes, integrantes totales, intentos iniciados, intentos completados y tiempo promedio de los completados.
 - Respuestas realizadas y porcentaje de aciertos.
 - Gráfico simple de intentos por estado (completos, abandonos, por tiempo, por incorrectas), con la cantidad total al lado del título y el ancho de cada barra según su porcentaje real.
-- Tiempo promedio por estación, con filtro general o por nivel (`inicial`, `intermedio`, `avanzado`). El filtro afecta solo a este cuadro.
+- Tiempo promedio por estación, con filtro general o por nivel (`inicial`, `intermedio`, `avanzado`). El filtro afecta solo a este cuadro. La barra completa equivale a la duración máxima de una estación (`configuracion.duracion_estacion_segundos`, 4 minutos) y pinta el porcentaje real del promedio.
 - Fecha de actualización.
 
 Restricciones:

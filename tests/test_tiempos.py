@@ -1,5 +1,7 @@
 """Contadores calculados desde MySQL, aviso de 30 segundos y tiempo agotado."""
 
+import re
+
 from app.servicios.tiempos import calcular_tiempos
 from helpers import (
     conteo,
@@ -65,6 +67,25 @@ def test_aviso_de_treinta_segundos(cliente, db):
     assert 0 < datos["estacion_segundos"] <= 30
     assert datos["aviso_activo"] is True
     assert datos["aviso_segundos"] == 30
+
+
+def test_hud_muestra_el_tiempo_general_en_mm_ss(cliente, db):
+    equipo_id, intento_id = crear_equipo(db, "Equipo HUD")
+    iniciar_sesion(cliente, equipo_id, intento_id)
+    preparar_por_url(cliente, db, intento_id, 1)
+
+    ejecutar(
+        db,
+        "UPDATE intento SET fecha_inicio = DATE_SUB(NOW(3), "
+        "INTERVAL 125 SECOND) WHERE id = %s",
+        (intento_id,),
+    )
+
+    html = cliente.get("/juego/estacion/1").get_data(as_text=True)
+    bloque = html.split('id="tiempo-general"', 1)[1].split("</div>", 1)[0]
+
+    assert re.search(r"\d{2}:\d{2}", bloque)
+    assert not re.search(r"\d{2}:\d{2}:\d{2}", bloque)
 
 
 def test_recarga_no_reinicia_las_fechas_ni_la_seleccion(cliente, db):

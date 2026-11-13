@@ -6,7 +6,12 @@ respuesta correcta de una pregunta no altera las estadísticas históricas.
 """
 
 from ..db import get_db
-from .configuracion import DIFICULTADES, ETIQUETAS_DIFICULTAD
+from .configuracion import (
+    DIFICULTADES,
+    ETIQUETAS_DIFICULTAD,
+    duracion_estacion,
+    leer_configuracion,
+)
 
 # Orden fijo de las barras. ``None`` representa los intentos en curso.
 _ESTADOS = (
@@ -18,12 +23,13 @@ _ESTADOS = (
 )
 
 
-def _promedios_por_estacion(cursor, dificultad):
+def _promedios_por_estacion(cursor, dificultad, duracion):
     """Promedio de segundos por estación, opcionalmente filtrado por nivel.
 
     Solo cuentan las estaciones completadas con fecha de fin. El filtro se
     aplica sobre el intento al que pertenece cada estación, no sobre el total
-    de la página.
+    de la página. El ancho de la barra se escala contra la duración máxima de
+    una estación: el 100 % equivale a ``duracion`` segundos.
     """
 
     condicion = " AND i.dificultad = %s" if dificultad else ""
@@ -56,10 +62,11 @@ def _promedios_por_estacion(cursor, dificultad):
         for fila in cursor.fetchall()
     ]
 
-    maximo = max((estacion["promedio"] for estacion in estaciones), default=0)
     for estacion in estaciones:
         estacion["ancho"] = (
-            round(estacion["promedio"] * 100 / maximo) if maximo else 0
+            min(100, round(estacion["promedio"] * 100 / duracion))
+            if estacion["promedio"]
+            else 0
         )
 
     return estaciones
@@ -75,6 +82,8 @@ def obtener_resumen(dificultad=""):
     dificultad = (dificultad or "").strip()
     if dificultad not in DIFICULTADES:
         dificultad = ""
+
+    duracion = duracion_estacion(leer_configuracion())
 
     with get_db().cursor() as cursor:
         cursor.execute(
@@ -105,7 +114,9 @@ def obtener_resumen(dificultad=""):
             for fila_estado in cursor.fetchall()
         }
 
-        promedios_estacion = _promedios_por_estacion(cursor, dificultad)
+        promedios_estacion = _promedios_por_estacion(
+            cursor, dificultad, duracion
+        )
 
     intentos_iniciados = int(fila["intentos_iniciados"])
     respuestas_realizadas = int(fila["respuestas_realizadas"])
@@ -151,4 +162,5 @@ def obtener_resumen(dificultad=""):
             for valor in DIFICULTADES
         ],
         "promedios_estacion": promedios_estacion,
+        "duracion_estacion": duracion,
     }

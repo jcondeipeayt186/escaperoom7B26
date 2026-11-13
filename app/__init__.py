@@ -76,7 +76,7 @@ def create_app(config_override=None):
 
     @app.template_filter("hhmmss")
     def formato_hhmmss(segundos):
-        """Formatea segundos como ``HH:MM:SS`` para el contador general."""
+        """Formatea segundos como ``HH:MM:SS`` para resultados y ranking."""
 
         total = max(int(segundos or 0), 0)
         return (
@@ -87,7 +87,7 @@ def create_app(config_override=None):
 
     @app.template_filter("mmss")
     def formato_mmss(segundos):
-        """Formatea segundos como ``MM:SS`` para el contador de estación."""
+        """Formatea segundos como ``MM:SS`` para los contadores del HUD."""
 
         total = max(int(segundos or 0), 0)
         return f"{total // 60:02d}:{total % 60:02d}"

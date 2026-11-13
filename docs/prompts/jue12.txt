@@ -1,6 +1,42 @@
-Puedes generar capturas tamaño del móvil (samsung Salaxy A55 de 300 x 800) de cada página de la app, para ello deberás acceder con varios intentos.
-
+Puedes generar capturas tamaño del móvil (samsung Salaxy A55 de 300 x 800) de cada página de la app,
+ para ello deberás acceder con varios intentos.
 
 Crea un documento que guie a los estudiantes que estudiar.
 Explica que ver en cada archivo .md
 
+En estadisticas marca la barra completa cuando en realidad no es el 100% en los intentos por estado.
+Pasa el dato de "Intentos totales: N" al lado del titulo Intentos por estado
+y luego cada barra que muestre segun el porcentaje. Si completos es del 42,9% que no marque toda la barra.
+Puedes agregar Tiempo promedio por estación como esta en las estadisticas de admin, con algun filtro para ver general, o segun el nivel.
+
+
+en el HUB, el tiempo total muestra HH:MM:SS, no mostrar la hora, es decir, dejarlo igual al formato del tiempo de estacion, MM:SS.
+En estadisticas, el Tiempo promedio por estación, usa la barra con el 100% sea 4 minutos (tiempo maximo en una estacion) y pinta el porcentaje que corresponda.
+Ademas, tanto estadisticas como ranking deberían tener los links al inicio, o al otro (estadisticas el link a ranking y viceverza)
+
+
+en el documento guia-de-estudio-para-estudiantes.md, en el 9.5 mencionas que usaremos waitress, y para no configurar, sabiendo que ya hemos probado y para el uso que le damos esta bien asi, lo vamos a probar con 
+flask --app app run --debug --host=0.0.0.0, ahi me da el ip de la notebook, y quienes se conecten a la misma red, sin necesidad de internet, podran usar la app.
+Lo de waitress lo dejaremos para luego dela feria
+Actualiza 9.5 y donde se haga referencia.
+
+Sobre los pasos 11g y 12 
+Puedes agregar paso11g-explicaciones-en-transicion.md para que en las paginas de transicion podrías agregar las preguntas que tuvo el formulario completado con una breve explicación para que ademas de que sea un juego, sea un aprendizaje.
+De esta forma, siempre al pasar una estación, en su pagina de transición tenemos breves explicaciones (no más de dos párrafos por pregunta).
+Para esto, deberias agregar a cada pregunta un campo que sea explicacion y cargar esta columna en todas las preguntas.
+Cada tema podria tambien disponer de una introducción, y en la transición tambien agregarla. Esto tambien es un campo introduccion en la tabla tema, y cargarla con datos.
+
+el paso 12 va a trabajar con waitress, lo dejaria como opcional, como paso 13 (y pasaria a paso14 el paso de docker).
+Que el paso 12 sea para usar con flask --app app run --debug --host=0.0.0.0 (puedes crear algun script que cree un entorno llamado feria2026 si no existe, lo active instale las dependencias y que si ya esta creado e instaladas las dependencias, solo ejecute flask --app app run --debug --host=0.0.0.0)
+y el paso 13 haga lo que sugiere el paso 12. Ya que el servidor de la escuela es la idea usarlo pero luego de la feria.
+--------------------------------------------------------
+
+
+
+El proyecto se realizo tomando como base un documento con la idea del juego, algunas reglas y los formularios del nivel inicial. Ademas, una pagina que mostraba el ranking.
+Se amplio las reglas del juego intentando sacar ambiguedades, se creo un md con todos los detalles del juego y de la app en si misma, que stack tecnologico usar, que navegación se propuso deba tener la app web, y con ello, se pidio crear un agents.md y un memory.md donde ambos inteactuen, y en memory.md quede siempre una información persistente.
+Se creo un comando feature con reglas que siempre se deban cumplir ante los pedidos de creacion de la app.
+Luego se solicito al agente crear archivos md necesarios para llevar desde cero a tener la app funcionando, crear la base de datos, crear paginas de inicio, el recorrido por el juego. Todo ello genero en muchos archivos md que se fueron utilizando paso a paso.
+En cada paso se invocaba a /feature pasoNN.md esto se hacia en modo plan, se observaba lo planeado, se decidian sobre dudas de cada paso, y una vez listo el plan, se avanzaba con el modo build del agente.
+Los pasos estan organizados en una carpeta y tienen su readme con un resumen de ellos que siempre se fue actualizando.
+Solo pocas veces se realizaban prompts en modo build, cuando eran cambios menores luego de probar la app.

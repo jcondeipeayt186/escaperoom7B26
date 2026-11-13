@@ -7,6 +7,11 @@
 {% endblock %}
 
 {% block contenido %}
+<nav class="publico__nav" aria-label="Navegación pública">
+  <a href="{{ url_for('juego.bienvenida') }}">Inicio</a>
+  <a href="{{ url_for('ranking.publico') }}">Ranking</a>
+</nav>
+
 <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
   <div>
     <h1 class="h2 mb-1">Estadísticas de la feria</h1>
@@ -154,7 +159,10 @@
           <div>
             <h2 class="h4 mb-1">Tiempo promedio por estación</h2>
             <p class="text-body-secondary small mb-0">
-              Solo estaciones completadas. El filtro afecta únicamente a este cuadro.
+              Solo estaciones completadas. La barra completa equivale a la
+              duración máxima de una estación
+              ({{ resumen.duracion_estacion|mmss }}). El filtro afecta
+              únicamente a este cuadro.
             </p>
           </div>
           <form

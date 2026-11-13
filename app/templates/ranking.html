@@ -9,6 +9,11 @@
 {% block clases_main %}container-fluid px-3 px-lg-4{% endblock %}
 
 {% block contenido %}
+<nav class="publico__nav" aria-label="Navegación pública">
+  <a href="{{ url_for('juego.bienvenida') }}">Inicio</a>
+  <a href="{{ url_for('estadisticas.publico') }}">Estadísticas</a>
+</nav>
+
 <div
   class="ranking"
   id="ranking"

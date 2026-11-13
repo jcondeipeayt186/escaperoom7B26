@@ -74,7 +74,8 @@ Cada tecnología se explica con la misma estructura:
 | Driver | PyMySQL | Conexión a MySQL con SQL parametrizado y transacciones. | `app/db.py` |
 | Configuración | python-dotenv + `.env` | Credenciales y parámetros fuera del código. | `.env.example`, `app/__init__.py` |
 | Hash de claves | Werkzeug | Generar y verificar el hash del admin. | `app/routes/admin.py` |
-| Servidor de la feria | waitress | Levantar la app en el aula sin el servidor de desarrollo. | Comando de arranque |
+| Servidor de la feria | Servidor de desarrollo de Flask | Levantar la app en el aula con `--host=0.0.0.0`, que ya está probado para ese uso. | Comando de arranque |
+| Servidor de producción | waitress + systemd | Dejar la app como servicio permanente, **después de la feria**. | `docs/instalacion-y-puesta-en-funcionamiento.md` |
 | Pruebas | pytest | Cubrir las reglas críticas del juego y del ranking. | `tests/` |
 | Control de versiones | Git | Historial y commits por bloque de trabajo. | Repositorio |
 
@@ -222,30 +223,30 @@ url_for("juego.estacion", orden=2)   # /juego/estacion/2
 
 ### 3.4 WSGI y servidores
 
-**Qué es:** WSGI (*Web Server Gateway Interface*) es el estándar de Python que define cómo un servidor web le pasa las peticiones a una aplicación. Flask produce una aplicación WSGI; **waitress** es el servidor que la ejecuta.
+**Qué es:** WSGI (*Web Server Gateway Interface*) es el estándar de Python que define cómo un servidor web le pasa las peticiones a una aplicación. Flask produce una aplicación WSGI y necesita un servidor que la ejecute.
 
-**Para qué se usa acá:** para levantar la app en la feria con un servidor estable, no con el servidor de desarrollo de Flask.
+**Para qué se usa acá:** en la feria del 16/11/2026 se usa el **servidor de desarrollo de Flask** con `--host=0.0.0.0`, que ya está probado para una notebook, hasta tres equipos y el televisor en la misma red. **Waitress y systemd quedan para después de la feria**, cuando la app se use de forma permanente.
 
 | Servidor | Uso | Comando |
 | --- | --- | --- |
-| Servidor de Flask | Desarrollo local, con recarga automática. | `flask --app app run --debug` |
-| Waitress | Aula y feria, sin recarga y con varios hilos. | `waitress-serve --call --listen=0.0.0.0:8000 app:create_app` |
+| Servidor de Flask | Feria y desarrollo, con recarga automática. En la feria escucha en todas las interfaces. | `flask --app app run --debug --host=0.0.0.0` |
+| Waitress | Producción, **después de la feria**: sin recarga y con varios hilos. | `waitress-serve --call --listen=0.0.0.0:8000 app:create_app` |
 
 ```bash
-# Desarrollo
-flask --app app run --debug
-
 # Feria: escucha en todas las interfaces para que entren otras notebooks
+flask --app app run --debug --host=0.0.0.0
+
+# Producción, después de la feria
 waitress-serve --call --listen=0.0.0.0:8000 app:create_app
 ```
 
-- `--call` indica que `app:create_app` es una función que hay que llamar.
 - `0.0.0.0` significa “escuchar en todas las interfaces de red”.
-- `8000` es el puerto; las otras notebooks entran por `http://IP-de-la-notebook:8000`.
+- Al arrancar, Flask muestra la IP de la notebook; las otras entran por `http://IP-de-la-notebook:5000`.
+- `--call` indica que `app:create_app` es una función que hay que llamar, en el caso de waitress.
 
 **Qué evitar:**
 
-- No usar `flask run` en la feria: es un servidor de desarrollo y muestra advertencias.
+- No exponer `--debug` a Internet: es el modo de la feria, solo para la red del aula.
 - No usar `debug=True` en producción: expone información interna.
 - No confundir waitress con HTTPS. Para una red local escolar no hace falta, pero no hay que exponerlo a Internet.
 
@@ -532,7 +533,7 @@ def final():
 
 **Qué evitar:**
 
-- No usar el servidor de desarrollo en la feria.
+- No exponer el servidor de desarrollo a Internet: en la feria se usa solo en la red del aula.
 - No confiar en datos del formulario sin validar.
 - No guardar la respuesta correcta en la sesión ni en el HTML.
 - No crear una ruta nueva para cada pregunta: se renderizan las cuatro en una sola estación.
@@ -793,6 +794,12 @@ pytest
 Feria:
 
 ```bash
+flask --app app run --debug --host=0.0.0.0
+```
+
+Producción, después de la feria:
+
+```bash
 waitress-serve --call --listen=0.0.0.0:8000 app:create_app
 ```
 
@@ -810,13 +817,13 @@ Variables de entorno previstas en `.env.example`: `FLASK_SECRET_KEY`, `MYSQL_HOS
 
 ```mermaid
 flowchart TD
-    A["Navegador: GET /juego/estacion/2"] --> B["Waitress: recibe HTTP"]
+    A["Navegador: GET /juego/estacion/2"] --> B["Servidor: recibe HTTP"]
     B --> C["Flask: create_app"]
     C --> D["Blueprint juego"]
     D --> E["Vista estacion(2)"]
     E --> F["PyMySQL: consulta MySQL"]
     F --> G["Jinja2: renderiza HTML"]
-    G --> H["Waitress: responde HTML"]
+    G --> H["Servidor: responde HTML"]
     H --> I["Navegador: HTML + Bootstrap"]
     I --> J["JavaScript local: temporizador, audio, polling"]
 ```

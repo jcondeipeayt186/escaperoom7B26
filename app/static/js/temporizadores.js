@@ -43,17 +43,7 @@
     return String(numero).padStart(2, "0");
   }
 
-  function formatoGeneral(total) {
-    return (
-      dosDigitos(Math.floor(total / 3600)) +
-      ":" +
-      dosDigitos(Math.floor((total % 3600) / 60)) +
-      ":" +
-      dosDigitos(total % 60)
-    );
-  }
-
-  function formatoEstacion(total) {
+  function formatoContador(total) {
     return dosDigitos(Math.floor(total / 60)) + ":" + dosDigitos(total % 60);
   }
 
@@ -109,12 +99,12 @@
 
   function actualizar() {
     if (generalEl) {
-      generalEl.textContent = formatoGeneral(generalSegundos());
+      generalEl.textContent = formatoContador(generalSegundos());
     }
 
     const restantes = restantesSegundos();
     if (estacionEl) {
-      estacionEl.textContent = formatoEstacion(restantes);
+      estacionEl.textContent = formatoContador(restantes);
     }
 
     if (!completada && restantes > 0 && restantes <= avisoSegundos) {

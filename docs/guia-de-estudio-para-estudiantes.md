@@ -315,7 +315,7 @@ entender cada línea: alcanza con poder explicar **qué hace** cada archivo y
 | Archivo | Qué contiene | Cómo usarlo |
 | --- | --- | --- |
 | [`docs/ayuda-al-probar.md`](ayuda-al-probar.md) | ⚙️ Comandos rápidos para levantar la app, comprobar `/salud`, probar desde otra notebook y revisar la base. | Para quienes hacen pruebas manuales antes de la feria. |
-| [`docs/instalacion-y-puesta-en-funcionamiento.md`](instalacion-y-puesta-en-funcionamiento.md) | ⚙️ Instalación completa en Ubuntu, MySQL, waitress, systemd, firewall y acceso desde las notebooks. | Para el equipo que deja funcionando el servidor. |
+| [`docs/instalacion-y-puesta-en-funcionamiento.md`](instalacion-y-puesta-en-funcionamiento.md) | ⚙️ Instalación completa en Ubuntu y MySQL, más la puesta en marcha con waitress y systemd para **después de la feria**. | Para el equipo que deje la app funcionando como servicio permanente más adelante. |
 | [`docs/instalacion-servidor-escuela.md`](instalacion-servidor-escuela.md) | ⚙️ Puesta en marcha en el servidor Linux de la escuela y variante con la base remota. | Solo si se usa el servidor de la escuela. |
 | [`docs/dejar-funcionando-proyecto-luego-clone.md`](dejar-funcionando-proyecto-luego-clone.md) | ⚙️ Guía desde un repositorio recién clonado hasta la app funcionando, con verificación de conteos y pruebas. | Para quien clona el proyecto por primera vez. |
 | [`docs/primeros-pasos.md`](primeros-pasos.md) | ⚙️ Hoja de ruta y guion de pedidos del desarrollo, paso a paso. | Para entender cómo se construyó el proyecto. No es material de estudio del juego. |
@@ -361,10 +361,10 @@ material de estudio: sirven para entender o repetir el desarrollo.
 
 ## 9. Instalación básica en tu computadora
 
-Esta sección es para **probar la app** o mostrarla en tu casa. En la feria el
-servidor ya está armado: las notebooks y el televisor solo se conectan a la red
-del aula. Si te toca dejar el servidor funcionando, después de esta sección
-seguí con las guías completas.
+Esta sección es para **probar la app** o **usarla en la feria**. En la feria una
+notebook hace de servidor y las demás notebooks y el televisor se conectan a la
+misma red del aula, sin Internet. Si más adelante querés dejarla como servicio
+permanente con waitress y systemd, seguí las guías completas.
 
 > Los comandos de Linux son para **Ubuntu 22.04 o 24.04** (o Debian reciente).
 > En Windows podés usar **WSL2** (recomendado) o instalar todo de forma nativa.
@@ -378,10 +378,14 @@ seguí con las guías completas.
 | 3 | Crear el entorno virtual e instalar dependencias | `python3 -m venv .venv` y `pip install -r requirements.txt` |
 | 4 | Configurar `.env` | `cp .env.example .env` y editar las claves |
 | 5 | Crear la base y cargar el contenido | `sudo mysql < bd/schema.sql` y los tres seeds |
-| 6 | Ejecutar Flask | `flask --app app run --debug` |
+| 6 | Ejecutar Flask | `flask --app app run --debug --host=0.0.0.0` |
 
 Abrí <http://127.0.0.1:5000> y comprobá <http://127.0.0.1:5000/salud>. Tiene que
 responder `200` con `{"estado": "ok", "base": "ok"}`.
+
+Con `--host=0.0.0.0`, Flask también muestra la IP de tu notebook en la red. Esa
+es la dirección que usan las demás notebooks y el televisor en la feria (ver
+§9.5).
 
 ### 9.2 Ubuntu/Debian
 
@@ -484,15 +488,20 @@ EXIT;
 
 ```bash
 source .venv/bin/activate
-flask --app app run --debug
+flask --app app run --debug --host=0.0.0.0
 ```
 
 - App: <http://127.0.0.1:5000>
 - Salud: <http://127.0.0.1:5000/salud>
 - Panel: <http://127.0.0.1:5000/admin>
 
-`flask run --debug` es solo para desarrollo. Para la feria se usa waitress
-(ver §9.5).
+Con `--host=0.0.0.0` la app escucha en todas las interfaces de red. Al arrancar,
+Flask muestra la IP de la notebook (por ejemplo `http://192.168.1.23:5000`).
+Esa es la dirección que abren las demás notebooks y el televisor cuando están en
+la misma red. No hace falta Internet.
+
+Para la feria alcanza con este servidor de desarrollo de Flask. **Waitress y
+systemd quedan para después de la feria** (ver §9.5).
 
 ### 9.3 Windows
 
@@ -575,7 +584,7 @@ Después creá el usuario `escaperoom` con el mismo bloque SQL de 9.2, ejecutado
 en el cliente de MySQL. Finalmente:
 
 ```powershell
-flask --app app run --debug
+flask --app app run --debug --host=0.0.0.0
 ```
 
 ### 9.4 Errores frecuentes
@@ -587,16 +596,54 @@ flask --app app run --debug
 | `Access denied for user 'escaperoom'` | El usuario no existe o la clave no coincide. | Repetí el bloque SQL de 9.2 con la misma clave de `.env`. |
 | La app no arranca y habla de `FLASK_SECRET_KEY` | Quedó el valor de ejemplo. | Generá una clave real y pegala en `.env`. |
 | `Address already in use` | El puerto 5000 está ocupado. | `flask --app app run --debug --port 5001`. |
+| Desde otra notebook no abre la app | Faltó `--host=0.0.0.0`, las notebooks no están en la misma red o el firewall bloquea el puerto. | Arrancá con `--host=0.0.0.0`, verificá la misma red y permití el puerto `5000` si el sistema lo pregunta. |
 | `mysql: command not found` (Windows) | El cliente no está en el PATH. | Usá **MySQL 8.0 Command Line Client** o agregá la carpeta `bin` al PATH. |
 
 ### 9.5 Para la feria
 
-En la feria la app no se levanta con `flask run --debug`: se usa **waitress**
-detrás de **systemd**, para que quede funcionando aunque se cierre la terminal.
-El detalle está en:
+En la feria **no hace falta configurar waitress ni systemd**. Para el uso que le
+damos (una notebook, hasta tres equipos y el televisor en la misma red), alcanza
+con el servidor de desarrollo de Flask que ya probamos:
+
+```bash
+source .venv/bin/activate
+flask --app app run --debug --host=0.0.0.0
+```
+
+Qué hace `--host=0.0.0.0`:
+
+- Deja la app escuchando en todas las interfaces de red, no solo en
+  `127.0.0.1`.
+- Al arrancar, Flask muestra la IP de la notebook, por ejemplo
+  `http://192.168.1.23:5000`. Esa es la dirección que escriben las otras
+  notebooks y el televisor.
+- No hace falta Internet: todos los equipos tienen que estar conectados a la
+  misma red del aula (el mismo WiFi o el mismo switch).
+
+Comprobaciones antes de la feria:
+
+- [ ] La notebook servidor tiene MySQL iniciado y la app responde en
+      <http://127.0.0.1:5000/salud>.
+- [ ] Desde otra notebook de la misma red abre
+      `http://IP-DE-LA-NOTEBOOK:5000`.
+- [ ] El firewall de la notebook permite el puerto `5000` (si el sistema lo
+      pregunta al arrancar, aceptar solo en la red privada).
+- [ ] El televisor abre `/ranking` desde esa misma IP.
+
+Si la app no abre desde otra notebook, revisá que hayas usado `--host=0.0.0.0`,
+que las dos estén en la misma red y que el firewall no esté bloqueando el
+puerto `5000`.
+
+Dejá la terminal abierta durante la feria: si se cierra, la app se detiene. El
+modo `--debug` es el que ya probamos y sirve para el aula, pero no lo expongas a
+Internet.
+
+**Waitress y systemd quedan para después de la feria**, cuando la app se use de
+forma permanente o haya que dejarla funcionando sin una terminal abierta. El
+detalle está en:
 
 - [`dejar-funcionando-proyecto-luego-clone.md`](dejar-funcionando-proyecto-luego-clone.md) — de clonar a navegar.
-- [`instalacion-y-puesta-en-funcionamiento.md`](instalacion-y-puesta-en-funcionamiento.md) — servidor Ubuntu, waitress, systemd y firewall.
+- [`instalacion-y-puesta-en-funcionamiento.md`](instalacion-y-puesta-en-funcionamiento.md) — servidor Ubuntu, waitress, systemd y firewall para después de la feria.
 - [`instalacion-servidor-escuela.md`](instalacion-servidor-escuela.md) — servidor Linux de la escuela y base remota.
 - [`ayuda-al-probar.md`](ayuda-al-probar.md) — comandos rápidos para probar.
 

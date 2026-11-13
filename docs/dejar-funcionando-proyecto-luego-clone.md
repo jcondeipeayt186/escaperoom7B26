@@ -8,13 +8,17 @@ Guía paso a paso para pasar de un repositorio recién clonado a la aplicación
 funcionando en el navegador, en una máquina con **Ubuntu/Debian**. Cubre
 MySQL, la base de datos, el entorno virtual de Python, el archivo `.env`, la
 ejecución local, el recorrido de la app y, al final, cómo dejarla como servidor
-para la feria.
+permanente.
 
 > El **escenario principal** es la notebook Ubuntu con todo instalado. El
 > **escenario B** (servidor Linux de la escuela) y el **C** (base remota) están
 > en `docs/instalacion-servidor-escuela.md`. El detalle de waitress,
-> systemd, firewall y operación durante la feria está en
+> systemd, firewall y operación está en
 > `docs/instalacion-y-puesta-en-funcionamiento.md`.
+>
+> **Para la feria del 16/11/2026** alcanza con el servidor de desarrollo de
+> Flask y `--host=0.0.0.0` (sección 10). Waitress y systemd quedan para después
+> de la feria, cuando la app se use de forma permanente.
 
 ## Contenido
 
@@ -469,8 +473,9 @@ Si algún paso falla, revisar la sección 12 antes de seguir. Para una partida
 completa de prueba conviene usar `/admin` para ver el equipo, el intento y las
 respuestas registradas.
 
-> `flask run --debug` es solo para desarrollo. Para la feria se usa waitress,
-> como se explica en la sección 11.
+> `flask run --debug` es el servidor de desarrollo y **en la feria se usa con
+> `--host=0.0.0.0`**, como se explica en la sección 10. La sección 11 (waitress
+> y systemd) queda para después de la feria.
 
 ---
 
@@ -529,17 +534,18 @@ Tener en cuenta:
 - Si hay firewall, habilitar el puerto `5000` solo para la red local.
 - No usar `localhost` desde la otra máquina: `localhost` es esa máquina, no
   esta.
-- Para la feria, el procedimiento completo con waitress en el puerto `8000`,
-  systemd y firewall está en `docs/instalacion-y-puesta-en-funcionamiento.md`.
+- Para después de la feria, el procedimiento completo con waitress en el puerto
+  `8000`, systemd y firewall está en `docs/instalacion-y-puesta-en-funcionamiento.md`.
 
 ---
 
-## 11. Dejarlo como servidor de la feria
+## 11. Dejarlo como servidor permanente (después de la feria)
 
-Hasta acá la app corre con el servidor de desarrollo y solo desde la misma
-máquina. Para la feria conviene dejarla como servicio: arranca sola al encender
-la notebook y escucha en la red para que entren las demás notebooks y el
-televisor.
+Hasta acá la app corre con el servidor de desarrollo de Flask. Para la feria
+alcanza con `flask --app app run --debug --host=0.0.0.0` y la terminal abierta.
+Esta sección es para **después de la feria**, cuando conviene dejarla como
+servicio: arranca sola al encender la notebook y escucha en la red para que
+entren las demás notebooks y el televisor sin depender de una terminal.
 
 Esta sección es el camino mínimo del **escenario A** (todo en la notebook). El
 detalle de permisos, firewall, audio, plan B en el servidor de la escuela y

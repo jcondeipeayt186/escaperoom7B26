@@ -317,16 +317,40 @@ def test_estadisticas_promedio_por_estacion_filtra_por_nivel(
     # Un nivel desconocido cae al promedio general.
     assert promedio(invalido)["promedio"] == 150
 
+    # La barra se escala contra la duración máxima de la estación (240 s).
+    assert general["duracion_estacion"] == 240
+    assert promedio(general)["ancho"] == 62
+    assert promedio(inicial)["ancho"] == 25
+    assert promedio(avanzado)["ancho"] == 100
+
     html = cliente.get("/estadisticas?dificultad=avanzado").get_data(
         as_text=True
     )
     assert "Tiempo promedio por estación" in html
     assert estacion["nombre"] in html
     assert "00:04:00" in html
+    assert "La barra completa equivale a la" in html
+    assert "(04:00)" in html
     assert "Ver general" in html
 
     general_html = cliente.get("/estadisticas").get_data(as_text=True)
     assert "00:02:30" in general_html
+    assert "width: 62%" in general_html
+
+    inicial_html = cliente.get("/estadisticas?dificultad=inicial").get_data(
+        as_text=True
+    )
+    assert "width: 25%" in inicial_html
+
+
+def test_navegacion_publica_entre_ranking_y_estadisticas(cliente):
+    ranking = cliente.get("/ranking").get_data(as_text=True)
+    assert 'href="/"' in ranking
+    assert 'href="/estadisticas"' in ranking
+
+    estadisticas = cliente.get("/estadisticas").get_data(as_text=True)
+    assert 'href="/"' in estadisticas
+    assert 'href="/ranking"' in estadisticas
 
 
 def test_imagenes_institucionales_locales(cliente):
