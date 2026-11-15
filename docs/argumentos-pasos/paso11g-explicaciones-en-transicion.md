@@ -11,9 +11,10 @@
 
 ## Estado
 
-Pendiente. El contenido de este archivo (14 introducciones y 80 explicaciones)
-se propone para revisión antes de implementar. No ejecutar el paso hasta que el
-docente lo apruebe.
+Hecho el 13/11/2026. El contenido de este archivo (14 introducciones y 80
+explicaciones) se aprobó y se cargó en los seeds. La migración se aplicó dos
+veces y los tres seeds se reejecutaron sobre la base real con respaldo previo y
+sin intentos activos. `pytest -q` pasó dos veces seguidas.
 
 ## Contexto
 
@@ -429,28 +430,27 @@ En `tests/test_ranking.py` o de estadísticas, solo como control de no regresió
 
 - Los conteos y el ranking no cambian.
 
-`pytest -q` debe pasar dos veces seguidas. La suite actual tiene 96 casos; con
-estos queda alrededor de 103.
+`pytest -q` debe pasar dos veces seguidas. La suite quedó en **105 casos**.
 
 ## Criterio de aceptación
 
-- [ ] La migración corre dos veces sin error y no toca datos.
-- [ ] `bd/schema.sql` crea las dos columnas nuevas en una base limpia.
-- [ ] Los 14 temas tienen introducción y las 80 preguntas tienen explicación.
-- [ ] Los conteos siguen en `5/14/80/240/9`.
-- [ ] La transición muestra los temas con su introducción.
-- [ ] La transición muestra, por cada pregunta, el enunciado, la respuesta
+- [x] La migración corre dos veces sin error y no toca datos.
+- [x] `bd/schema.sql` crea las dos columnas nuevas en una base limpia.
+- [x] Los 14 temas tienen introducción y las 80 preguntas tienen explicación.
+- [x] Los conteos siguen en `5/14/80/240/9`.
+- [x] La transición muestra los temas con su introducción.
+- [x] La transición muestra, por cada pregunta, el enunciado, la respuesta
       elegida y la explicación.
-- [ ] La respuesta correcta sigue sin aparecer en la estación.
-- [ ] La transición de la quinta estación y la de un intento ya completado
+- [x] La respuesta correcta sigue sin aparecer en la estación.
+- [x] La transición de la quinta estación y la de un intento ya completado
       también muestran la sección.
-- [ ] `tema.introduccion` y `pregunta.explicacion` se pueden editar desde
+- [x] `tema.introduccion` y `pregunta.explicacion` se pueden editar desde
       `/admin` y el valor persiste.
-- [ ] No hay pistas, enlaces a `docs/` ni cambios en reglas, tiempos o ranking.
-- [ ] La pantalla se ve bien en móvil y no tapa los botones.
-- [ ] Los seeds son idempotentes y no cambian `activo`, respuestas ni
+- [x] No hay pistas, enlaces a `docs/` ni cambios en reglas, tiempos o ranking.
+- [x] La pantalla se ve bien en móvil y no tapa los botones.
+- [x] Los seeds son idempotentes y no cambian `activo`, respuestas ni
       `configuracion`.
-- [ ] `pytest -q` pasa dos veces seguidas.
+- [x] `pytest -q` pasa dos veces seguidas.
 
 ## Verificación
 

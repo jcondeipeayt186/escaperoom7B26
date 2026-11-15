@@ -48,62 +48,64 @@ ON DUPLICATE KEY UPDATE
 -- ----------------------------------------------------------------------------
 -- Temas (máximo 4 por estación)
 -- ----------------------------------------------------------------------------
-INSERT INTO tema (id, nombre, estacion_id, activo) VALUES
+INSERT INTO tema (id, nombre, introduccion, estacion_id, activo) VALUES
   -- Redes
-  (1, 'IP', 1, 1),
-  (2, 'Router', 1, 1),
-  (3, 'Redes de computadoras', 1, 1),
-  (4, 'WiFi', 1, 1),
+  (1, 'IP', 'Una dirección IP identifica a cada dispositivo dentro de una red y permite que los datos lleguen a destino. Puede ser privada, pública o especial, como la de loopback. Conocerla ayuda a entender cómo se comunican los equipos.', 1, 1),
+  (2, 'Router', 'El router es el equipo que conecta redes distintas y decide por dónde sale cada paquete. En una casa suele unir la red interna con Internet. Su trabajo es distinto del de un switch o un punto de acceso.', 1, 1),
+  (3, 'Redes de computadoras', 'Una red de computadoras es un conjunto de dispositivos conectados para compartir datos y recursos. Puede ser cableada o inalámbrica y su tamaño va desde una casa hasta una empresa. Los protocolos son las reglas que ordenan esa comunicación.', 1, 1),
+  (4, 'WiFi', 'El WiFi permite conectar dispositivos sin cables mediante ondas de radio. Un punto de acceso recibe la señal y la integra a la red. La seguridad de esa conexión depende del cifrado y de la clave que se use.', 1, 1),
   -- Hardware
-  (5, 'Procesador', 2, 1),
-  (6, 'Dispositivos de entrada/salida', 2, 1),
-  (7, 'Memoria RAM', 2, 1),
+  (5, 'Procesador', 'El procesador ejecuta las instrucciones y coordina el trabajo del equipo. Dentro tiene memorias muy rápidas y se comunica con el resto de los componentes. Su rendimiento depende de varios factores, no solo de la velocidad que muestra la caja.', 2, 1),
+  (6, 'Dispositivos de entrada/salida', 'Los dispositivos de entrada permiten ingresar datos y los de salida muestran el resultado. Algunos cumplen las dos funciones, como una pantalla táctil. El almacenamiento también forma parte del hardware y guarda la información.', 2, 1),
+  (7, 'Memoria RAM', 'La memoria RAM es el espacio de trabajo del equipo: guarda lo que se está usando en ese momento. Es rápida y volátil, por eso los datos se pierden al apagar. Cuando falta, el sistema puede apoyarse en el disco con la memoria virtual.', 2, 1),
   -- Internet
-  (8, 'Navegadores Web', 3, 1),
-  (9, 'URL', 3, 1),
-  (10, 'Conectividad', 3, 1),
+  (8, 'Navegadores Web', 'El navegador es el programa que pide las páginas y las muestra en pantalla. Guarda cookies, caché e historial para que la navegación sea más rápida y cómoda. También ofrece modos y opciones de privacidad que conviene conocer.', 3, 1),
+  (9, 'URL', 'Una URL es la dirección de un recurso en Internet y tiene varias partes. El protocolo indica cómo se pide, el dominio identifica al servidor y la ruta señala el recurso. Los parámetros agregan datos a la consulta.', 3, 1),
+  (10, 'Conectividad', 'La conectividad depende de varios factores: la velocidad, la latencia y la calidad de la red. El ancho de banda mide cuánto puede pasar y la latencia cuánto tarda. Los códigos HTTP, por su parte, informan cómo respondió el servidor.', 3, 1),
   -- Ciberseguridad
-  (11, 'Contraseña', 4, 1),
-  (12, 'Phishing', 4, 1),
+  (11, 'Contraseña', 'Las contraseñas protegen las cuentas y deben ser largas, únicas y difíciles de adivinar. Un gestor y la autenticación de dos factores ayudan a cuidarlas. Compartirlas o repetirlas aumenta el riesgo.', 4, 1),
+  (12, 'Phishing', 'El phishing reúne engaños que buscan robar información haciéndose pasar por alguien confiable. Llega por correo, mensajes o llamadas y suele usar la urgencia. La ingeniería social ataca la confianza de las personas.', 4, 1),
   -- Sistemas Operativos
-  (13, 'Sistema Operativo', 5, 1),
-  (14, 'Dispositivos Móviles', 5, 1)
+  (13, 'Sistema Operativo', 'El sistema operativo administra el hardware y permite ejecutar los programas. Su núcleo, el kernel, coordina la memoria, el procesador y los dispositivos. Los procesos y los hilos son parte de esa administración.', 5, 1),
+  (14, 'Dispositivos Móviles', 'Los teléfonos y las tabletas usan sistemas operativos móviles como Android e iOS. Cada aplicación pide permisos para acceder a funciones y datos. Instalar solo desde la tienda oficial reduce riesgos.', 5, 1)
 ON DUPLICATE KEY UPDATE
   nombre = VALUES(nombre),
+  introduccion = VALUES(introduccion),
   estacion_id = VALUES(estacion_id);
 
 -- ----------------------------------------------------------------------------
 -- Preguntas (4 por estación, nivel inicial)
 -- ----------------------------------------------------------------------------
-INSERT INTO pregunta (id, titulo, descripcion, tema_id, dificultad, activo) VALUES
+INSERT INTO pregunta (id, titulo, descripcion, explicacion, tema_id, dificultad, activo) VALUES
   -- Estación 1: Redes
-  (1, '¿Qué significa IP?', NULL, 1, 'inicial', 1),
-  (2, '¿Qué dispositivo conecta diferentes redes?', NULL, 2, 'inicial', 1),
-  (3, '¿Qué es una red informática?', NULL, 3, 'inicial', 1),
-  (4, '¿Qué se necesita para conectarse a una red WiFi?', NULL, 4, 'inicial', 1),
+  (1, '¿Qué significa IP?', NULL, 'IP son las siglas de Internet Protocol, el protocolo que identifica cada dispositivo dentro de una red y permite que los datos sepan hacia dónde viajar. Cada equipo conectado recibe una dirección IP, como si fuera su número de casa.', 1, 'inicial', 1),
+  (2, '¿Qué dispositivo conecta diferentes redes?', NULL, 'El router une redes distintas y decide por dónde enviar cada paquete de datos. En una casa, es el equipo que conecta la red interna con Internet. Un teclado o un monitor no cumplen esa función.', 2, 'inicial', 1),
+  (3, '¿Qué es una red informática?', NULL, 'Una red informática es un conjunto de dispositivos conectados entre sí para compartir información y recursos. Pueden estar unidos por cables o por WiFi y sirven para intercambiar archivos, usar una impresora o navegar.', 3, 'inicial', 1),
+  (4, '¿Qué se necesita para conectarse a una red WiFi?', NULL, 'Para entrar a una red WiFi protegida hay que conocer su contraseña o clave de seguridad. Esa clave evita que cualquier persona se conecte sin permiso. Los cables HDMI o las impresoras no tienen relación con esa conexión.', 4, 'inicial', 1),
   -- Estación 2: Hardware
-  (5, '¿Qué componente es considerado el cerebro de la computadora?', NULL, 5, 'inicial', 1),
-  (6, '¿Cuál es un dispositivo de entrada?', NULL, 6, 'inicial', 1),
-  (7, '¿Para qué sirve la memoria RAM?', NULL, 7, 'inicial', 1),
-  (8, '¿Cuál es un dispositivo de salida?', NULL, 6, 'inicial', 1),
+  (5, '¿Qué componente es considerado el cerebro de la computadora?', NULL, 'El procesador, también llamado CPU, ejecuta las instrucciones y coordina las tareas del equipo. Por eso se lo compara con el cerebro de la computadora: sin él, el resto de los componentes no puede trabajar. El teclado y el monitor solo permiten entrar o ver información.', 5, 'inicial', 1),
+  (6, '¿Cuál es un dispositivo de entrada?', NULL, 'Un dispositivo de entrada permite ingresar datos al equipo. El teclado lo hace cuando escribís y el ratón cuando movés el puntero. El monitor y el parlante son de salida, porque muestran o emiten el resultado.', 6, 'inicial', 1),
+  (7, '¿Para qué sirve la memoria RAM?', NULL, 'La memoria RAM guarda los datos y los programas que se están usando en ese momento. Es muy rápida, pero al apagar el equipo su contenido se pierde. No sirve para imprimir ni para proteger la pantalla.', 7, 'inicial', 1),
+  (8, '¿Cuál es un dispositivo de salida?', NULL, 'Un dispositivo de salida presenta al usuario el resultado del trabajo del equipo. El monitor muestra texto e imágenes y el parlante emite sonido. El ratón y el micrófono son de entrada.', 6, 'inicial', 1),
   -- Estación 3: Internet
-  (9, '¿Qué es un navegador web?', NULL, 8, 'inicial', 1),
-  (10, '¿Cuál de estos es un navegador web?', NULL, 8, 'inicial', 1),
-  (11, '¿Qué significa URL?', NULL, 9, 'inicial', 1),
-  (12, '¿Qué se necesita para acceder a un sitio web público en internet?', NULL, 10, 'inicial', 1),
+  (9, '¿Qué es un navegador web?', NULL, 'Un navegador web es el programa que pide las páginas a los servidores y las muestra en pantalla. Chrome, Firefox y Edge son ejemplos. No es una parte del procesador ni un cable de red.', 8, 'inicial', 1),
+  (10, '¿Cuál de estos es un navegador web?', NULL, 'Google Chrome es un navegador web: sirve para abrir sitios y navegar por Internet. Windows es un sistema operativo y la calculadora es una aplicación de cálculo. Cada programa cumple una función distinta.', 8, 'inicial', 1),
+  (11, '¿Qué significa URL?', NULL, 'URL son las siglas de Uniform Resource Locator y funcionan como la dirección de una página, una imagen o un archivo en Internet. Al escribirla en el navegador, el equipo sabe qué servidor buscar y qué recurso pedir.', 9, 'inicial', 1),
+  (12, '¿Qué se necesita para acceder a un sitio web público en internet?', NULL, 'Para ver un sitio público hace falta una conexión que llegue hasta el servidor donde está alojado. Sin conexión a Internet, el navegador no puede pedir esa página. Un escáner o un pendrive no reemplazan esa conexión.', 10, 'inicial', 1),
   -- Estación 4: Ciberseguridad
-  (13, '¿Cómo debe ser una contraseña segura?', NULL, 11, 'inicial', 1),
-  (14, '¿Qué deberías hacer con un enlace sospechoso?', NULL, 12, 'inicial', 1),
-  (15, '¿Qué es el phishing?', NULL, 12, 'inicial', 1),
-  (16, '¿Qué conviene hacer con tus contraseñas?', NULL, 11, 'inicial', 1),
+  (13, '¿Cómo debe ser una contraseña segura?', NULL, 'Una contraseña segura combina mayúsculas, minúsculas, números y símbolos, y tiene suficiente longitud para que no se adivine fácilmente. Evitá datos obvios como 123456 o tu nombre. Cuanto más difícil de adivinar, mejor protege la cuenta.', 11, 'inicial', 1),
+  (14, '¿Qué deberías hacer con un enlace sospechoso?', NULL, 'Antes de abrir un enlace dudoso conviene comprobar quién lo envió y por qué. Se puede consultar por otro canal, como una llamada o el sitio oficial. Abrirlo o compartirlo solo aumenta el riesgo.', 12, 'inicial', 1),
+  (15, '¿Qué es el phishing?', NULL, 'El phishing es un engaño que imita a una empresa o a una persona conocida para que entregues contraseñas o datos. Suele llegar por correo, mensaje o llamada. No es un programa de fotos ni una clase de monitor.', 12, 'inicial', 1),
+  (16, '¿Qué conviene hacer con tus contraseñas?', NULL, 'Las contraseñas son personales y no se comparten con nadie, ni con amigos ni con desconocidos. Usar la misma en todos lados multiplica el daño si una se filtra. Guardarlas de forma segura ayuda a no tener que recordarlas de memoria.', 11, 'inicial', 1),
   -- Estación 5: Sistemas Operativos
-  (17, '¿Qué es un sistema operativo?', NULL, 13, 'inicial', 1),
-  (18, '¿Cuál de estos es un sistema operativo?', NULL, 13, 'inicial', 1),
-  (19, '¿Para qué sirve un sistema operativo?', NULL, 13, 'inicial', 1),
-  (20, '¿Cuál de estos es un sistema operativo para celulares?', NULL, 14, 'inicial', 1)
+  (17, '¿Qué es un sistema operativo?', NULL, 'Un sistema operativo es el software principal que administra el hardware y permite ejecutar los programas. Windows, Linux y Android son ejemplos. Sin él, el equipo no sabría cómo usar sus componentes.', 13, 'inicial', 1),
+  (18, '¿Cuál de estos es un sistema operativo?', NULL, 'Windows es un sistema operativo: administra el equipo y sirve de base para los demás programas. Microsoft Word es un procesador de textos y Google Chrome es un navegador. Cada uno se apoya en el sistema operativo.', 13, 'inicial', 1),
+  (19, '¿Para qué sirve un sistema operativo?', NULL, 'El sistema operativo reparte el procesador, la memoria y el almacenamiento entre los programas. También controla los permisos y la comunicación con los dispositivos. No se limita al color del monitor ni a escribir documentos.', 13, 'inicial', 1),
+  (20, '¿Cuál de estos es un sistema operativo para celulares?', NULL, 'Android es un sistema operativo móvil, pensado para teléfonos y tabletas. PowerPoint y Excel son aplicaciones de oficina que funcionan sobre un sistema operativo. iOS es otro sistema móvil, de otra empresa.', 14, 'inicial', 1)
 ON DUPLICATE KEY UPDATE
   titulo = VALUES(titulo),
   descripcion = VALUES(descripcion),
+  explicacion = VALUES(explicacion),
   tema_id = VALUES(tema_id),
   dificultad = VALUES(dificultad);
 

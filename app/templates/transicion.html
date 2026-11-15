@@ -48,6 +48,50 @@
           </div>
         </div>
 
+        {% if aprendizaje.temas or aprendizaje.preguntas %}
+          <div class="card border-0 bg-body-tertiary text-start mb-4">
+            <div class="card-body">
+              <h2 class="h5 mb-3">
+                Lo que aprendieron en {{ estacion.nombre }}
+              </h2>
+
+              {% if aprendizaje.temas %}
+                <div class="mb-4">
+                  {% for tema in aprendizaje.temas %}
+                    <h3 class="h6 mb-1">{{ tema.nombre }}</h3>
+                    {% if tema.introduccion %}
+                      {% for parrafo in tema.introduccion.split('\n\n') %}
+                        <p class="mb-2">{{ parrafo }}</p>
+                      {% endfor %}
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              {% endif %}
+
+              {% if aprendizaje.preguntas %}
+                {% for pregunta in aprendizaje.preguntas %}
+                  <div class="border-top pt-3 mt-3">
+                    <p class="fw-semibold mb-1">
+                      {{ pregunta.orden }}. {{ pregunta.titulo }}
+                    </p>
+                    {% if pregunta.respuesta_elegida %}
+                      <p class="mb-2 text-success">
+                        Respuesta correcta:
+                        <strong>{{ pregunta.respuesta_elegida }}</strong>
+                      </p>
+                    {% endif %}
+                    {% if pregunta.explicacion %}
+                      {% for parrafo in pregunta.explicacion.split('\n\n') %}
+                        <p class="mb-2">{{ parrafo }}</p>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+
         {% if es_ultima %}
           <p class="lead mb-4">
             ¡Completaron las {{ total_estaciones }} estaciones!

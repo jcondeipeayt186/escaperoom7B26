@@ -60,10 +60,11 @@ CREATE TABLE IF NOT EXISTS estacion (
 
 -- Máximo 4 temas activos por estación: se valida en /admin (no en la base).
 CREATE TABLE IF NOT EXISTS tema (
-  id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  nombre      VARCHAR(80) NOT NULL,
-  estacion_id INT UNSIGNED NOT NULL,
-  activo      TINYINT(1) NOT NULL DEFAULT 1,
+  id           INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  nombre       VARCHAR(80) NOT NULL,
+  introduccion TEXT NULL,
+  estacion_id  INT UNSIGNED NOT NULL,
+  activo       TINYINT(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (id),
   UNIQUE KEY uq_tema_estacion_nombre (estacion_id, nombre),
   CONSTRAINT fk_tema_estacion
@@ -75,6 +76,7 @@ CREATE TABLE IF NOT EXISTS pregunta (
   id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
   titulo      VARCHAR(255) NOT NULL,
   descripcion TEXT NULL,
+  explicacion TEXT NULL,
   tema_id     INT UNSIGNED NOT NULL,
   dificultad  ENUM('inicial', 'intermedio', 'avanzado') NOT NULL,
   activo      TINYINT(1) NOT NULL DEFAULT 1,

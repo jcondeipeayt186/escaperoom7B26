@@ -12,6 +12,8 @@ La base está organizada en tres bloques que se conectan entre sí: **el conteni
 
 El contenido se arma en forma de árbol. Una **estación** representa una temática del recorrido (Redes, Hardware, Internet, Ciberseguridad y Sistemas Operativos) y tiene un orden explícito de 1 a 5. Cada estación agrupa **temas** (por ejemplo, IP, Router, Redes de computadoras y WiFi dentro de Redes) y cada tema agrupa **preguntas**. Cada pregunta pertenece a un único tema y tiene una dificultad (`inicial`, `intermedio` o `avanzado`). A su vez, cada pregunta tiene varias **respuestas** posibles; en el contenido actual son siempre tres opciones y exactamente una está marcada como correcta. Las cuatro tablas de contenido usan borrado lógico mediante la columna `activo`: el juego y el panel de administración filtran `activo = 1`, pero los intentos históricos pueden seguir leyendo filas desactivadas.
 
+Además del nombre, cada **tema** guarda una `introduccion` y cada **pregunta** guarda una `explicacion`. Son textos planos (sin HTML) que no se usan durante la partida: la introducción presenta el tema y la explicación justifica la respuesta correcta, y ambas se muestran recién en la pantalla de transición, cuando la estación ya está completada, en la card **Lo que aprendieron**. No son pistas —las pistas se leen en papel— y la estación nunca recibe la explicación ni la respuesta correcta.
+
 Los **equipos** son independientes del contenido. Un equipo tiene un nombre único, la cantidad de integrantes (de 1 a 4) y la fecha en que se creó. Sobre un equipo se apoyan los **intentos**: cada vez que el equipo juega se crea un intento nuevo, con la dificultad elegida, la fecha de inicio, la fecha de fin, la cantidad total de ayudas, el puntaje y el estado final. El estado final puede ser `completo`, `abandono`, `por_respuestas_incorrectas` o `por_tiempo`; mientras el intento está en curso, `finalizado` queda en `NULL` y `fecha_fin` también. La columna `se_completo_ok` no se carga a mano: es una columna generada que vale 1 únicamente cuando `finalizado = 'completo'`. El campo `puntaje_obtenido` guarda los segundos totales del intento completado y queda en `NULL` en los demás casos. El intento también guarda cuál fue la última estación visitada, para poder reanudar el juego después de una recarga o de un corte.
 
 El recorrido de un intento se registra en varias tablas de detalle. **`intento_estacion`** tiene una fila por cada estación que jugó el intento: guarda cuándo empezó y terminó esa estación, cuántas ayudas usó y si la completó. La combinación `(intento_id, estacion_id)` es única, así que no puede haber dos filas para la misma estación dentro del mismo intento. **`intento_envio`** registra cada envío del formulario de una estación, con la fecha y la cantidad de respuestas correctas e incorrectas de ese envío; esto es lo que permite mostrar "envíos: 1 de 2" y bloquear el formulario en el segundo envío. **`intento_pregunta`** congela la selección aleatoria: guarda las cuatro preguntas elegidas para cada estación del intento, con su orden. Gracias a esta tabla, recargar la página no cambia las preguntas. La combinación `(intento_id, estacion_id, orden)` es única y la combinación `(intento_id, estacion_id, pregunta_id)` también, de modo que no se repite una pregunta ni se pisan dos órdenes.
@@ -139,10 +141,11 @@ Agrupa preguntas dentro de una estación.
 | --- | --- | --- | --- | --- | --- |
 | `id` | `INT UNSIGNED` | No | `AUTO_INCREMENT` | PK | Identificador del tema. |
 | `nombre` | `VARCHAR(80)` | No | — | — | Nombre del tema (IP, Router, etc.). |
+| `introduccion` | `TEXT` | Sí | `NULL` | — | Texto plano que presenta el tema en la card **Lo que aprendieron** de la transición. No es una pista y no se muestra en la estación. |
 | `estacion_id` | `INT UNSIGNED` | No | — | FK → `estacion.id` | Estación a la que pertenece. |
 | `activo` | `TINYINT(1)` | No | `1` | — | Borrado lógico. |
 
-Restricciones: `uq_tema_estacion_nombre` (único por estación), `fk_tema_estacion`. El máximo de 4 temas activos por estación se valida en la aplicación.
+Restricciones: `uq_tema_estacion_nombre` (único por estación), `fk_tema_estacion`. El máximo de 4 temas activos por estación se valida en la aplicación. El contenido congelado tiene 14 temas activos, todos con `introduccion` cargada.
 
 ### `pregunta`
 
@@ -153,11 +156,12 @@ Contiene las preguntas de cada tema, con su nivel de dificultad.
 | `id` | `INT UNSIGNED` | No | `AUTO_INCREMENT` | PK | Identificador de la pregunta. |
 | `titulo` | `VARCHAR(255)` | No | — | — | Texto de la pregunta. |
 | `descripcion` | `TEXT` | Sí | `NULL` | — | Mini ayuda de contexto que se muestra debajo del enunciado. Está cargada en `intermedio` y `avanzado`; las preguntas de `inicial` quedan en `NULL`. |
+| `explicacion` | `TEXT` | Sí | `NULL` | — | Texto plano que justifica la respuesta correcta en la card **Lo que aprendieron** de la transición. No se envía a la estación. |
 | `tema_id` | `INT UNSIGNED` | No | — | FK → `tema.id` | Tema al que pertenece. |
 | `dificultad` | `ENUM('inicial','intermedio','avanzado')` | No | — | — | Nivel de la pregunta. |
 | `activo` | `TINYINT(1)` | No | `1` | — | Borrado lógico. |
 
-Índice: `idx_pregunta_tema_dificultad (tema_id, dificultad, activo)` para armar la selección por estación y nivel.
+Índice: `idx_pregunta_tema_dificultad (tema_id, dificultad, activo)` para armar la selección por estación y nivel. El contenido congelado tiene 80 preguntas activas, todas con `explicacion` cargada (20 `inicial`, 30 `intermedio` y 30 `avanzado`).
 
 ### `respuesta`
 
@@ -307,6 +311,8 @@ Estas reglas viven en la aplicación (rutas y panel `/admin`), no en restriccion
 - `puntaje_obtenido` solo se completa en intentos completados.
 - El borrado de contenido es lógico (`activo = 0`); los históricos no se borran.
 - La selección de preguntas se congela por intento en `intento_pregunta`.
+- La estación nunca recibe la explicación ni la respuesta correcta: `pregunta.explicacion` y `tema.introduccion` se leen solo en la transición, con la estación completada.
+- La respuesta que muestra la transición es la que el equipo eligió en `respuesta_elegida`, no la que hoy esté marcada como `correcta`.
 
 ---
 
