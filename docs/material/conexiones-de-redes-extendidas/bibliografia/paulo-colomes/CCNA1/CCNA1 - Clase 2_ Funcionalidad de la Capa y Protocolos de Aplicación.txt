@@ -1,0 +1,157 @@
+(0:02 - 4:18)
+Bienvenidos al capítulo número 3 de nuestro currículum de CSNA 1 donde veremos cuáles son los principales aspectos y funcionalidad de la capa de aplicación del modelo OSI y modelo TCP y IP que en realidad viene a ser prácticamente lo mismo con una par de diferencias que ya vamos a aclarar y el objetivo de este capítulo es principalmente ver, ya lo tenemos aquí, definir cómo la capa de aplicación funciona como de origen y destino para la comunicación de red o de datos a través de la red. Vamos a explicar el rol de los protocolos, algunos de los protocolos más conocidos y de los dos modelos que hay a nivel de modelos de red a nivel de capa de aplicación que son modelo OSI, modelo cliente-servidor, modelo punto a punto y bueno por último vamos a revisar algunos de los protocolos más conocidos como HTTP, DNS, SMTP, entre otros. Bien, aquí tenemos en pantalla las siete capas del modelo OSI, vamos a pasar un poquito aquí, un segundito mientras tomo mi lápiz, aquí está. 
+
+Tenemos las siete capas del modelo OSI y lo importante es que, bueno ahora estamos centrados en la capa de aplicación y esta es la principal capa, aquí ocurre y aquí comienza la comunicación en red aunque como ustedes podrán ver esta aparece como la capa número 7. Bueno, en el modelo OSI se cuentan desde la física hacia la de aplicación, siendo la de aplicación la número 7, pero es esta capa la que inicia la conexión en red, de hecho el quien inicia es el usuario. Entonces podemos decir que el principal uso de la capa de aplicación o la principal función es proveer de un mecanismo para que los usuarios puedan acceder a la red. A ver, todos nosotros conocemos aplicaciones como algunas que no necesitan simplemente soporte a la red, como por ejemplo blog de notas, notepad, que otro, paint y así sucesivamente. 
+
+Estas aplicaciones no necesitan soporte de red por lo tanto no tienen incorporado en su código fuente alguna alguna de las funciones y librerías más de conexión que por ejemplo si tendría Word, que ya saben que ustedes necesitan actualizar, o Messenger o alguna otra de las aplicaciones que si tienen soporte en red. Imaginemos que ustedes programan un paint nuevo que permita que dos usuarios puedan dibujar simultáneamente en la misma pantalla. Si Paint fuera open source podríamos tomar el código fuente y agregarle el componente que le falta para trabajar en red, por ejemplo las librerías correspondientes y las funciones necesarias para que esta aplicación nueva se pueda conectar a la red, para que soporte conexión a distintos puertos, direcciones IP, etcétera. 
+
+Bueno, esta capa o este componente que agregaríamos a nuestro paint nuevo es la capa de aplicación. Ahora una cosa importante, según recuerdan del último vídeo, en realidad cuando hablamos de aplicación hoy en día estamos hablando de las últimas tres capas, de la capa de sesión, presentación y aplicación de OSI, que en TCP y IP se denomina simplemente aplicación. La comunicación ocurre de capa a capa.
+
+(4:20 - 5:20)
+Cuando, vamos a ordenar un poquito esto, cuando un usuario se quiere conectar a la red completo, desde la persona que está llamando aquí, por ejemplo a través de una aplicación IP, de teléfono IP, a la otra persona acá, los datos se generan en la capa de aplicación y van encapsulándose, van bajando en el modelo, mientras que cada capa va agregando un pequeño header o encabezado. La capa de transporte agrega su encabezado de transporte, la capa de red, network agrega su encabezado de red, la capa de enlace datos también, hasta que eso se convierte en bits y se envía por la red. Y en el otro extremo, en el usuario final, esto se desencapsula, donde el dispositivo de destino va eliminando esos encabezados de información complementaria de cada capa, hasta que simplemente queda con los datos generados en la misma aplicación.
+
+(5:23 - 7:51)
+Aquí estamos más o menos explicado de la misma manera. Podemos ver que el usuario es quien utiliza un computador o algún dispositivo para acceder a la red, por ejemplo una cámara IP, un teléfono IP, una impresora o algún dispositivo que trabaje en red. Bueno, esos dispositivos contienen los datos necesarios para que puedan ellos, a través de la capa de aplicación, ir encapsulando los datos y así poder ser finalmente transmitidos a la internet work o la red de datos. 
+
+Esto sí que es importantísimo, muy muy importante. Es uno de los tópicos más relevantes de todos SNA en realidad, que tiene que ver con la comparación entre ambos modelos. Este es un modelo, o más bien una diapositiva, que ustedes no deben olvidar y de todas maneras hay que recordar siempre así. 
+
+Cada capa del modelo si tiene su función específica. Cada una está por algo. La capa de aplicación, hablemos del modelo OZI, la capa de aplicación es la que provee los mecanismos necesarios para que las aplicaciones accedan efectivamente a la red. 
+
+Mientras que la capa de presentación del modelo OZI se encarga de la codificación de datos. Vamos a poner acá codificación. ¿Qué sería la codificación? Por ejemplo UTF-8, HTML, XML, etcétera. 
+
+Distintos lenguajes o códigos que las aplicaciones necesitan en común. Si no existiese la capa de aplicación, ya sabemos, tenemos dos personas. Vamos a recurrir nuevamente a nuestro ejemplo de la carta escrita en papel, con papel y lápiz. 
+
+La persona número 1 que vive en Chile, le va a enviar esta carta escrita a una persona que vive, digamos, en Rusia. Y cuando escribe un mensaje, se lo va a enviar en español. Hola, ok.
+
+(7:52 - 12:31)
+Bueno, este mensaje va a ser escrito, va a ser guardado en un sobre. Ese sobre tendrá una estampilla, una dirección de destinatario emisor. Se va a ir al correo, se va a pagar por el servicio y se va a enviar. 
+
+Lo más probable es que esta carta viaje efectivamente por todo el mundo hasta que llegue a destino. ¿Qué va a hacer en Rusia? Va a recorrer desde la ciudad donde salió hasta probablemente Santiago de Chile, luego tome algún avión hasta EEUU, viaje a Moscú, Rusia y en Moscú tengan que reenviar esa carta a otra ciudad. Todo ese recorrido se va a hacer exitosamente y la carta va a llegar al destinatario. 
+
+Y el destinatario va a abrir la carta, pero se va a encontrar con que está escrita en un idioma que él no conoce. Suponiendo que esa persona no conoce español, no sabe español. Ustedes ya saben que las personas en Rusia escriben con un alfabeto totalmente distinto. 
+
+Entonces lo más probable es que ocurra que ese usuario no entienda la carta que le está llegando. Bueno, para evitar eso en la red existe la capa de presentación que se encarga de la semántica, de que ambos extremos de la comunicación compartan el mismo lenguaje. Y ahí no ocurriría el problema que acabamos de describir. 
+
+Y la capa de sesión se encarga de algo muy simple. Inicia, mantiene y termina sesiones. Termina sesión. 
+
+Es la capa que abre la sesión con algún mensaje de inicio. Mantiene la sesión con los llamados keep alive y termina la sesión cuando el usuario ya no quiere seguir utilizando. Ahora estos tres elementos han sido fusionados en la capa de aplicación del modelo TCP y IP. 
+
+Todos esos tres están presentes, haciéndolo mucho más simple. Luego vienen los demás procesos que vamos a ir viendo en los vídeos siguientes que son transporte, red o internet y lo que ocurre en la capa de enlace datos de la capa física. Bueno, acá tenemos una topología de distintos servidores, distintos servicios físicos. 
+
+Pueden ser, bueno, hoy en día, ¿por qué no? Pueden ser máquinas virtuales o máquinas físicas, independientemente del tipo de servidor que sea. Lo importante es que... Server. ¿Qué es lo que se conoce como un servidor? En realidad un servidor es una máquina que tiene un servicio. 
+
+¿Cuáles son los servicios? Los más conocidos DNS, telnet, correo, DHCP, HTTP, FTP. Esos son los servicios más conocidos de internet. Cuando una máquina tiene un servicio, quiere decir que es un servidor. 
+
+Es muy simple. A ver, supongamos que que todo esto, incluso, puede ser, ¿por qué no?, un solo PC físico. Puede ser un solo sistema operativo. 
+
+Sistema operativo. Que tenga los distintos servicios corriendo. Ahora, ¿cómo podría ser eso? Simplemente porque... Vamos a borrar esto un poquito. 
+
+Cuando se tiene un servidor, sea físico o virtual, no importa, lo que se hace es ejecutar un software, por ejemplo, Name Daemon o HTTP Daemon. ¿Por qué no DHCP Daemon? Algún software que tiene como función abrir un puerto en el cual va a escuchar ese servicio. Por ejemplo, el servicio de nombres, conocido como DNS, activa el puerto 53 UDP. 
+
+También abre el TCP en ciertos casos, pero para el ejemplo 53 UDP. Al correr el servicio HTTP, se va a abrir el puerto 80 TCP. Y al correr el servicio DHCP, se va a abrir el 67-68 UDP.
+
+(12:33 - 13:25)
+67-68 UDP. Lo que va a ocurrir es que cuando hay un cliente en el otro lado de la red, llamemos un cliente web, por ejemplo. Un cliente web como Internet Explorer, Chrome o cualquiera. 
+
+Y suponiendo que el servidor de acá tenemos la IP 1001. Cuando se va al navegador, ya ven ustedes que inmediatamente se agrega este HTTP 2.0 slash y ponen la dirección del 1, lo que va a hacer el cliente es inmediatamente, ya que estamos poniendo HTTP y parte del estándar indica que HTTP es puerto 80, inmediatamente va a lanzar una comunicación hacia el puerto 80 de esa máquina. Esa comunicación la va a tomar el software correspondiente, la va a ejecutar y la va a procesar y eventualmente la va a responder.
+
+(13:27 - 14:01)
+Asimismo, otro usuario podría hacer una consulta DNS porque la consulta va a ir a otro puerto y por ende a otra aplicación. La D al final de los servidores, si por si acaso tenían la duda, corresponde a la sigla Daemon. Que contrario a lo que la mayoría de los usuarios traduce como demonio, en realidad no es un demonio la sigla Daemon.
+
+(14:02 - 20:21)
+Yo creo que lo habrán visto alguna vez usted traducido esto como demonio. Disk and environment monitor. De ahí se deriva, esta es una contracción, disk and environment monitor. 
+
+Monitor de entorno y de disco. Lo que para nosotros es importante no es si acaso la gente le dice o no le dice demonio, sino que simplemente cuando tengan un nombre de algún servicio, por ejemplo de HCP y tenga una D al final, la D de Daemon significa que es un servidor. Quiere decir que esa aplicación está escuchando en tal puerta. 
+
+Bien, aquí quiero destacar esto que está muy pequeñito, que es algo también importante. A nivel de capa de aplicación existen dos arquitecturas principalmente en las cuales operan las aplicaciones. La primera es el modelo cliente-servidor, que más de algunos de ustedes ya creo que conoce. 
+
+Y la segunda es el modelo punto a punto, peer-to-peer. Ambos modelos son bastante utilizados y depende del programador, del desarrollador de la aplicación el uso que se le dé. Cliente-servidor es muy simple, es cuando claramente en la red existe una máquina que tiene el rol de servidor y claramente hay una máquina que tiene el rol de cliente. 
+
+¿Cuándo sería eso? Fíjense, es muy simple. Si este es un servidor HTTP, va a tener el puerto 80 abierto. Eso quiere decir que va a estar en estado listen o en estado de escucha y el servidor por sí no hace nada. 
+
+Está él tranquilamente esperando que algún usuario se conecte. Va a ser el cliente quien va a solicitar la conexión y cuando el servidor reciba esos datos, bueno, él responderá. Pero si el cliente no inicia la conexión, el servidor no hace simplemente nada. 
+
+Eso es bajo el modelo cliente-servidor. Algunas de las aplicaciones o de los software, de los protocolos que funcionan bajo este modelo están HTTP, ¿cierto? Todos sabemos que las páginas web se alojan en servidores HTTP y no en los clientes, que son los navegadores web. DNS, DHCP, Telnet, yo diría que casi todos funcionan bajo la arquitectura cliente-servidor. 
+
+Existe, sin embargo, la arquitectura peer-to-peer. ¿Y en qué consiste esto? Consiste que un, llamemos, PC conectado a la red de internet, otro PC, varios PCs. Cuando todos estos PCs ejecutan una aplicación de tipo peer-to-peer, por ejemplo BitTorrent o algún torrent similar o Ares, yo no sé si aún existe Ares. 
+
+Cuando estos PCs ejecutan esta aplicación, en algún momento uno de ellos va a solicitar a otro que le envíe los datos. En este caso el PC, llamémoslo uno, está actuando como cliente y el PC2 estaría actuando como servidor, ¿cierto? Pero puede ser que otro usuario le solicite al mismo PC1 los datos. En ese caso PC3 estaría actuando como cliente y PC1 estaría también actuando como servidor. 
+
+Entonces, simultáneamente, para unas conexiones actúa como cliente porque él solicita los datos y para otras actúa como servidor porque a él se los están solicitando y él va a responder tal como si fuese un server. En el modelo peer-to-peer, las máquinas pueden ser clientes o servidores al mismo tiempo. Esa es la gran diferencia. 
+
+Otra cosa importante respecto a la capa de aplicación es que los sistemas, los servidores, como ya sabemos Telnet Diamond es un servidor de Telnet, lo que tienen que hacer muy bien es gestionar múltiples conexiones simultáneas. ¿Cómo podrán hacer eso? Miren, esto es una parte muy importante. Cuando tenemos un server, ya sabemos que acá hay una aplicación Telnet y que esa aplicación abre un puerto. 
+
+Telnet abre el puerto 23 TCP. Este puerto 23 TCP es único y queda abierto en la máquina porque acá hay justamente un software que es el Telnet Diamond que va a estar recibiendo esas consultas y procesando. Entonces, cuando el cliente uno quiera conectarse, digamos a la máquina 10.0.0.1 y éste tiene la 10.0.0.2, 10.0.0.3 y así sucesivamente. 
+
+Cuando el cliente uno quiere conectarse al servidor Telnet, lo que va a hacer es generar un paquete de datos, que en la capa de aplicación sea Telnet, que en la capa de transporte que es la que maneja los... vamos a poner aquí fíjense cómo estaría encapsulado. La capa de transporte que maneja los puertos. Esto más o menos sería así. 
+
+Tenemos los datos de Telnet generados localmente, luego esos datos de Telnet se le agrega dos cosas más. Un encabezado de transporte, donde va a llevar los puertos. Puerto de destino, destination, source. 
+
+Y después en el encabezado de red se va a agregar la dirección IP. IP de destino, IP de origen. En el caso de... esto vamos a poner aquí transporte.
+
+(20:22 - 21:20)
+Encabezado de red, network. El caso del puerto destino va a ser 23, porque va a ir al destino 23. Y en el caso del puerto de origen, aquí sucede algo que hay que destacar muy bien y ustedes tienen que recordarlo también. 
+
+Es que este puerto, voy a poner puerto 3001. El puerto de origen es random. Es generado automáticamente por el sistema operativo de origen. 
+
+Y va entre el 1025 y el 65535. Depende del sistema operativo. Entonces lo que sí va a ser siempre fijo es el puerto de destino, porque depende de la aplicación, en este caso Telnet. 
+
+Bueno y en IP de destino va a ser naturalmente 1001. IP de origen va a ser 1002. Y esto se envía por la red hacia el puerto 23 de este sistema remoto.
+
+(21:21 - 22:16)
+Y se establece una sesión en el server que dice que hay una conexión desde el puerto 23 hacia el puerto 3001. El cliente 2 hace lo mismo. Si simultáneamente quisiera abrir una aplicación Telnet, el servidor remoto también va a poder procesarla. 
+
+Suponiendo que acá va a ir en el puerto 23 y el origen sea 4000. Y va a lanzar una aplicación en el puerto de destino 23 al 4000. Pero esta vez a la dirección IP 1003. 
+
+Y así simultáneamente el servidor va procesando múltiples conexiones simultáneas. Cada una de estas sesiones simultáneas consume algo de recursos. Por ejemplo un porcentaje de memoria, CPU, bandwidth o ancho de banda, etcétera.
+
+(22:17 - 22:35)
+Aunque puede ser muy mínimo. Puede haber casos donde se le hagan miles de conexiones simultáneas al servidor. Y eso puede originar un ataque que quizás alguno de ustedes ya conoce como denial of service o denegación de servicio.
+
+(22:35 - 23:49)
+Donde la máquina final recibe tantas solicitudes que no las puede procesar todas. Y ya queda fuera sin memoria la CPU al 100% ancho de banda no disponible. Y cuando un usuario legítimo y válido quiera conectarse, lo que va a pasar es que no va a haber conexión. 
+
+Bueno acá aparece mencionados los protocolos o las aplicaciones peer-to-peer. Que ya lo explicamos más bien. Lo único que hay que recordar es que existe un protocolo además que se llama Nutella. 
+
+Que no tiene mucho que ver con el alimento. Sino que recibe su nombre de GNU. Que tiene que ver con aplicaciones libres. 
+
+Que se ocupa para compartir archivos en una red peer-to-peer. Al más puro estilo BitTorrent. Bueno veamos un poco en detalle cómo funcionan los protocolos más importantes. 
+
+Esto va a ser una descripción bastante breve, bastante resumida de cómo operan estos protocolos. DNS es el señor protocolo de internet. Bueno uno de los grandes protocolos de internet.
+
+(23:50 - 29:59)
+La función de DNS es fundamental para el correcto funcionamiento de las aplicaciones de internet hoy en día. Es tan vital, tan importante, que si alguna persona, alguna organización quisiera botar internet, dejar de... o hacer que las máquinas dejen de funcionar. Que internet en todo el mundo falle. 
+
+Tendría que lanzar un ataque contra el sistema DNS mundial. Ahora afortunadamente para nosotros este sistema está tan ramificado y está tan controlado que es virtualmente imposible hacerlo. Pero es ahí su importancia. 
+
+Es tan importante que todas las organizaciones han puesto mucho mucho esfuerzo y mucho dinero en proteger este sistema. ¿Cómo opera? Es algo muy sencillo. Simplemente convierte lo que se llama nombre de dominio. 
+
+Ahí tienen un domain name. Lo convierten a una dirección IP. Veamos este ejemplo acá. 
+
+Voy a dibujar un tercer servidor para que quede 100% claro cómo funciona esto. Supongamos que nuestro servidor IP, servidor DNS va a ser 200.1.1.1 y acá tenemos un servidor web en la dirección IP 198, que es la que aparece abajo, 133.2.19.25. Cuando un cliente de red, por ejemplo, abre un navegador y escribe en su barra de direcciones www.cisco.com aquí está el navegador y presiona la tecla, que queda un poco corta ahí, ENTER o IR. Antes de que se lance la consulta de tipo HTTP, mucho antes de eso, va a salir una consulta DNS. 
+
+Ahora, este cliente de acá tiene en su configuración de red, en su tarjeta de red, tiene una dirección IP, que puede ser una dirección local, tiene una máscara de su red, por ejemplo 24, tiene un gateway que sería su propio router y tiene sí o sí al menos un servidor DNS. Y este servidor DNS es el cual se le van a hacer todas las consultas DNS de la red. Volvamos a nuestro ejemplo acá de abrir una página web cisco.com, ENTER. 
+
+Lo primero que ocurre es que ese cliente va a enviar una conexión hacia su servidor DNS en el puerto, a ver, ¿cuál es el puerto que utiliza DNS? ¿Lo saben? Puerto 53 UDP. En ese puerto está escuchando este servicio. Este servicio va a responder con la información de la IP que el usuario necesita, que en este caso sería la consulta que vemos acá abajo. 
+
+El servidor DNS, bueno, antes, el cliente pregunta, mira servidor DNS, necesito saber cuál es la IP de www.cisco.com. ¿La tienes? El servidor DNS va a hacer una búsqueda que puede ser local o puede involucrar a otros servidores DNS en la red. Y finalmente se va a encargar de responderle al cliente. Sí cliente, la IP es 198.133.219.25 Muy bien, la consulta DNS ha sido exitosa y recién ahí, en ese instante, el cliente lanza una conexión de tipo HTTP esta vez hacia la máquina en cuestión. 
+
+Directo con su IP. Y el servidor IP comunica de vuelta HTTP. Ese es el gran uso de DNS. 
+
+Ahora, si yo les pregunto cuál es la dirección IP de Google, ¿se la saben? Es muy simple. Yo no me la sé y probablemente espero que ustedes tampoco. Es muy simple consultar. 
+
+Simplemente la herramienta nslookup. Podemos dar un Enter. Ahí se fijan que yo en este instante estoy usando este servidor DNS 10.29.64.1. Es mi servidor propio. 
+
+Bueno, de la red donde estoy en este momento. Y le voy a consultar por el sitio web google.cl Y lo que me arroja como respuesta es, acá tenemos una dirección que incluso es IP versión 6 y tres direcciones en formato IPv4. Bueno, este servidor de google tiene múltiples copias en la red y ahí están las tres direcciones. 
+
+Podemos tomar esta dirección e ir a un navegador web. Vamos a abrir aquí el navegador web y simplemente pegando la dirección abre google. Exactamente. 
+
+Que es lo mismo que va a ocurrir aquí. Muy bien. Podemos verificar lo que ocurre en ese instante con Wireshark. 
+
+Wireshark es el sniffer o analizador de protocolos de red número uno del mundo y es gratis. Es muy sencillo de usar, no tan sencillo de entender, a menos que sepan muy bien networking, que es la idea de esto. Es básicamente, acá voy a mostrar las opciones de captura. 
+
+Me muestra un enlistado con todas las interfaces de red que tengo y estoy conectado a la red inalámbrica en este momento con esta dirección IP. Yo sé que aunque diga microsoft es la IP de nuestra red inalámbrica. Y voy a comenzar a capturar. 
+
+Todo el tráfico que ustedes están viendo aquí es el que ocurre
+
+

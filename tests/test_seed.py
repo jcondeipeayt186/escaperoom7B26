@@ -22,6 +22,55 @@ def test_reejecutar_los_seeds_no_duplica_contenido(db, base_de_datos):
     assert antes["tema"] == 14
     assert antes["pregunta"] == 80
     assert antes["respuesta"] == 240
+    assert conteo(db, "configuracion") == 9
+
+
+def test_todos_los_temas_tienen_introduccion(db):
+    assert (
+        conteo(
+            db,
+            "tema",
+            "WHERE activo = 1 AND introduccion IS NOT NULL "
+            "AND introduccion <> ''",
+        )
+        == 14
+    )
+
+
+def test_todas_las_preguntas_tienen_explicacion(db):
+    for dificultad, esperado in (
+        ("inicial", 20),
+        ("intermedio", 30),
+        ("avanzado", 30),
+    ):
+        assert (
+            conteo(
+                db,
+                "pregunta",
+                "WHERE dificultad = %s AND activo = 1 "
+                "AND explicacion IS NOT NULL AND explicacion <> ''",
+                (dificultad,),
+            )
+            == esperado
+        )
+
+
+def test_introducciones_y_explicaciones_son_texto_plano(db):
+    textos = filas(
+        db,
+        "SELECT introduccion AS texto FROM tema WHERE activo = 1 "
+        "UNION ALL "
+        "SELECT explicacion AS texto FROM pregunta WHERE activo = 1",
+    )
+
+    assert len(textos) == 94
+    for registro in textos:
+        texto = registro["texto"]
+        assert texto
+        assert ";" not in texto
+        assert "'" not in texto
+        assert "<" not in texto
+        assert ">" not in texto
 
 
 def test_distribucion_de_preguntas_por_nivel_y_estacion(db):
@@ -114,6 +163,15 @@ def test_el_seed_restaura_los_textos(db, base_de_datos):
         "UPDATE pregunta SET descripcion = 'Descripción cambiada' "
         "WHERE id IN (1001, 3001)",
     )
+    ejecutar(
+        db,
+        "UPDATE tema SET introduccion = 'Introducción cambiada' WHERE id = 1",
+    )
+    ejecutar(
+        db,
+        "UPDATE pregunta SET explicacion = 'Explicación cambiada' "
+        "WHERE id IN (1, 1001, 3001)",
+    )
 
     aplicar_seed(db, base_de_datos["MYSQL_DB"])
 
@@ -144,6 +202,14 @@ def test_el_seed_restaura_los_textos(db, base_de_datos):
         "Cuando un equipo se conecta a la red, puede pedir su "
         "configuración automáticamente en lugar de escribirla a mano."
     )
+    introduccion = fila(
+        db, "SELECT introduccion FROM tema WHERE id = 1"
+    )["introduccion"]
+    assert introduccion.startswith("Una dirección IP identifica")
+    explicacion = fila(
+        db, "SELECT explicacion FROM pregunta WHERE id = 1001"
+    )["explicacion"]
+    assert explicacion.startswith("La dirección 127.0.0.1")
 
 
 def test_los_seeds_no_reactivan_contenido_desactivado(db, base_de_datos):

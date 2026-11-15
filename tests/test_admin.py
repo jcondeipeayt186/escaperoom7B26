@@ -546,3 +546,68 @@ def test_filtros_y_orden_del_admin_no_rompen_el_sql(
     # El buscador escapa LIKE: un % literal no debe coincidir con todo.
     escapado = cliente.get("/admin/pregunta?q=%25").get_data(as_text=True)
     assert "¿Qué significa IP?" not in escapado
+
+
+def test_editar_la_explicacion_de_una_pregunta(cliente, db, credenciales_admin):
+    _con_sesion(cliente, credenciales_admin)
+    pregunta = fila(
+        db,
+        "SELECT id, titulo, descripcion, tema_id, dificultad "
+        "FROM pregunta WHERE id = 1",
+    )
+    explicacion = "Explicación editada desde el panel de administración."
+
+    respuesta = post(
+        cliente,
+        f"/admin/pregunta/{pregunta['id']}/editar",
+        {
+            "titulo": pregunta["titulo"],
+            "descripcion": pregunta["descripcion"] or "",
+            "explicacion": explicacion,
+            "tema_id": str(pregunta["tema_id"]),
+            "dificultad": pregunta["dificultad"],
+            "activo": "1",
+        },
+    )
+    assert respuesta.status_code == 302
+
+    assert fila(
+        db,
+        "SELECT explicacion FROM pregunta WHERE id = %s",
+        (pregunta["id"],),
+    )["explicacion"] == explicacion
+    html = cliente.get(
+        f"/admin/pregunta/{pregunta['id']}/editar"
+    ).get_data(as_text=True)
+    assert explicacion in html
+
+
+def test_editar_la_introduccion_de_un_tema(cliente, db, credenciales_admin):
+    _con_sesion(cliente, credenciales_admin)
+    tema = fila(
+        db, "SELECT id, nombre, estacion_id FROM tema WHERE id = 1"
+    )
+    introduccion = "Introducción editada desde el panel de administración."
+
+    respuesta = post(
+        cliente,
+        f"/admin/tema/{tema['id']}/editar",
+        {
+            "nombre": tema["nombre"],
+            "introduccion": introduccion,
+            "estacion_id": str(tema["estacion_id"]),
+            "activo": "1",
+        },
+    )
+    assert respuesta.status_code == 302
+
+    assert fila(
+        db,
+        "SELECT introduccion FROM tema WHERE id = %s",
+        (tema["id"],),
+    )["introduccion"] == introduccion
+    html = cliente.get(
+        f"/admin/tema/{tema['id']}/editar"
+    ).get_data(as_text=True)
+    assert introduccion in html
+

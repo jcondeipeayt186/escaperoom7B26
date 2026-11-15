@@ -507,7 +507,15 @@ que `MYSQL_*` en `.env` sea correcto.
 ## 10. Acceder desde otra máquina de la red
 
 Por defecto Flask escucha solo en `127.0.0.1`, así que únicamente se puede abrir
-desde la misma máquina. Para probar desde otra notebook o el televisor:
+desde la misma máquina. Para probar desde otra notebook o el televisor, el
+atajo de la feria es:
+
+```bash
+./scripts/feria.sh
+```
+
+El script usa un entorno propio en `feria2026/` y arranca con el equivalente
+manual:
 
 ```bash
 flask --app app run --debug --host=0.0.0.0
@@ -542,10 +550,11 @@ Tener en cuenta:
 ## 11. Dejarlo como servidor permanente (después de la feria)
 
 Hasta acá la app corre con el servidor de desarrollo de Flask. Para la feria
-alcanza con `flask --app app run --debug --host=0.0.0.0` y la terminal abierta.
-Esta sección es para **después de la feria**, cuando conviene dejarla como
-servicio: arranca sola al encender la notebook y escucha en la red para que
-entren las demás notebooks y el televisor sin depender de una terminal.
+alcanza con `./scripts/feria.sh` (o `flask --app app run --debug --host=0.0.0.0`)
+y la terminal abierta. Esta sección es para **después de la feria**, cuando
+conviene dejarla como servicio: arranca sola al encender la notebook y escucha
+en la red para que entren las demás notebooks y el televisor sin depender de una
+terminal.
 
 Esta sección es el camino mínimo del **escenario A** (todo en la notebook). El
 detalle de permisos, firewall, audio, plan B en el servidor de la escuela y

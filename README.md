@@ -152,13 +152,17 @@ escaperoom7B26/
 │       └── 003_contenido_avanzado.sql # 30 preguntas de nivel avanzado
 ├── scripts/
 │   ├── backup.sh                     # Volcado desde el .env (local o remoto)
-│   └── restaurar.sh                  # Restauración segura en una base temporal
+│   ├── restaurar.sh                  # Restauración segura en una base temporal
+│   └── generar-pdfs.sh               # PDF de cada .md en docs/pdf/
 ├── tests/
 │   ├── conftest.py                   # Base de test, seeds y limpieza
 │   ├── helpers.py                    # CSRF, POST y datos de juego
 │   └── test_*.py                     # 9 archivos: juego, ranking, admin, CSRF, seeds, etc.
 ├── docs/                             # Requisitos, guías y material de la feria
 │   ├── argumentos-pasos/             # Un archivo por paso, con criterios de aceptación
+│   ├── material-de-estudio-y-control.md # Introducciones, preguntas y explicaciones
+│   ├── como-se-hizo-el-proyecto.md   # Proceso de trabajo del proyecto
+│   ├── pdf/                          # Un PDF por cada .md, más 00-indice.pdf
 │   ├── instalacion-y-puesta-en-funcionamiento.md # Escenario A (notebook Ubuntu)
 │   ├── instalacion-servidor-escuela.md # Escenarios B y C
 │   ├── dejar-funcionando-proyecto-luego-clone.md # De clonar a navegar
@@ -376,8 +380,9 @@ flask --app app run --debug
 
 `flask run --debug` es para desarrollo. En la feria del 16/11/2026 se usa el
 mismo servidor de desarrollo con `--host=0.0.0.0` para que entren las otras
-notebooks y el televisor (sección 9). Waitress y systemd quedan para después de
-la feria.
+notebooks y el televisor (sección 9). El atajo es `./scripts/feria.sh`, que
+prepara el entorno `feria2026/` y levanta todo con un solo comando. Waitress y
+systemd quedan para después de la feria.
 
 ## 8. Base de datos
 
@@ -423,7 +428,26 @@ Conteos esperados después de cargar el contenido:
 ## 9. Servidor en la feria y puesta en producción
 
 **Para la feria del 16/11/2026** se usa el servidor de desarrollo de Flask, que
-ya está probado:
+ya está probado. El arranque recomendado es un solo comando:
+
+```bash
+./scripts/feria.sh
+```
+
+El script:
+
+- Verifica que exista `.env` y avisa si no tiene permisos `600`.
+- Crea `feria2026/` la primera vez y instala `requirements.txt` solo si falta.
+- En arranques posteriores no instala nada, así que funciona sin Internet.
+- Muestra la IP de la notebook y levanta Flask en `0.0.0.0:5000`.
+- Acepta opciones de Flask, por ejemplo `./scripts/feria.sh --port=5001`.
+
+La primera ejecución necesita Internet para crear el entorno e instalar las
+dependencias. Conviene hacerla antes de la feria, no el mismo día. Después, el
+proyecto queda listo para arrancar sin red externa. `feria2026/` está en
+`.gitignore` y no se versiona.
+
+El comando manual equivalente, si se prefiere usar `.venv/`, es:
 
 ```bash
 source .venv/bin/activate
@@ -501,8 +525,13 @@ Los scripts leen la conexión del `.env` y funcionan con MySQL local o remoto:
 
 `backup.sh` genera un volcado sin `CREATE DATABASE` ni `USE` (no usa
 `--databases`) y con permisos `600`. `restaurar.sh` crea una base temporal
-`..._restore_...`, restaura, muestra los conteos y se niega a pisar la base
-real o una base existente sin `--force`.
+`..._restore_AAAAMMDD_HHMMSS`, restaura, muestra los conteos y se niega a pisar
+la base real o una base existente sin `--force`.
+
+El procedimiento se probó el 14/11/2026 con el contenido congelado: el volcado
+se restauró en una base limpia con conteos `5/14/80/240/9`, y `restaurar.sh`
+rechazó la base real sin `--force`. El respaldo se guarda fuera de la notebook,
+en un pendrive o en la nube.
 
 El detalle operativo está en `docs/instalacion-y-puesta-en-funcionamiento.md`
 (secciones 10.3 y 10.4) y en `docs/instalacion-servidor-escuela.md`
@@ -551,6 +580,8 @@ completados, está en `docs/navegacion-capturas.md`.
 
 - `docs/proyectoEscapeRoom-7B.md` — título y reseña breve del proyecto.
 - `docs/guia-de-estudio-para-estudiantes.md` — qué estudiar, cómo está armado el proyecto, cómo leer el código, qué contiene cada archivo `.md` y una instalación básica para Ubuntu/Debian y Windows.
+- `docs/material-de-estudio-y-control.md` — las 14 introducciones de los temas y las 80 preguntas con opciones, respuesta correcta y explicación, más la cobertura por estación, tema y nivel. Es material de estudio y control: contiene las respuestas y no se enlaza desde la app.
+- `docs/como-se-hizo-el-proyecto.md` — el proceso de trabajo: requisitos, `AGENTS.md` + `MEMORY.md`, comando `/feature`, pasos y ciclo plan/build.
 - `docs/escape-room.md` — requisitos funcionales y contenido inicial.
 - `docs/primeros-pasos.md` — hoja de ruta y guion de pedidos, paso a paso.
 - `docs/argumentos-pasos/` — un archivo por paso (`paso00` a `paso12`, más `paso11b`, `paso11c`, `paso11d`, `paso11e`, `paso11f` y el `paso13` opcional de Docker post-feria), listo para usar con `/feature`. Incluye el índice y los criterios de aceptación.
@@ -568,3 +599,24 @@ completados, está en `docs/navegacion-capturas.md`.
 - `docs/pistas-del-juego.md` — las 160 pistas de las preguntas cargadas, más un anexo con las pistas de las preguntas en reserva.
 - `AGENTS.md` — decisiones registradas, modelo de datos y convenciones.
 - `MEMORY.md` — estado actual del proyecto y verificaciones realizadas.
+
+### 13.1 Documentación en PDF
+
+Todos los `.md` de documentación tienen su PDF en `docs/pdf/`, con la misma
+ruta que el original, más `docs/pdf/00-indice.pdf` con el listado completo.
+
+```bash
+./scripts/generar-pdfs.sh
+```
+
+El script usa `pandoc` y Google Chrome (o Chromium) ya instalados, sin
+dependencias nuevas y sin Internet. Convierte cada `.md`, incluye las imágenes
+relativas y arma el índice. También acepta archivos puntuales:
+
+```bash
+./scripts/generar-pdfs.sh README.md docs/guia-de-estudio-para-estudiantes.md
+```
+
+Los PDFs se versionan por pedido del proyecto. No se editan a mano: se
+regeneran cuando cambia el `.md` de origen y, en el caso de
+`docs/material-de-estudio-y-control.md`, cuando cambia el contenido en la base.

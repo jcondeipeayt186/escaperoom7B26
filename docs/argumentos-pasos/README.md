@@ -112,10 +112,11 @@ Regla de sincronización:
 | `paso11-d-agregando-descripcion.md` | feat | Pedido 11d | paso11c | `feat: descripciones de preguntas` | hecho |
 | `paso11e-agregarimagenes.md` | feat | Pedido 11e | paso11d | `feat: imágenes institucionales en la interfaz` | hecho |
 | `paso11f-capturas-navegacion.md` | infra | Pedido 11f | paso11e | `docs: capturas de navegación en tamaño móvil` | hecho |
-| `paso11g-explicaciones-en-transicion.md` | feat | Pedido 11g | paso11f | `feat: explicaciones e introducciones en la transición` | pendiente |
-| `paso12-feria-con-flask.md` | infra | Pedido 12 | paso11g | `docs: feria con flask y respaldo` | pendiente |
+| `paso11g-explicaciones-en-transicion.md` | feat | Pedido 11g | paso11f | `feat: explicaciones e introducciones en la transición` | hecho |
+| `paso12-feria-con-flask.md` | infra | Pedido 12 | paso11g | `docs: feria con flask y respaldo` | hecho |
 | `paso13-waitress-y-systemd-post-feria.md` | infra | Post-feria | paso12 | `docs: waitress y systemd post-feria` | pendiente |
 | `paso14-docker-taller-post-feria.md` | infra | Pedido 13 | paso13 | `build: docker compose para taller post-feria` | pendiente |
+| `paso15-escaperoom-redes.md` | contenido | Post-feria | paso14 | `docs: paso15 escenario de redes extendidas` | pendiente |
 
 Estados posibles: `pendiente`, `en curso`, `hecho`.
 

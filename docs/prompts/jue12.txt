@@ -30,8 +30,14 @@ el paso 12 va a trabajar con waitress, lo dejaria como opcional, como paso 13 (y
 Que el paso 12 sea para usar con flask --app app run --debug --host=0.0.0.0 (puedes crear algun script que cree un entorno llamado feria2026 si no existe, lo active instale las dependencias y que si ya esta creado e instaladas las dependencias, solo ejecute flask --app app run --debug --host=0.0.0.0)
 y el paso 13 haga lo que sugiere el paso 12. Ya que el servidor de la escuela es la idea usarlo pero luego de la feria.
 --------------------------------------------------------
+Tengo que hacer el /feature @docs/argumentos-pasos/paso11g
 
+Luego:
+paso 12
 
+esto: 
+
+agrega un documento md en docs que tenga las introducciones de cada tema y las explicaciones de cada pregunta, asi los estudiantes tienen el material para estudio y control
 
 El proyecto se realizo tomando como base un documento con la idea del juego, algunas reglas y los formularios del nivel inicial. Ademas, una pagina que mostraba el ranking.
 Se amplio las reglas del juego intentando sacar ambiguedades, se creo un md con todos los detalles del juego y de la app en si misma, que stack tecnologico usar, que navegación se propuso deba tener la app web, y con ello, se pidio crear un agents.md y un memory.md donde ambos inteactuen, y en memory.md quede siempre una información persistente.
@@ -40,3 +46,6 @@ Luego se solicito al agente crear archivos md necesarios para llevar desde cero 
 En cada paso se invocaba a /feature pasoNN.md esto se hacia en modo plan, se observaba lo planeado, se decidian sobre dudas de cada paso, y una vez listo el plan, se avanzaba con el modo build del agente.
 Los pasos estan organizados en una carpeta y tienen su readme con un resumen de ellos que siempre se fue actualizando.
 Solo pocas veces se realizaban prompts en modo build, cuando eran cambios menores luego de probar la app.
+
+y por ultimo, generar pdf de todo md
+

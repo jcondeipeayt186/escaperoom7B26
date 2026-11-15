@@ -351,3 +351,108 @@ def test_estacion_muestra_la_descripcion_segun_el_nivel(cliente, db):
     preparar_por_url(cliente, db, intento_inicial, 1)
     html = cliente.get("/juego/estacion/1").get_data(as_text=True)
     assert '<p class="text-body-secondary">' not in html
+
+
+def _detalle_pregunta(db, pregunta_id):
+    return fila(
+        db,
+        "SELECT p.titulo, p.explicacion, t.nombre AS tema, t.introduccion "
+        "FROM pregunta p JOIN tema t ON t.id = p.tema_id "
+        "WHERE p.id = %s",
+        (pregunta_id,),
+    )
+
+
+def test_transicion_muestra_temas_respuestas_y_explicaciones(cliente, db):
+    equipo_id, intento_id = crear_equipo(db, "Equipo Aprendizaje")
+    iniciar_sesion(cliente, equipo_id, intento_id)
+    _, preguntas = preparar_por_url(cliente, db, intento_id, 1)
+
+    estacion_html = cliente.get("/juego/estacion/1").get_data(as_text=True)
+    assert "Lo que aprendieron" not in estacion_html
+    assert "Respuesta correcta:" not in estacion_html
+    for pregunta in preguntas:
+        assert _detalle_pregunta(db, pregunta["id"])["explicacion"] not in (
+            estacion_html
+        )
+
+    envio = enviar(cliente, 1, formulario(preguntas))
+    assert envio.status_code == 302
+    assert envio.headers["Location"].endswith("/juego/transicion/1")
+
+    pagina = cliente.get("/juego/transicion/1").get_data(as_text=True)
+    assert "Lo que aprendieron en Redes" in pagina
+
+    temas = set()
+    for pregunta in preguntas:
+        detalle = _detalle_pregunta(db, pregunta["id"])
+        elegida = fila(
+            db,
+            "SELECT contenido FROM respuesta WHERE id = %s",
+            (pregunta["correcta"],),
+        )["contenido"]
+
+        assert detalle["titulo"] in pagina
+        assert elegida in pagina
+        assert detalle["explicacion"] in pagina
+        assert pagina.count(detalle["explicacion"]) == 1
+
+        if detalle["tema"] not in temas:
+            temas.add(detalle["tema"])
+            assert detalle["introduccion"] in pagina
+            assert pagina.count(detalle["introduccion"]) == 1
+
+    assert len(temas) == 4
+
+
+def test_transicion_sin_completar_redirige_a_la_estacion(cliente, db):
+    equipo_id, intento_id = crear_equipo(db, "Equipo Sin Completar")
+    iniciar_sesion(cliente, equipo_id, intento_id)
+    preparar_por_url(cliente, db, intento_id, 1)
+
+    respuesta = cliente.get("/juego/transicion/1")
+
+    assert respuesta.status_code == 302
+    assert respuesta.headers["Location"].endswith("/juego/estacion/1")
+
+
+def test_transicion_de_intento_completo_muestra_la_seccion(cliente, db):
+    equipo_id, intento_id = crear_equipo(db, "Equipo Completo Aprende")
+    iniciar_sesion(cliente, equipo_id, intento_id)
+
+    for orden in range(1, 6):
+        _, primera = completar_estacion(cliente, db, intento_id, orden)
+        if orden < 5:
+            post(cliente, f"/juego/transicion/{orden}/continuar")
+
+    estacion_id = fila(
+        db, "SELECT id FROM estacion WHERE orden = 5"
+    )["id"]
+    preguntas = preguntas_del_intento(db, intento_id, estacion_id)
+    pagina = cliente.get("/juego/transicion/5").get_data(as_text=True)
+
+    assert "Lo que aprendieron en Sistemas Operativos" in pagina
+    for pregunta in preguntas:
+        assert _detalle_pregunta(db, pregunta["id"])["explicacion"] in pagina
+
+
+def test_transicion_sin_explicacion_no_muestra_el_parrafo(cliente, db):
+    equipo_id, intento_id = crear_equipo(db, "Equipo Sin Explicación")
+    iniciar_sesion(cliente, equipo_id, intento_id)
+    _, preguntas = preparar_por_url(cliente, db, intento_id, 1)
+
+    ids = tuple(pregunta["id"] for pregunta in preguntas)
+    ejecutar(
+        db,
+        "UPDATE pregunta SET explicacion = NULL "
+        f"WHERE id IN ({', '.join(['%s'] * len(ids))})",
+        ids,
+    )
+    enviar(cliente, 1, formulario(preguntas))
+
+    pagina = cliente.get("/juego/transicion/1").get_data(as_text=True)
+
+    assert "Lo que aprendieron en Redes" in pagina
+    for pregunta in preguntas:
+        assert _detalle_pregunta(db, pregunta["id"])["titulo"] in pagina
+

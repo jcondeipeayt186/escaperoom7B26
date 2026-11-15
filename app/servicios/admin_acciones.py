@@ -132,6 +132,7 @@ def desactivar(tabla, clave):
                     cursor,
                     {
                         "nombre": fila["nombre"],
+                        "introduccion": fila["introduccion"],
                         "estacion_id": fila["estacion_id"],
                         "activo": False,
                     },
@@ -143,6 +144,7 @@ def desactivar(tabla, clave):
                     {
                         "titulo": fila["titulo"],
                         "descripcion": fila["descripcion"],
+                        "explicacion": fila["explicacion"],
                         "tema_id": fila["tema_id"],
                         "dificultad": fila["dificultad"],
                         "activo": False,
@@ -399,21 +401,22 @@ def _exigir_estacion_inicial(cursor):
 
 
 def _crear_tema(cursor, datos):
-    nombre, estacion_id, activo = _validar_tema(datos)
+    nombre, introduccion, estacion_id, activo = _validar_tema(datos)
     _comprobar_estacion_existente(cursor, estacion_id)
     _comprobar_nombre_tema(cursor, nombre, estacion_id)
     if activo:
         _comprobar_maximo_temas(cursor, estacion_id)
 
     cursor.execute(
-        "INSERT INTO tema (nombre, estacion_id, activo) VALUES (%s, %s, %s)",
-        (nombre, estacion_id, int(activo)),
+        "INSERT INTO tema (nombre, introduccion, estacion_id, activo) "
+        "VALUES (%s, %s, %s, %s)",
+        (nombre, introduccion, estacion_id, int(activo)),
     )
     return cursor.lastrowid
 
 
 def _actualizar_tema(cursor, datos, fila):
-    nombre, estacion_id, activo = _validar_tema(datos)
+    nombre, introduccion, estacion_id, activo = _validar_tema(datos)
     _comprobar_estacion_existente(cursor, estacion_id)
 
     if estacion_id != int(fila["estacion_id"]) and _tema_en_uso(
@@ -429,21 +432,29 @@ def _actualizar_tema(cursor, datos, fila):
         _comprobar_maximo_temas(cursor, estacion_id, fila["id"])
 
     cursor.execute(
-        "UPDATE tema SET nombre = %s, estacion_id = %s, activo = %s "
-        "WHERE id = %s",
-        (nombre, estacion_id, int(activo), fila["id"]),
+        "UPDATE tema SET nombre = %s, introduccion = %s, estacion_id = %s, "
+        "activo = %s WHERE id = %s",
+        (nombre, introduccion, estacion_id, int(activo), fila["id"]),
     )
 
 
 def _validar_tema(datos):
     errores = {}
     nombre = _texto(datos, "nombre", "El nombre", errores, maximo=80)
+    introduccion = _texto(
+        datos,
+        "introduccion",
+        "La introducción",
+        errores,
+        maximo=2000,
+        obligatorio=False,
+    )
     estacion_id = _entero(
         datos, "estacion_id", "La estación", errores, 1, 4294967295
     )
     activo = _booleano(datos, "activo")
     _lanzar_si_errores(errores)
-    return nombre, estacion_id, activo
+    return nombre, introduccion, estacion_id, activo
 
 
 def _comprobar_estacion_existente(cursor, estacion_id):
@@ -496,20 +507,24 @@ def _tema_en_uso(cursor, tema_id):
 
 
 def _crear_pregunta(cursor, datos):
-    titulo, descripcion, tema_id, dificultad = _validar_pregunta(datos)
+    titulo, descripcion, explicacion, tema_id, dificultad = _validar_pregunta(
+        datos
+    )
     _comprobar_tema_existente(cursor, tema_id)
 
     cursor.execute(
         "INSERT INTO pregunta "
-        "(titulo, descripcion, tema_id, dificultad, activo) "
-        "VALUES (%s, %s, %s, %s, 0)",
-        (titulo, descripcion, tema_id, dificultad),
+        "(titulo, descripcion, explicacion, tema_id, dificultad, activo) "
+        "VALUES (%s, %s, %s, %s, %s, 0)",
+        (titulo, descripcion, explicacion, tema_id, dificultad),
     )
     return cursor.lastrowid
 
 
 def _actualizar_pregunta(cursor, datos, fila):
-    titulo, descripcion, tema_id, dificultad = _validar_pregunta(datos)
+    titulo, descripcion, explicacion, tema_id, dificultad = _validar_pregunta(
+        datos
+    )
     activo = _booleano(datos, "activo")
     activo_anterior = bool(fila["activo"])
 
@@ -525,9 +540,17 @@ def _actualizar_pregunta(cursor, datos, fila):
         _validar_respuestas_activas(cursor, fila["id"])
 
     cursor.execute(
-        "UPDATE pregunta SET titulo = %s, descripcion = %s, tema_id = %s, "
-        "dificultad = %s, activo = %s WHERE id = %s",
-        (titulo, descripcion, tema_id, dificultad, int(activo), fila["id"]),
+        "UPDATE pregunta SET titulo = %s, descripcion = %s, explicacion = %s, "
+        "tema_id = %s, dificultad = %s, activo = %s WHERE id = %s",
+        (
+            titulo,
+            descripcion,
+            explicacion,
+            tema_id,
+            dificultad,
+            int(activo),
+            fila["id"],
+        ),
     )
 
 
@@ -542,12 +565,20 @@ def _validar_pregunta(datos):
         maximo=2000,
         obligatorio=False,
     )
+    explicacion = _texto(
+        datos,
+        "explicacion",
+        "La explicación",
+        errores,
+        maximo=2000,
+        obligatorio=False,
+    )
     tema_id = _entero(datos, "tema_id", "El tema", errores, 1, 4294967295)
     dificultad = str(datos.get("dificultad", "")).strip()
     if dificultad not in DIFICULTADES:
         errores["dificultad"] = "Elegí una dificultad válida."
     _lanzar_si_errores(errores)
-    return titulo, descripcion, tema_id, dificultad
+    return titulo, descripcion, explicacion, tema_id, dificultad
 
 
 def _comprobar_tema_existente(cursor, tema_id):

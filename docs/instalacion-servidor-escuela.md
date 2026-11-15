@@ -1,6 +1,7 @@
 # Instalación en el servidor de la escuela
 
-Anexo de `docs/argumentos-pasos/paso12-congelar-y-puesta-en-marcha.md` para
+Anexo de `docs/argumentos-pasos/paso12-feria-con-flask.md` y
+`docs/argumentos-pasos/paso13-waitress-y-systemd-post-feria.md` para
 dejar la aplicación funcionando en el **servidor Linux de la escuela**, que es
 el respaldo de la notebook Ubuntu 22.04.
 
@@ -849,7 +850,7 @@ una base elegida a mano.
 ./scripts/restaurar.sh "$HOME/backups-escaperoom/respaldo-....sql"
 ```
 
-Crea una base `<MYSQL_DB>_restore_AAAAMMDD-HHMMSS`, restaura y muestra los
+Crea una base `<MYSQL_DB>_restore_AAAAMMDD_HHMMSS`, restaura y muestra los
 conteos. Esperado: `5, 14, 80, 240 y 9`. El usuario del `.env` necesita el
 permiso sobre `escape\_room\_7b2026\_restore\_%` que se otorga en 4.6 y 5.1.b.
 
@@ -859,7 +860,7 @@ El script se niega a restaurar sobre `MYSQL_DB` o sobre una base existente sin
 Cuando ya se verificaron los conteos, borrar la base temporal:
 
 ```bash
-sudo mysql -e "DROP DATABASE escape_room_7b2026_restore_AAAAMMDD-HHMMSS;"
+sudo mysql -e "DROP DATABASE escape_room_7b2026_restore_AAAAMMDD_HHMMSS;"
 ```
 
 ### 6.3 Frecuencia

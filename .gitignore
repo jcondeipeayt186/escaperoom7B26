@@ -1,31 +1,20 @@
-# Dependency directories
-node_modules/
-skills-lock.json
-
-# Entorno virtual de Python
-.venv/
-
-# Variables de entorno y credenciales (nunca versionar)
+# Configuración local con credenciales
 .env
-.env.*
-!.env.example
 
-# Python
+# Entornos virtuales de Python
+.venv/
+.venv2/
+
+# Entorno virtual de la feria del 16/11/2026
+feria2026/
+
+# Cachés y archivos generados por Python
 __pycache__/
 *.py[cod]
-*.egg-info/
 .pytest_cache/
-.coverage
-htmlcov/
 
-# Flask / instancia local
-instance/
+# Logs y respaldos locales
 *.log
-
-# Volcados y respaldos de la base
-*.sql.gz
-*.dump
-respaldo_*.sql
+bd/backups/
 
 docs/chatdeopencode.md
-docs/material/

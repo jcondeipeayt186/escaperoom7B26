@@ -97,6 +97,13 @@ parecido. Por ejemplo: no alcanza con decir "la RAM guarda datos"; hay que poder
 explicar **qué tipo de datos**, **por cuánto tiempo** y **en qué se diferencia
 del disco**.
 
+Al completar una estación, la pantalla de transición muestra **Lo que
+aprendieron**: una introducción de cada tema y, por cada pregunta, el enunciado,
+la respuesta que eligió el equipo y una explicación de por qué era correcta. Es
+el momento de leer y comentar antes de pasar a la estación siguiente. La
+explicación no aparece antes: durante la estación no se revela la respuesta
+correcta.
+
 ## 5. Plan sugerido de tres sesiones
 
 | Sesión | Duración | Actividad |
@@ -206,6 +213,11 @@ código de la página.
 Tampoco se puede saltar una estación escribiendo otra URL: la ruta valida el
 orden y redirige a la estación actual.
 
+La respuesta correcta y su explicación se guardan en la base y solo se leen en
+la transición, cuando la estación ya está completa. `app/servicios/estaciones.py`
+busca el envío que acertó las 4 preguntas y muestra la opción que eligió el
+equipo, así el texto no cambia si después se edita el contenido.
+
 ### 6.5 Lo que el proyecto no usa
 
 - No hay React, Vue ni otro framework de frontend.
@@ -277,6 +289,7 @@ entender cada línea: alcanza con poder explicar **qué hace** cada archivo y
 | Presentar el proyecto | [`proyectoEscapeRoom-7B.md`](proyectoEscapeRoom-7B.md). |
 | Organizar el stand | [`ideas-escape-room.md`](ideas-escape-room.md). |
 | Saber qué se hizo | [`MEMORY.md`](../MEMORY.md) y [`argumentos-pasos/README.md`](argumentos-pasos/README.md). |
+| Entender cómo se hizo el proyecto | [`como-se-hizo-el-proyecto.md`](como-se-hizo-el-proyecto.md). |
 
 ### 8.2 Leyenda
 
@@ -298,6 +311,7 @@ entender cada línea: alcanza con poder explicar **qué hace** cada archivo y
 | [`docs/contenido-para-responder-nivel-avanzado.md`](contenido-para-responder-nivel-avanzado.md) | 🟢 Guía con los conceptos del nivel avanzado, ordenados por estación, más un glosario mínimo. | Es el material principal del nivel avanzado. Prestá atención a las comparaciones entre conceptos. |
 | [`docs/pistas-del-juego.md`](pistas-del-juego.md) | 🟡 Las 160 pistas de las 80 preguntas cargadas (40 del nivel inicial, 60 del intermedio y 60 del avanzado), más un anexo con preguntas en reserva. | Para el stand: se imprime y se lee en papel. Para estudiar: tapá las opciones, leé la pista y respondé de memoria. |
 | [`docs/banco-preguntas-intermedio-avanzado.md`](banco-preguntas-intermedio-avanzado.md) | 🔴 Las 60 preguntas de intermedio y avanzado con sus tres opciones, la correcta marcada y dos pistas por pregunta. | Material de revisión docente. **No lo leas si vas a jugar**: contiene las respuestas. |
+| [`docs/material-de-estudio-y-control.md`](material-de-estudio-y-control.md) | 🔴 Las 14 introducciones de los temas y las 80 preguntas de los tres niveles con sus opciones, la correcta marcada con ✅ y la explicación, más la cobertura por estación, tema y nivel. | Material de estudio y control para docentes y organización. **No lo leas si vas a jugar**: contiene todas las respuestas. Se genera desde la base y no se edita a mano. |
 
 ### 8.4 Reglas, recorrido y presentación
 
@@ -329,6 +343,7 @@ entender cada línea: alcanza con poder explicar **qué hace** cada archivo y
 | [`README.md`](../README.md) | ⚙️ Presentación general del repositorio: qué es, cómo se juega, stack, estructura, rutas, instalación y documentación. | Primera lectura para quien llega al proyecto. |
 | [`AGENTS.md`](../AGENTS.md) | ⚙️ Reglas del proyecto, modelo de datos, decisiones registradas y convenciones para quienes desarrollan. | Referencia de desarrollo. No es material de estudio del juego. |
 | [`MEMORY.md`](../MEMORY.md) | ⚙️ Estado actual del proyecto y verificaciones realizadas. | Para saber qué está hecho y qué falta. |
+| [`docs/como-se-hizo-el-proyecto.md`](como-se-hizo-el-proyecto.md) | ⚙️ El proceso de trabajo: de la idea a los requisitos, `AGENTS.md` + `MEMORY.md`, el comando `/feature`, el guion de pasos y el ciclo plan/build. | Para entender cómo se organizó el desarrollo. No es material de estudio del juego. |
 | [`docs/argumentos-pasos/README.md`](argumentos-pasos/README.md) | ⚙️ Índice de los pasos de desarrollo, con tipo, estado y commit de cada uno. | Para ubicar un paso puntual. |
 | `.pytest_cache/README.md` | ⚙️ Archivo generado automáticamente por pytest. No se versiona. | Ignoralo: no es documentación del proyecto. |
 
@@ -356,8 +371,10 @@ material de estudio: sirven para entender o repetir el desarrollo.
 | [`paso11-d-agregando-descripcion.md`](argumentos-pasos/paso11-d-agregando-descripcion.md) | Descripciones breves en las preguntas. |
 | [`paso11e-agregarimagenes.md`](argumentos-pasos/paso11e-agregarimagenes.md) | Imágenes institucionales en la interfaz. |
 | [`paso11f-capturas-navegacion.md`](argumentos-pasos/paso11f-capturas-navegacion.md) | Capturas de navegación en tamaño móvil. |
-| [`paso12-congelar-y-puesta-en-marcha.md`](argumentos-pasos/paso12-congelar-y-puesta-en-marcha.md) | Congelar el proyecto y dejarlo en marcha. |
-| [`paso13-docker-taller-post-feria.md`](argumentos-pasos/paso13-docker-taller-post-feria.md) | Taller opcional de Docker después de la feria. |
+| [`paso11g-explicaciones-en-transicion.md`](argumentos-pasos/paso11g-explicaciones-en-transicion.md) | Explicaciones e introducciones en la transición. |
+| [`paso12-feria-con-flask.md`](argumentos-pasos/paso12-feria-con-flask.md) | Congelar el proyecto y jugar la feria con el servidor de Flask. |
+| [`paso13-waitress-y-systemd-post-feria.md`](argumentos-pasos/paso13-waitress-y-systemd-post-feria.md) | Waitress y systemd para la puesta en producción posterior a la feria. |
+| [`paso14-docker-taller-post-feria.md`](argumentos-pasos/paso14-docker-taller-post-feria.md) | Taller opcional de Docker después de la feria. |
 
 ## 9. Instalación básica en tu computadora
 
@@ -378,7 +395,7 @@ permanente con waitress y systemd, seguí las guías completas.
 | 3 | Crear el entorno virtual e instalar dependencias | `python3 -m venv .venv` y `pip install -r requirements.txt` |
 | 4 | Configurar `.env` | `cp .env.example .env` y editar las claves |
 | 5 | Crear la base y cargar el contenido | `sudo mysql < bd/schema.sql` y los tres seeds |
-| 6 | Ejecutar Flask | `flask --app app run --debug --host=0.0.0.0` |
+| 6 | Ejecutar Flask | `./scripts/feria.sh` (o `flask --app app run --debug --host=0.0.0.0`) |
 
 Abrí <http://127.0.0.1:5000> y comprobá <http://127.0.0.1:5000/salud>. Tiene que
 responder `200` con `{"estado": "ok", "base": "ok"}`.
@@ -485,6 +502,13 @@ EXIT;
 > `pytest`. Están detallados en [`README.md`](../README.md) §7.2.
 
 #### Paso 6: ejecutar Flask
+
+```bash
+./scripts/feria.sh
+```
+
+Ese script crea un entorno propio en `feria2026/`, instala las dependencias la
+primera vez y levanta Flask en `0.0.0.0:5000`. Si preferís hacerlo a mano:
 
 ```bash
 source .venv/bin/activate
@@ -606,9 +630,13 @@ damos (una notebook, hasta tres equipos y el televisor en la misma red), alcanza
 con el servidor de desarrollo de Flask que ya probamos:
 
 ```bash
-source .venv/bin/activate
-flask --app app run --debug --host=0.0.0.0
+./scripts/feria.sh
 ```
+
+El script crea el entorno `feria2026/` la primera vez, instala las dependencias
+y después arranca sin instalar nada, aunque no haya Internet. La primera
+ejecución conviene hacerla antes de la feria. Si querés ver el comando manual,
+es `flask --app app run --debug --host=0.0.0.0`.
 
 Qué hace `--host=0.0.0.0`:
 
@@ -696,6 +724,10 @@ Para 7.º B, además:
 - `docs/banco-preguntas-intermedio-avanzado.pdf`, `docs/escape-room.pdf`,
   `docs/navegacion-por-app.pdf` y `docs/proyectoEscapeRoom-7B.pdf`: versiones
   PDF de esos documentos.
+- `docs/pdf/`: un PDF por cada archivo `.md` de documentación, con la misma
+  ruta, más `docs/pdf/00-indice.pdf`. Se generan con
+  `./scripts/generar-pdfs.sh`, que usa `pandoc` y Chrome ya instalados. Incluye
+  el material de estudio con respuestas: es para docentes, no para jugar.
 - `docs/src/`: prototipos visuales del juego y del ranking. **No son la
   aplicación final** y no se usan para estudiar las reglas.
 - `docs/img/`: imágenes originales de la escuela. No se editan ni se usan

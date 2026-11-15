@@ -161,7 +161,8 @@ TABLAS = {
         "pk_col": "id",
         "pk_sql": "t.id",
         "select": (
-            "t.id, t.nombre, t.estacion_id, e.nombre AS estacion_nombre, t.activo"
+            "t.id, t.nombre, t.introduccion, t.estacion_id, "
+            "e.nombre AS estacion_nombre, t.activo"
         ),
         "desde": "FROM tema t JOIN estacion e ON e.id = t.estacion_id",
         "columnas": [
@@ -191,6 +192,13 @@ TABLAS = {
         "tiene_activo": True,
         "campos": {
             "nombre": _campo("nombre", "Nombre", maximo=80),
+            "introduccion": _campo(
+                "introduccion",
+                "Introducción",
+                tipo="textarea",
+                obligatorio=False,
+                maximo=2000,
+            ),
             "estacion_id": _campo(
                 "estacion_id",
                 "Estación",
@@ -209,7 +217,8 @@ TABLAS = {
         "pk_col": "id",
         "pk_sql": "p.id",
         "select": (
-            "p.id, p.titulo, p.descripcion, p.tema_id, t.nombre AS tema_nombre, "
+            "p.id, p.titulo, p.descripcion, p.explicacion, p.tema_id, "
+            "t.nombre AS tema_nombre, "
             "e.id AS estacion_id, e.nombre AS estacion_nombre, p.dificultad, "
             "p.activo"
         ),
@@ -258,6 +267,13 @@ TABLAS = {
             "descripcion": _campo(
                 "descripcion",
                 "Descripción",
+                tipo="textarea",
+                obligatorio=False,
+                maximo=2000,
+            ),
+            "explicacion": _campo(
+                "explicacion",
+                "Explicación",
                 tipo="textarea",
                 obligatorio=False,
                 maximo=2000,

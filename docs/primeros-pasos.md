@@ -234,7 +234,7 @@ Tareas:
 
 Tareas:
 
-- Levantar la app con waitress en `0.0.0.0` y probar desde 3 notebooks.
+- Levantar la app con `./scripts/feria.sh` (servidor de Flask en `0.0.0.0`) y probar desde 3 notebooks.
 - Probar el televisor con `/ranking`.
 - Cortar Internet y verificar que todo siga funcionando.
 - Probar audio, recarga, reinicio de MySQL y restauración de un backup.
@@ -933,15 +933,15 @@ pueda usarse en cualquiera de los dos equipos.
 Alcance:
 - Revisar y congelar el contenido de los tres niveles (80 preguntas).
 - Generar un volcado de la base y probar la restauración.
-- Documentar el arranque con waitress en 0.0.0.0.
+- Documentar el arranque de la feria con `./scripts/feria.sh` y el servidor de
+  desarrollo de Flask en 0.0.0.0. Waitress y systemd quedan para después.
 - Configurar ADMIN_PASSWORD_HASH y FLASK_SECRET_KEY reales.
 - Dejar scripts de backup y restauración que funcionen con MySQL local o
   remoto.
-- Documentar tres escenarios:
-  A) todo en la notebook;
-  B) todo en el servidor de la escuela;
-  C) base en la escuela y app en la notebook.
-- Probar desde 3 notebooks y el televisor en A y en B.
+- Documentar los escenarios posibles: A) todo en la notebook; B) todo en el
+  servidor de la escuela; C) base en la escuela y app en la notebook. La feria
+  del 16/11/2026 usa A.
+- Probar desde 3 notebooks y el televisor.
 - Verificar el funcionamiento sin Internet.
 
 Reglas:

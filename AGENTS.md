@@ -137,6 +137,15 @@ bd/
     001_contenido_inicial.sql   # inicial: 20 preguntas y configuración
     002_contenido_intermedio.sql # intermedio: 30 preguntas
     003_contenido_avanzado.sql  # avanzado: 30 preguntas
+scripts/
+  feria.sh             # arranque de la feria con el servidor de Flask
+  backup.sh            # volcado de la base desde el .env
+  restaurar.sh         # restauración en una base temporal
+  generar-pdfs.sh      # PDF de cada .md en docs/pdf/
+docs/
+  material-de-estudio-y-control.md  # introducciones, preguntas y explicaciones
+  como-se-hizo-el-proyecto.md       # proceso de trabajo del proyecto
+  pdf/                              # PDF de cada .md, generado por el script
 requirements.txt
 .env.example
 README.md
@@ -154,8 +163,8 @@ Basado en `docs/escape-room.md`:
 | `equipo`            | `id`, `nombre`, `cantidad_personas` (1–4, obligatorio)                                                                                                                                                                                                                    |
 | `intento`           | `id`, `equipo_id`, `dificultad` (`inicial`, `intermedio`, `avanzado`), `fecha_inicio`, `fecha_fin`, `se_completo_ok`, `cantidad_ayudas`, `puntaje_obtenido`, `finalizado` (`completo`, `abandono`, `por_respuestas_incorrectas`, `por_tiempo`), `ultima_estacion_visitada` |
 | `estacion`          | `id`, `nombre`, `descripcion`, `orden`, `activo`                                                                                                                                                                                                                           |
-| `tema`              | `id`, `nombre`, `estacion_id`, `activo`                                                                                                                                                                                                                                    |
-| `pregunta`          | `id`, `titulo`, `descripcion`, `tema_id`, `dificultad` (`inicial`, `intermedio`, `avanzado`), `activo`                                                                                                                                                                     |
+| `tema`              | `id`, `nombre`, `introduccion`, `estacion_id`, `activo`                                                                                                                                                                                                                    |
+| `pregunta`          | `id`, `titulo`, `descripcion`, `explicacion`, `tema_id`, `dificultad` (`inicial`, `intermedio`, `avanzado`), `activo`                                                                                                                                                      |
 | `respuesta`         | `id`, `contenido`, `correcta` (booleano), `pregunta_id`, `activo`                                                                                                                                                                                                          |
 | `respuesta_elegida` | `id`, `fecha_respondida`, `intento_id`, `intento_envio_id`, `respuesta_id`                                                                                                                                                                                                 |
 | `incorrecta`        | `id`, `pregunta_id`, `respuesta_id`, `fecha`, `intento_id`, `intento_envio_id`                                                                                                                                                                                             |
@@ -178,6 +187,7 @@ Criterios:
 - `estacion.orden` define el recorrido 1 a 5 de forma explícita; no depender del `id`.
 - `estacion`, `tema`, `pregunta` y `respuesta` usan **borrado lógico** con `activo`. El juego y los selectores filtran `activo = 1`; los intentos históricos siguen leyendo las filas desactivadas.
 - `respuesta_elegida.intento_envio_id` e `incorrecta.intento_envio_id` son una extensión al modelo base para agrupar las respuestas de un mismo envío del formulario.
+- `tema.introduccion` y `pregunta.explicacion` son texto plano para la pantalla de transición: la introducción presenta el tema y la explicación justifica la respuesta correcta. No son pistas y no se muestran en la estación; la explicación solo aparece después de completarla (decisión 66).
 - `equipo`, `intento`, `respuesta_elegida` e `incorrecta` son históricos: no se borran, ni física ni lógicamente.
 - Respetar el **máximo de 4 temas por estación**.
 - La clave primaria `id` debe ser auto incremental.
@@ -204,7 +214,7 @@ configuracion(clave, valor)                                          # dificulta
 
 1. **Bienvenida:** formulario con nombre de equipo, cantidad de integrantes (1–4) y dificultad. Validar nombre no vacío y cantidad entre 1 y 4. Solo se ofrecen las dificultades habilitadas en `configuracion`. Si el nombre ya existe, pedir el **ID del equipo** (el que se muestra siempre en el HUD) y continuar con ese equipo; si no existe, crear `equipo` e `intento`. Al reingresar con un equipo que tiene un intento activo (`fecha_fin IS NULL`), reanudar ese intento; si no, crear uno nuevo. Mostrar el ID del equipo en todas las pantallas del intento.
 2. **Estación 1 a 5:** una página/ruta por estación, con sus 4 preguntas, el temporizador y el HUD (ayudas, incorrectas, envíos). No permitir saltar estaciones por URL.
-3. **Transición:** confirmar estación superada y permitir continuar. La estación siguiente se prepara y su cronómetro arranca recién al presionar **Continuar**. Desde la transición de las estaciones 1 a 4 también se puede abandonar con confirmación.
+3. **Transición:** confirmar estación superada y permitir continuar. Muestra la card **Lo que aprendieron** con las introducciones de los temas y, por pregunta, el enunciado, la respuesta elegida y la explicación. La respuesta correcta nunca aparece en la estación, solo acá cuando ya está completada. La estación siguiente se prepara y su cronómetro arranca recién al presionar **Continuar**. Desde la transición de las estaciones 1 a 4 también se puede abandonar con confirmación.
 4. **Final:** mostrar el resultado del intento, la posición general y la posición dentro de su nivel, el top 10 del nivel del intento y el ranking completo filtrable por equipo, número de intento, fecha de fin y nivel. Incluye la fecha y hora de fin de cada intento.
 5. **Ranking público:** vista de solo lectura, pensada para el televisor. `GET /ranking` renderiza una tabla por nivel en el servidor y `GET /ranking/datos` entrega el JSON agrupado por nivel para el polling cada 8 segundos. Se actualiza sola, conserva las últimas tablas si falla la conexión y es legible a distancia.
 6. **Eliminación:** pantalla clara cuando el equipo queda fuera por tiempo, respuestas incorrectas o abandono.
@@ -357,6 +367,11 @@ Estas decisiones interpretan puntos que el documento no cierra del todo. Si el e
 63. **Guía para estudiantes:** `docs/guia-de-estudio-para-estudiantes.md` es el documento de entrada para los equipos y para 7.º B. Explica qué estudiar según el nivel, el scaffolding del proyecto, el orden de lectura del código, el mapa de archivos `.md` y una instalación básica resumida para Ubuntu/Debian y Windows. No contiene respuestas correctas ni el texto de las pistas. El detalle de instalación sigue en `dejar-funcionando-proyecto-luego-clone.md`, `instalacion-y-puesta-en-funcionamiento.md` e `instalacion-servidor-escuela.md`. Se actualiza cuando cambian las rutas, la estructura o la puesta en marcha.
 64. **Formato del HUD, escala de barras y navegación pública:** el tiempo general del HUD se muestra como `MM:SS`, igual que el de estación, tanto en `_hud.html` como en `temporizadores.js`; los resultados, el ranking y las estadísticas conservan `HH:MM:SS`. En `/estadisticas`, la barra de **Tiempo promedio por estación** se escala contra `configuracion.duracion_estacion_segundos` (4 minutos): el 100 % es la duración máxima y cada barra pinta el porcentaje real del promedio, sin reescalar al promedio mayor. `/ranking` enlaza a **Inicio** y **Estadísticas**; `/estadisticas` enlaza a **Inicio** y **Ranking**. Los enlaces son públicos, sin login, y no alteran el polling del ranking.
 65. **Servidor de la feria:** la feria del 16/11/2026 usa el **servidor de desarrollo de Flask** con `flask --app app run --debug --host=0.0.0.0`, ya probado para una notebook, hasta tres equipos y el televisor en la misma red. Flask muestra la IP de la notebook y los demás equipos abren `http://IP-DE-LA-NOTEBOOK:5000` sin Internet; la terminal queda abierta y el puerto `5000` habilitado en la red del aula. **Waitress y systemd quedan para después de la feria**, cuando la app se use de forma permanente. Las guías de instalación y producción (`README.md`, `docs/tecnologias.md`, `docs/dejar-funcionando-proyecto-luego-clone.md`, `docs/instalacion-y-puesta-en-funcionamiento.md`, `docs/instalacion-servidor-escuela.md` y el `paso12`) deben mantener ese encuadre y no presentar waitress como requisito de la feria.
+66. **Explicaciones e introducciones en la transición:** `tema.introduccion` y `pregunta.explicacion` son `TEXT NULL`, texto plano y rioplatense, de hasta 2 párrafos, sin HTML ni punto y coma (el cargador de seeds de las pruebas separa con `;`). La migración `bd/migraciones/20261113_explicaciones-e-introducciones.sql` las agrega con `information_schema` + `PREPARE` para ser idempotente sin depender de `ADD COLUMN IF NOT EXISTS`. El contenido son 14 introducciones (una por tema activo) y 80 explicaciones (20 `inicial`, 30 `intermedio`, 30 `avanzado`), cargadas en los seeds `001`, `002` y `003` con `ON DUPLICATE KEY UPDATE`. La card **Lo que aprendieron** de `transicion.html` muestra las introducciones agrupadas por tema y, por pregunta, el enunciado, la respuesta elegida y la explicación. Los datos salen de `obtener_aprendizaje_estacion()` en `app/servicios/estaciones.py`, que lee el `intento_envio` con `respuestas_correctas = preguntas_por_estacion` y une la `respuesta_elegida` de ese envío sin filtrar `activo`: la respuesta mostrada es la que el equipo eligió, no la que hoy esté marcada como correcta. La estación nunca recibe la explicación ni la respuesta correcta; solo la transición, cuando la estación ya está completada. El admin edita ambos campos como `textarea` opcionales y la baja lógica los conserva. Los textos se generan desde el `paso11g`; reejecutar los seeds pisa lo editado en `/admin`.
+
+67. **Arranque de la feria con `scripts/feria.sh`:** la feria del 16/11/2026 se levanta con `./scripts/feria.sh`, que crea un entorno virtual propio en `feria2026/` (ignorado por Git), instala `requirements.txt` solo si faltan `flask`, `pymysql` o `dotenv`, muestra la IP de la notebook y ejecuta `python -m flask --app app run --debug --host=0.0.0.0`. No usa `waitress`, `systemd` ni Docker. Lee el `.env` con `load_dotenv()` de Flask, nunca con `source`, porque `ADMIN_PASSWORD_HASH` contiene `$`. La primera ejecución necesita Internet para instalar; las siguientes funcionan sin Internet y no reinstalan. El script avisa si `.env` no tiene permisos `600` y acepta opciones de Flask como `--port=5001`. La terminal queda abierta y visible durante toda la feria; si se cierra, el servidor se detiene. No se edita código, contenido ni configuración durante la feria.
+68. **Congelamiento y respaldo de la feria:** el contenido se congela el 14/11/2026 con `5` estaciones, `14` temas, `80` preguntas, `240` respuestas y `9` claves de configuración; `inicial 20`, `intermedio 30` y `avanzado 30`, con los tres niveles habilitados. Antes de congelar se juega una partida completa por nivel en una base descartable para no ensuciar el ranking real. Después de congelar no se reejecutan los seeds, porque pisan lo editado desde `/admin`. Se genera un respaldo con `scripts/backup.sh`, se prueba la restauración en una base limpia con `scripts/restaurar.sh` y se verifica `5/14/80/240/9`, las 14 introducciones y las 80 explicaciones. El respaldo se guarda también fuera de la notebook, en pendrive o nube. `restaurar.sh` usa por defecto `<MYSQL_DB>_restore_AAAAMMDD_HHMMSS` y se niega a pisar la base real sin `--force`. La base real no se toca durante estas pruebas.
+69. **Material de estudio y documentación en PDF:** `docs/material-de-estudio-y-control.md` reúne las 14 introducciones de los temas y las 80 preguntas con sus opciones, la correcta marcada con ✅ y la explicación, más un anexo de cobertura estación × tema × nivel. Se genera desde la base real en modo solo lectura con un script descartable, no se edita a mano y **contiene las respuestas correctas**: es material de estudio y control docente, no se enlaza desde la aplicación ni se muestra durante la partida. Si se edita contenido en `/admin`, hay que regenerar el documento y los PDFs. `docs/como-se-hizo-el-proyecto.md` cuenta el proceso de trabajo (requisitos, `AGENTS.md` + `MEMORY.md`, comando `/feature`, pasos y ciclo plan/build). `./scripts/generar-pdfs.sh` convierte los `.md` de documentación a `docs/pdf/`, un PDF por archivo con la ruta espejada y un `docs/pdf/00-indice.pdf`; usa `pandoc` y Chrome headless ya instalados, sin dependencias nuevas ni Internet, y resuelve las imágenes relativas con `--resource-path`. Los PDFs de `docs/pdf/` se versionan por pedido explícito del proyecto, aunque sean generados; el resto de los artefactos generados sigue sin versionarse.
 
 ## Convenciones de código
 
@@ -393,11 +408,19 @@ source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
 flask --app app run --debug
-# En la feria, para que entren las otras notebooks y el televisor:
+# En la feria, un solo comando con entorno propio en feria2026/:
+./scripts/feria.sh
+# Equivalente manual, para que entren las otras notebooks y el televisor:
 flask --app app run --debug --host=0.0.0.0
+# PDF de toda la documentación en docs/pdf/ (pandoc + Chrome, sin Internet):
+./scripts/generar-pdfs.sh
 pytest -q
 pytest -q
 ```
+
+La primera ejecución de `./scripts/feria.sh` necesita Internet para crear
+`feria2026/` e instalar dependencias. Después arranca sin Internet. El entorno
+`feria2026/` está en `.gitignore` y no se versiona.
 
 `pytest` usa la base `escape_room_7b2026_test` (o `TEST_MYSQL_DB`) y la recrea al iniciar la sesión. El usuario de MySQL necesita permisos `CREATE` y `DROP`. Ver `README.md` para el detalle.
 
@@ -420,6 +443,8 @@ Priorizar pruebas automatizadas para:
 - Niveles visibles en `/ranking`: `inicial` siempre; los demás si están habilitados o tienen intentos completados; un nivel sin filas muestra su mensaje.
 - Filtrado de preguntas por dificultad y por tema.
 - Descripciones: 30 de `intermedio` y 30 de `avanzado` visibles en la estación; las 20 de `inicial` sin descripción.
+- Introducciones y explicaciones: 14 temas activos con `introduccion` y 80 preguntas activas con `explicacion`; la estación no muestra ninguna de las dos ni la respuesta correcta, y la transición muestra la introducción de cada tema, el enunciado, la respuesta elegida y la explicación una sola vez por pregunta.
+- La transición de un intento completo también muestra la card y el admin guarda `tema.introduccion` y `pregunta.explicacion` sin romper la baja lógica.
 - Bienvenida con cantidad de integrantes entre 1 y 4.
 - Reingreso con un nombre de equipo existente: pide el ID y no duplica el equipo.
 - Ayudas: máximo 2 por estación e intento, con contador visible y botones deshabilitados al llegar a 2.
@@ -462,6 +487,12 @@ Verificación manual antes de entregar:
 - Página pública de estadísticas.
 - Panel `/admin` con login, CRUD, filtros, orden y gráficos.
 - Funcionamiento sin conexión a Internet.
+- `./scripts/feria.sh` levanta desde cero, `/salud` responde `200` en local y en la IP de red, `/ranking` y `/estadisticas` responden `200`, y una segunda ejecución no reinstala dependencias.
+- `feria2026/` está en `.gitignore` y no se versiona.
+- El backup se restaura en una base limpia con `5/14/80/240/9`, 14 introducciones y 80 explicaciones; `restaurar.sh` rechaza la base real sin `--force`.
+- Ensayo con 3 notebooks y el televisor: los equipos juegan a la vez, el ranking se actualiza y todo funciona sin Internet.
+- `docs/material-de-estudio-y-control.md` coincide con la base: 14 introducciones, 80 preguntas, 80 explicaciones y una sola correcta por pregunta; no se enlaza desde la app.
+- `./scripts/generar-pdfs.sh` genera un PDF por cada `.md` de documentación más `docs/pdf/00-indice.pdf`, con imágenes relativas incluidas y sin dependencias nuevas.
 
 ## Qué no hacer
 
@@ -481,8 +512,14 @@ Verificación manual antes de entregar:
 - No introducir React/Vue, ORM pesado ni otra infraestructura sin necesidad y sin consultar. Docker queda fuera del camino de la feria: el taller post-feria está documentado en el `paso13` y requiere consultar antes de implementarlo.
 - No usar CDN para Bootstrap, gráficos ni audio.
 - No hardcodear preguntas, respuestas, credenciales ni tiempos en múltiples lugares.
-- No commitear `.env`, volcados de base de datos ni archivos generados.
+- No commitear `.env`, volcados de base de datos ni archivos generados, salvo los PDF de `docs/pdf/`, que se versionan por pedido del proyecto.
+- No editar a mano `docs/material-de-estudio-y-control.md` ni los PDFs de `docs/pdf/`: se regeneran desde la base y con `./scripts/generar-pdfs.sh`.
+- No enlazar el material de estudio con respuestas ni los PDFs desde las pantallas del juego.
+- No commitear `feria2026/` ni usarlo como único entorno de la feria.
+- No reejecutar los seeds después de congelar el contenido: pisan lo editado desde `/admin`.
+- No dejar el único respaldo en la notebook: copiarlo a un pendrive o a la nube.
 - No mostrar ni cargar pistas en la aplicación: solo se registran las ayudas.
+- No mostrar la explicación ni la respuesta correcta en la estación: la card **Lo que aprendieron** se lee solo en la transición, con la estación ya completada.
 - No usar `docs/img/...` como `src` ni copiar los originales completos a `app/static/`; los derivados van en `app/static/img/`.
 - No permitir dos equipos con el mismo nombre ni crear un equipo nuevo cuando la bienvenida pide el ID.
 

@@ -17,6 +17,7 @@ from ..servicios import configuracion as config
 from ..servicios import envios, equipos, ranking
 from ..servicios.estaciones import (
     contar_estaciones_activas,
+    obtener_aprendizaje_estacion,
     obtener_estacion,
     obtener_preguntas_seleccionadas,
     obtener_resumen_estacion,
@@ -462,6 +463,9 @@ def transicion(orden):
             actual["id"],
             config.duracion_estacion(parametros),
         )
+        aprendizaje = obtener_aprendizaje_estacion(
+            contexto["intento"]["id"], actual["id"]
+        )
 
         return render_template(
             "transicion.html",
@@ -474,6 +478,7 @@ def transicion(orden):
             tiempos=tiempos,
             siguiente_estacion=siguiente,
             es_ultima=siguiente is None,
+            aprendizaje=aprendizaje,
         )
 
     finalizado = equipos.contexto_finalizado_de_sesion()
@@ -502,6 +507,9 @@ def transicion(orden):
         actual["id"],
         config.duracion_estacion(parametros),
     )
+    aprendizaje = obtener_aprendizaje_estacion(
+        finalizado["intento"]["id"], actual["id"]
+    )
 
     return render_template(
         "transicion.html",
@@ -514,6 +522,7 @@ def transicion(orden):
         tiempos=tiempos,
         siguiente_estacion=None,
         es_ultima=True,
+        aprendizaje=aprendizaje,
     )
 
 

@@ -7,8 +7,9 @@ servidor **Ubuntu** y usarla desde las notebooks conectadas a la misma red.
 > puesta en marcha del servidor (paso 12) y se puede seguir completa.
 >
 > **Para la feria del 16/11/2026** alcanza con el servidor de desarrollo de
-> Flask: `flask --app app run --debug --host=0.0.0.0` en la notebook, con la
-> terminal abierta y el puerto `5000` habilitado en la red del aula (ver
+> Flask: `./scripts/feria.sh` (o el equivalente
+> `flask --app app run --debug --host=0.0.0.0`) en la notebook, con la terminal
+> abierta y el puerto `5000` habilitado en la red del aula (ver
 > `docs/guia-de-estudio-para-estudiantes.md`, §9.5). **Esta guía describe la
 > puesta en producción con waitress y systemd, para después de la feria.**
 >
@@ -713,6 +714,10 @@ cd /opt/escape-room-7b2026
 ./scripts/backup.sh "$HOME/backups-escaperoom"
 ```
 
+El 14/11/2026 se generó un respaldo real con este script, se restauró en una
+base limpia y se verificaron los conteos `5/14/80/240/9`, las 14
+introducciones y las 80 explicaciones. El archivo quedó con permisos `600`.
+
 Para hacerlo a mano, guardar los respaldos **fuera de `/opt/escape-room-7b2026`**, por ejemplo en el home del usuario que administra el servidor. Así no se mezclan con el código ni se pierden si se reemplaza el proyecto.
 
 ```bash
@@ -743,6 +748,10 @@ cd /opt/escape-room-7b2026
 ./scripts/restaurar.sh "$HOME/backups-escaperoom/respaldo-AAAAMMDD-HHMM.sql"
 ```
 
+Sin base de destino, el script crea una temporal
+`<MYSQL_DB>_restore_AAAAMMDD_HHMMSS`. También se probó que se niega a pisar
+`escape_room_7b2026` sin `--force`.
+
 También se puede hacer a mano:
 
 ```bash
@@ -772,9 +781,10 @@ sudo mysql -e "DROP DATABASE escape_room_7b2026_restore;"
 
 - Revisar preguntas, opciones y respuestas correctas.
 - Revisar también las descripciones de `intermedio` y `avanzado`.
-- Confirmar en `/admin/dificultades` qué niveles están habilitados y que la bienvenida los muestre. Al 12/11/2026 están habilitados `inicial`, `intermedio` y `avanzado`.
-- Jugar una partida completa de `intermedio` y otra de `avanzado` para confirmar que entran al ranking de su nivel.
-- Hacer un backup.
+- Confirmar en `/admin/dificultades` qué niveles están habilitados y que la bienvenida los muestre. Al 14/11/2026 están habilitados `inicial`, `intermedio` y `avanzado`.
+- Jugar una partida completa de `inicial`, una de `intermedio` y otra de `avanzado` para confirmar que cada una entra al ranking de su nivel. El 14/11/2026 se hizo en una base descartable, sin ensuciar el ranking real.
+- Hacer un backup y probar la restauración.
+- No reejecutar los seeds después de congelar: pisan lo editado desde `/admin`.
 - No cargar contenido nuevo el día de la feria.
 - No ejecutar `apt upgrade` el mismo día.
 
@@ -944,7 +954,9 @@ No cambiar la hora ni la zona **durante** el juego: los tiempos ya registrados s
 sudo systemctl stop escape-room
 ```
 
-y volver a arrancarlo cuando esté conectada.
+y volver a arrancarlo cuando esté conectada. Si se está usando el servidor de
+desarrollo de la feria, alcanza con `Ctrl+C` en la terminal donde corre
+`./scripts/feria.sh` y volver a ejecutar el script.
 
 **No desconectar el cable de red ni cambiar de Wi-Fi** en medio de una estación. Los equipos pierden el envío en curso.
 
@@ -981,7 +993,7 @@ No instalar programas nuevos ni actualizar el kernel durante la feria. No hace f
 
 Una notebook personal es un **punto único de falla**: si se rompe, se pierde, se moja o no arranca, no hay juego.
 
-- Hacer backup de la base antes de la feria y al terminar cada día (sección 10.3), y guardarlo en un pendrive **fuera** de la notebook.
+- Hacer backup de la base antes de la feria y al terminar cada día (sección 10.3), y guardarlo en un pendrive **fuera** de la notebook. El respaldo generado durante la preparación quedó fuera del repositorio; antes de la feria hay que copiarlo a un pendrive o a la nube.
 - Tener una copia del proyecto (el repositorio o un ZIP) y del `.env` en un lugar seguro. El `.env` tiene claves: no va al repositorio, pero sí conviene una copia en un pendrive cifrado o en un gestor de contraseñas.
 - El `.venv` **no es portable** entre máquinas: en la notebook de repuesto se recrea con `python3 -m venv .venv` y `pip install -r requirements.txt`.
 - Probar la restauración (sección 10.4) antes de la feria, no el mismo día.
@@ -1041,19 +1053,22 @@ Esta guía asume **Ubuntu**. Si la notebook del docente tiene Windows, las opcio
 ## 15. Checklist del día de la feria
 
 > Los ítems de `systemd` y del puerto `8000` corresponden a la puesta en
-> producción. Si la feria usa el servidor de desarrollo de Flask, comprobá en su
-> lugar que la app corra con `flask --app app run --debug --host=0.0.0.0` y que
-> el puerto `5000` esté accesible desde la red del aula.
+> producción. La feria del 16/11/2026 usa `./scripts/feria.sh` con el servidor
+> de desarrollo de Flask en el puerto `5000`.
 
 - [ ] Servidor encendido y conectado a la red.
-- [ ] `sudo systemctl status escape-room` activo (o Flask en primer plano).
 - [ ] `sudo systemctl status mysql` activo.
+- [ ] `./scripts/feria.sh` corriendo en una terminal abierta y visible.
+- [ ] `/salud` responde `200` desde la notebook y desde otra máquina.
+- [ ] El `.env` tiene permisos `600` y las claves reales.
 - [ ] Notebooks y televisor en la misma red.
-- [ ] `/ranking` abierto en el televisor, en pantalla completa.
+- [ ] `/ranking` abierto en el televisor, en pantalla completa, actualizándose.
 - [ ] Audio probado en una notebook.
 - [ ] Un equipo de prueba completó una estación.
 - [ ] El ID del equipo se ve en el HUD.
 - [ ] Pistas impresas para los estudiantes.
-- [ ] Backup del día anterior a mano.
+- [ ] Backup del día anterior a mano y copiado fuera de la notebook.
+- [ ] Restauración del backup probada.
+- [ ] Sin Internet, la app, el audio y las imágenes siguen funcionando.
 - [ ] Cargadores y baterías.
 - [ ] Nadie va a actualizar el sistema ni el contenido durante la feria.

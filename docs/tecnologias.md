@@ -233,7 +233,10 @@ url_for("juego.estacion", orden=2)   # /juego/estacion/2
 | Waitress | Producción, **después de la feria**: sin recarga y con varios hilos. | `waitress-serve --call --listen=0.0.0.0:8000 app:create_app` |
 
 ```bash
-# Feria: escucha en todas las interfaces para que entren otras notebooks
+# Feria: un solo comando, con entorno propio en feria2026/
+./scripts/feria.sh
+
+# Equivalente manual: escucha en todas las interfaces
 flask --app app run --debug --host=0.0.0.0
 
 # Producción, después de la feria
@@ -794,7 +797,7 @@ pytest
 Feria:
 
 ```bash
-flask --app app run --debug --host=0.0.0.0
+./scripts/feria.sh
 ```
 
 Producción, después de la feria:

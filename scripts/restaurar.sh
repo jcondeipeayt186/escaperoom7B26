@@ -5,7 +5,7 @@
 #   ./scripts/restaurar.sh <respaldo.sql> [base_destino] [--force]
 #
 # Sin base_destino, crea una nueva con el nombre:
-#   <MYSQL_DB>_restore_AAAAMMDD-HHMMSS
+#   <MYSQL_DB>_restore_AAAAMMDD_HHMMSS
 #
 # Por seguridad:
 #   * No restaura sobre MYSQL_DB sin --force.
@@ -38,7 +38,7 @@ leer_env() {
 uso() {
     echo "Uso: $0 <respaldo.sql> [base_destino] [--force]" >&2
     echo "" >&2
-    echo "  base_destino  por defecto: \${MYSQL_DB}_restore_AAAAMMDD-HHMMSS" >&2
+    echo "  base_destino  por defecto: \${MYSQL_DB}_restore_AAAAMMDD_HHMMSS" >&2
     echo "  --force       permite pisar MYSQL_DB o una base existente" >&2
 }
 
@@ -110,7 +110,7 @@ else
 fi
 
 if [[ -z "$BASE_DESTINO" ]]; then
-    BASE_DESTINO="${MYSQL_DB}_restore_$(date +%Y%m%d-%H%M%S)"
+    BASE_DESTINO="${MYSQL_DB}_restore_$(date +%Y%m%d_%H%M%S)"
 fi
 
 if [[ ! "$BASE_DESTINO" =~ ^[A-Za-z0-9_]+$ ]]; then

@@ -17,6 +17,15 @@
 > producción posterior en `paso13-waitress-y-systemd-post-feria.md`. Docker
 > queda como taller educativo en `paso14-docker-taller-post-feria.md`.
 
+## Estado
+
+Hecho el 14/11/2026. El contenido quedó congelado en `5/14/80/240/9`, con los
+tres niveles habilitados y sin intentos activos. Se generó y se restauró un
+respaldo real en una base limpia, se creó `scripts/feria.sh` y el entorno
+`feria2026/`, y se probó el arranque local. El ensayo físico con tres notebooks
+y el televisor lo hizo el docente y quedó funcionando. No se pudo hacer el
+commit porque el proyecto no está en un repositorio Git.
+
 ## Contexto
 
 La app, el contenido y los tests están listos. Falta dejarla preparada para el
@@ -109,7 +118,7 @@ este paso: se prueban.
 ### `scripts/restaurar.sh`
 
 - Recibe un volcado y, opcionalmente, la base destino.
-- Sin destino, crea `<MYSQL_DB>_restore_AAAAMMDD-HHMMSS`.
+- Sin destino, crea `<MYSQL_DB>_restore_AAAAMMDD_HHMMSS`.
 - Se niega a pisar `MYSQL_DB` o una base existente sin `--force`.
 - Rechaza volcados con `CREATE DATABASE` o `USE` sin `--force`.
 - Restaura en `utf8mb4` y muestra los conteos al final.
@@ -142,7 +151,7 @@ Comportamiento:
 6. Ejecuta `feria2026/bin/python -m flask --app app run --debug
    --host=0.0.0.0 "$@"`.
 
-Contenido completo:
+Contenido base:
 
 ```bash
 #!/usr/bin/env bash
@@ -189,6 +198,11 @@ echo "Para cerrar, presioná Ctrl+C en esta terminal."
 exec "$PYTHON" -m flask --app app run --debug --host=0.0.0.0 "$@"
 ```
 
+El script final en `scripts/feria.sh` agrega chequeos de `python3`, permisos del
+`.env`, creación fallida del entorno y lectura del puerto para mostrar la URL
+correcta. El bloque de arriba es la versión base; la fuente de verdad es el
+archivo del repositorio.
+
 Después de crearlo:
 
 ```bash
@@ -228,21 +242,21 @@ sin protector de pantalla.
 
 ## Criterios de aceptación
 
-- [ ] La app levanta desde cero con `./scripts/feria.sh`.
-- [ ] `/salud` responde `200` con `{"estado": "ok", "base": "ok"}`.
-- [ ] `/admin` entra con `ADMIN_USER` y la clave real.
-- [ ] El contenido está congelado y anotado: `5/14/80/240/9`.
-- [ ] `ADMIN_PASSWORD_HASH` y `FLASK_SECRET_KEY` son reales y no están
+- [x] La app levanta desde cero con `./scripts/feria.sh`.
+- [x] `/salud` responde `200` con `{"estado": "ok", "base": "ok"}`.
+- [x] `/admin` entra con `ADMIN_USER` y la clave real.
+- [x] El contenido está congelado y anotado: `5/14/80/240/9`.
+- [x] `ADMIN_PASSWORD_HASH` y `FLASK_SECRET_KEY` son reales y no están
       versionados.
-- [ ] El `.env` tiene permisos `600` y no está en Git.
-- [ ] `feria2026/` no está en Git y el script no reinstala si ya está todo.
-- [ ] El backup se restaura en una base limpia y los conteos coinciden.
-- [ ] Los scripts de backup y restauración funcionan.
-- [ ] Sin Internet, todo sigue funcionando.
-- [ ] La app responde en `0.0.0.0:5000` y se abre desde otra notebook.
-- [ ] 3 notebooks juegan a la vez sin errores.
-- [ ] El televisor muestra `/ranking` actualizándose.
-- [ ] La terminal del servidor queda abierta y visible.
+- [x] El `.env` tiene permisos `600` y no está en Git.
+- [x] `feria2026/` no está en Git y el script no reinstala si ya está todo.
+- [x] El backup se restaura en una base limpia y los conteos coinciden.
+- [x] Los scripts de backup y restauración funcionan.
+- [x] Sin Internet, todo sigue funcionando.
+- [x] La app responde en `0.0.0.0:5000` y se abre desde otra notebook.
+- [x] 3 notebooks juegan a la vez sin errores.
+- [x] El televisor muestra `/ranking` actualizándose.
+- [x] La terminal del servidor queda abierta y visible.
 
 ## Verificación
 
@@ -291,6 +305,28 @@ El segundo comando debe terminar con error y sin cambios.
 6. Restaurar el backup en una base limpia.
 7. Cronometrar el arranque desde cero con `./scripts/feria.sh`.
 8. Confirmar que el ranking del televisor se actualiza solo.
+
+## Resultado del 14/11/2026
+
+- Congelamiento: `5` estaciones, `14` temas, `80` preguntas, `240` respuestas y
+  `9` claves; `inicial 20`, `intermedio 30`, `avanzado 30`; los tres niveles
+  habilitados y `0` intentos activos. Las partidas de control se jugaron en una
+  base descartable y cada nivel entró a su ranking.
+- Respaldo: `respaldo-escape_room_7b2026-20261114-233156.sql`, con permisos
+  `600`. Se restauró en `escape_room_7b2026_restore_20261114_233217` con
+  `5/14/80/240/9`, `14` introducciones y `80` explicaciones. La base temporal se
+  eliminó y `restaurar.sh` rechazó `escape_room_7b2026` sin `--force`.
+- `.env`: permisos `600`, secreto de 64 caracteres y hash `scrypt`; no se rotó.
+- `feria2026/`: creado y en `.gitignore`. El primer arranque tardó 13 segundos
+  porque instaló las dependencias; el segundo tardó 2 segundos y no reinstaló.
+- `/salud` respondió `200` en `127.0.0.1` y en la IP de red; `/ranking` y
+  `/estadisticas` respondieron `200`.
+- Se corrigió un error de `scripts/restaurar.sh`: el nombre por defecto de la
+  base temporal usaba un guion y la validación solo permitía letras, números y
+  guion bajo. Ahora usa `_restore_AAAAMMDD_HHMMSS`.
+- `pytest -q`: 105 tests.
+- Sin repositorio Git no se pudo crear el commit `docs: feria con flask y
+  respaldo`.
 
 ## Día de la feria
 
